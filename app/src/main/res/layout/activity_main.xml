@@ -20,7 +20,47 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <include layout="@layout/content_main" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Авторизация"
+            android:textColor="@android:color/black"
+            android:textSize="22sp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="25dp"/>
+
+        <Button
+            android:id="@+id/googleBtn"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:text="Google"/>
+
+        <Button
+            android:id="@+id/facebookBtn"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:text="Facebook"/>
+
+        <Button
+            android:id="@+id/appleBtn"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:text="Apple"/>
+
+
+        <Button
+            android:id="@+id/phoneBtn"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:text="Phone"/>
+
+    </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"

@@ -6,8 +6,21 @@ import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
+import by.orangesoft.auth.credentials.firebase.Firebase
+import co.orangesoft.authmanager.credential.PhoneCredential
+import co.orangesoft.authmanager.user.SVBaseUserController
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
+
+    private val loginSuccessListener: (SVBaseUserController) -> Unit  = {
+        Toast.makeText(this, "SUCCESS", Toast.LENGTH_SHORT).show()
+    }
+
+    private val loginErrorListener: (Throwable) -> Unit = {
+        Toast.makeText(this, "ERROR", Toast.LENGTH_SHORT).show()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,6 +31,8 @@ class MainActivity : AppCompatActivity() {
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
         }
+
+        initViews()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -33,6 +48,38 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun initViews() {
+        val authManager = SVAuthManager.getInstance(this)
+
+        googleBtn.setOnClickListener {
+            authManager.login(this, Firebase.Google(getString(R.string.server_client_id))) {
+                onAuthException(loginErrorListener)
+                onAuthSucces(loginSuccessListener)
+            }
+        }
+
+        facebookBtn.setOnClickListener {
+            authManager.login(this, Firebase.Facebook) {
+                onAuthException(loginErrorListener)
+                onAuthSucces(loginSuccessListener)
+            }
+        }
+
+        appleBtn.setOnClickListener {
+            authManager.login(this, Firebase.Apple) {
+                onAuthException(loginErrorListener)
+                onAuthSucces(loginSuccessListener)
+            }
+        }
+
+        phoneBtn.setOnClickListener {
+            authManager.login(this, PhoneCredential("+375000000000", "")) {
+                onAuthException(loginErrorListener)
+                onAuthSucces(loginSuccessListener)
+            }
         }
     }
 }
