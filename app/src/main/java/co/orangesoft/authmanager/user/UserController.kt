@@ -1,8 +1,8 @@
 package co.orangesoft.authmanager.user
 
-import by.orangesoft.auth.user.UserController
+import by.orangesoft.auth.user.BaseUserController
 
-interface SVBaseUserController: UserController<Profile, Settings> {
+interface UserController: BaseUserController<Profile, Settings> {
 
     fun getRefreshToken(): String
 

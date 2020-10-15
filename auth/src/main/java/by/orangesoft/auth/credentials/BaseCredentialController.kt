@@ -6,9 +6,8 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity
 import by.orangesoft.auth.AuthMethod
-import by.orangesoft.auth.credentials.firebase.ComponentCallbackActivity
 
-abstract class CredentialController(val method: AuthMethod) {
+abstract class BaseCredentialController(val method: AuthMethod) {
 
     fun addCredential(listener: CredentialListener.() -> Unit) = addCredential(CredentialListener().apply(listener))
     abstract fun addCredential(listener: CredentialListener)

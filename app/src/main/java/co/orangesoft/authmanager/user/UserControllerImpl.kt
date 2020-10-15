@@ -19,14 +19,14 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 
-class SVUserController(
+class UserControllerImpl(
     private val accountManager: AccountManager,
     val account: Account,
     private val profileService: ProfileService,
     private val firebaseInstance: FirebaseAuth
-): SVBaseUserController {
+): UserController {
 
-    private val TAG = "SVUserController"
+    private val TAG = "UserControllerImpl"
 
     private var _accessToken: String = ""
     private var _refreshToken: String = ""

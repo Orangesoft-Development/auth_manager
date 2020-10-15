@@ -1,6 +1,6 @@
 package co.orangesoft.authmanager.user
 
-import by.orangesoft.auth.user.UserController
+import by.orangesoft.auth.user.BaseUserController
 
 class Profile(
     val id: String,
@@ -12,4 +12,4 @@ class Profile(
 class Settings(
     var customSetting1: String? = null,
     var customSetting2: String? = null
-): UserController.UserSettings
+): BaseUserController.UserSettings

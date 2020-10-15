@@ -1,12 +1,13 @@
-package by.orangesoft.auth.credentials.firebase
+package by.orangesoft.auth.credentials.firebase.controllers
 
 import android.content.Intent
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.FragmentActivity
-import by.orangesoft.auth.credentials.CredentialController
+import by.orangesoft.auth.credentials.BaseCredentialController
 import by.orangesoft.auth.credentials.CredentialListener
 import by.orangesoft.auth.credentials.CredentialResult
+import by.orangesoft.auth.credentials.firebase.Firebase
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -14,7 +15,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.*
 import java.lang.RuntimeException
 
-class GoogleCredentialController(method: Firebase.Google): CredentialController(method) {
+class GoogleCredentialController(method: Firebase.Google): BaseCredentialController(method) {
 
     private lateinit var activityCallback: Task<AuthResult>
 

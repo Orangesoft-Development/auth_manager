@@ -3,17 +3,20 @@ package by.orangesoft.auth.credentials.firebase
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import by.orangesoft.auth.AuthMethod
-import by.orangesoft.auth.credentials.CredentialController
+import by.orangesoft.auth.credentials.BaseCredentialController
 import by.orangesoft.auth.credentials.CredentialResult
-import by.orangesoft.auth.credentials.CredentialsManager
-import by.orangesoft.auth.user.UserController
+import by.orangesoft.auth.credentials.BaseCredentialsManager
+import by.orangesoft.auth.credentials.firebase.controllers.AppleCredentialController
+import by.orangesoft.auth.credentials.firebase.controllers.FacebookCredentialController
+import by.orangesoft.auth.credentials.firebase.controllers.GoogleCredentialController
+import by.orangesoft.auth.user.BaseUserController
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.NoSuchElementException
 import kotlin.collections.HashSet
 
-abstract class FirebaseCredentialsManager<T: UserController<*, *>>: CredentialsManager<T, FirebaseCredentialsManager.FirebaseCredential>() {
+abstract class FirebaseCredentialsManager<T: BaseUserController<*, *>>: BaseCredentialsManager<T, FirebaseCredentialsManager.FirebaseCredential>() {
 
     protected val firebaseInstance: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
@@ -84,10 +87,12 @@ abstract class FirebaseCredentialsManager<T: UserController<*, *>>: CredentialsM
 
     open class CredBuilder(method: AuthMethod): Builder(method) {
 
-        override fun createCredential(method: AuthMethod): CredentialController =
+        override fun createCredential(method: AuthMethod): BaseCredentialController =
             when (method) {
                 is Firebase.Apple       -> AppleCredentialController()
-                is Firebase.Google      -> GoogleCredentialController(method)
+                is Firebase.Google      -> GoogleCredentialController(
+                    method
+                )
                 is Firebase.Facebook    -> FacebookCredentialController()
                 else -> throw UnsupportedOperationException("Method $method is not supported")
             }

@@ -5,7 +5,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import by.orangesoft.auth.AuthListener
 import by.orangesoft.auth.AuthMethod
-import by.orangesoft.auth.user.UserController
+import by.orangesoft.auth.user.BaseUserController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -13,7 +13,7 @@ import java.lang.Exception
 import java.lang.UnsupportedOperationException
 import kotlin.coroutines.CoroutineContext
 
-abstract class CredentialsManager<T: UserController<*, *>, C: Any> (override val coroutineContext: CoroutineContext = Dispatchers.IO): CoroutineScope {
+abstract class BaseCredentialsManager<T: BaseUserController<*, *>, C: Any> (override val coroutineContext: CoroutineContext = Dispatchers.IO): CoroutineScope {
 
     protected val TAG = "CredentialsController"
 
@@ -38,7 +38,7 @@ abstract class CredentialsManager<T: UserController<*, *>, C: Any> (override val
     protected abstract fun getBuilder(method: AuthMethod): Builder
     protected abstract fun getBuilder(credential: C): Builder
 
-    open fun login(activity: FragmentActivity, method: AuthMethod){
+    open fun login(activity: FragmentActivity, method: AuthMethod) {
         getBuilder(method).build(activity).addCredential {
             onAddCredentialSucces {
                 launch {
@@ -107,10 +107,10 @@ abstract class CredentialsManager<T: UserController<*, *>, C: Any> (override val
     open abstract class Builder(private val method: AuthMethod) {
 
         @Throws(UnsupportedOperationException::class)
-        abstract protected fun createCredential(method: AuthMethod): CredentialController
+        abstract protected fun createCredential(method: AuthMethod): BaseCredentialController
 
         @Throws(UnsupportedOperationException::class)
-        fun build(activity: FragmentActivity? = null): CredentialController {
+        fun build(activity: FragmentActivity? = null): BaseCredentialController {
 
             return createCredential(method).apply { activity?.let { setActivity(it) } }
         }

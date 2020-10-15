@@ -8,13 +8,13 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import by.orangesoft.auth.credentials.firebase.Firebase
-import co.orangesoft.authmanager.credential.PhoneCredential
-import co.orangesoft.authmanager.user.SVBaseUserController
+import by.orangesoft.auth.credentials.phone.PhoneAuthMethod
+import co.orangesoft.authmanager.user.UserController
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    private val loginSuccessListener: (SVBaseUserController) -> Unit  = {
+    private val loginSuccessListener: (UserController) -> Unit  = {
         Toast.makeText(this, "SUCCESS", Toast.LENGTH_SHORT).show()
     }
 
@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        val authManager = SVAuthManager.getInstance(this)
+        val authManager = AuthManager.getInstance(this)
 
         googleBtn.setOnClickListener {
             authManager.login(this, Firebase.Google(getString(R.string.server_client_id))) {
@@ -76,7 +76,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         phoneBtn.setOnClickListener {
-            authManager.login(this, PhoneCredential("+375000000000", "")) {
+            authManager.login(this,
+                PhoneAuthMethod(
+                    "+375000000000",
+                    ""
+                )
+            ) {
                 onAuthException(loginErrorListener)
                 onAuthSucces(loginSuccessListener)
             }

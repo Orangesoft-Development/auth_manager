@@ -2,7 +2,7 @@ package by.orangesoft.auth.user
 
 import java.io.File
 
-interface UserController<U, S: UserController.UserSettings> {
+interface BaseUserController<U, S: BaseUserController.UserSettings> {
 
     val profile: U
 

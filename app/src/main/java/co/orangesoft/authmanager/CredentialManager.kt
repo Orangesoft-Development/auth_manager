@@ -9,38 +9,38 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import by.orangesoft.auth.AuthMethod
-import by.orangesoft.auth.credentials.CredentialController
+import by.orangesoft.auth.credentials.BaseCredentialController
 import by.orangesoft.auth.credentials.CredentialResult
 import by.orangesoft.auth.credentials.firebase.*
-import co.orangesoft.authmanager.api.ApiCredentials
+import by.orangesoft.auth.credentials.ApiCredentials
 import co.orangesoft.authmanager.api.AuthService
 import co.orangesoft.authmanager.api.request.LoginRequest
 import co.orangesoft.authmanager.api.ProfileService
 import co.orangesoft.authmanager.api.response.ApiProfile
-import co.orangesoft.authmanager.credential.PhoneCredential
-import co.orangesoft.authmanager.credential.PhoneCredentialController
-import co.orangesoft.authmanager.user.SVBaseUserController
-import co.orangesoft.authmanager.user.SVUnregisteredUserController
-import co.orangesoft.authmanager.user.SVUserController
+import by.orangesoft.auth.credentials.phone.PhoneAuthMethod
+import by.orangesoft.auth.credentials.phone.BasePhoneCredentialController
+import co.orangesoft.authmanager.user.UserController
+import co.orangesoft.authmanager.user.UnregisteredUserControllerImpl
+import co.orangesoft.authmanager.user.UserControllerImpl
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.launch
 import java.lang.Exception
 
-internal class SVCredentialManager(
+internal class CredentialManager(
     private val accountManager: AccountManager,
     private val authService: AuthService,
     private val profileService: ProfileService,
     private val accountType: String,
     private val accountPassword: String = ""
-): FirebaseCredentialsManager<SVBaseUserController>() {
+): FirebaseCredentialsManager<UserController>() {
 
-    override fun getLoggedUser(): SVBaseUserController? =
+    override fun getLoggedUser(): UserController? =
         accountManager.getAccountsByType(accountType).firstOrNull { account ->
             accountManager.getUserData(account, "firebaseUid") == firebaseInstance.currentUser?.uid
         }?.let {
-            SVUserController(accountManager, it, profileService, firebaseInstance)
+            UserControllerImpl(accountManager, it, profileService, firebaseInstance)
         } ?: firebaseInstance.currentUser?.let { user ->
                 var name = user.displayName ?:
                            user.providerData.firstOrNull { it.displayName?.isNotBlank() == true } ?.displayName ?:
@@ -56,10 +56,10 @@ internal class SVCredentialManager(
                         putString("avatarUrl", user.photoUrl.toString())
                     })
                 }
-                SVUserController(accountManager, account, profileService, firebaseInstance)
-            } ?: SVUnregisteredUserController()
+                UserControllerImpl(accountManager, account, profileService, firebaseInstance)
+            } ?: UnregisteredUserControllerImpl()
 
-    override suspend fun onLogged(credentialResult: CredentialResult): SVBaseUserController {
+    override suspend fun onLogged(credentialResult: CredentialResult): UserController {
         try {
             val profile = authService.login(LoginRequest(ApiCredentials.fromCredentialResult(credentialResult)))
             updateFirebaseUser(firebaseInstance.currentUser!!, profile.profile)
@@ -78,22 +78,22 @@ internal class SVCredentialManager(
         }
     }
 
-    override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: SVBaseUserController) {
+    override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: UserController) {
         val profile = authService.addCreds("Bearer ${user.getAccessToken()}", ApiCredentials.fromCredentialResult(credentialResult))
         (credentials as MutableLiveData).postValue(getCredentials())
     }
 
-    override suspend fun onCredentialRemoved(credential: FirebaseCredential, user: SVBaseUserController) {
+    override suspend fun onCredentialRemoved(credential: FirebaseCredential, user: UserController) {
         val profile = authService.removeCreds("Bearer ${user.getAccessToken()}", credential.providerId.replace(".com",""))
         (credentials as MutableLiveData).postValue(getCredentials())
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
-    override fun logout(user: SVBaseUserController) {
+    override fun logout(user: UserController) {
         launch {
             try { authService.logout("Bearer ${user.getAccessToken()}") } catch (e: Exception) {}
             firebaseInstance.signOut()
-            if(user is SVUserController)
+            if(user is UserControllerImpl)
                 accountManager.removeAccountExplicitly(user.account)
 
             listener!!.invoke(getLoggedUser()!!)
@@ -102,11 +102,11 @@ internal class SVCredentialManager(
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
-    override fun deleteUser(user: SVBaseUserController) {
+    override fun deleteUser(user: UserController) {
 
         launch {
             try {
-                if(user is SVUserController) {
+                if(user is UserControllerImpl) {
                     authService.delete("Bearer ${user.getAccessToken()}")
                     accountManager.removeAccountExplicitly(user.account)
                 }
@@ -135,7 +135,7 @@ internal class SVCredentialManager(
         (credentials as MutableLiveData).postValue(getCredentials())
     }
 
-    override fun createUserController(credentialResult: CredentialResult, firebaseInstance: FirebaseAuth): SVBaseUserController = getLoggedUser()!!
+    override fun createUserController(credentialResult: CredentialResult, firebaseInstance: FirebaseAuth): UserController = getLoggedUser()!!
 
 
     override fun getBuilder(method: AuthMethod): Builder =
@@ -147,7 +147,13 @@ internal class SVCredentialManager(
         SVCredBuilder(
             authService,
             when (credential.providerId) {
-                PhoneCredential("", "").providerId -> PhoneCredential("", "")
+                PhoneAuthMethod(
+                    "",
+                    ""
+                ).providerId -> PhoneAuthMethod(
+                    "",
+                    ""
+                )
                 Firebase.Apple.providerId -> Firebase.Apple
                 Firebase.Facebook.providerId -> Firebase.Facebook
                 Firebase.Google("").providerId -> Firebase.Google("")
@@ -157,10 +163,10 @@ internal class SVCredentialManager(
 
     class SVCredBuilder(val authService: AuthService, method: AuthMethod): FirebaseCredentialsManager.CredBuilder(method) {
 
-        override fun createCredential(method: AuthMethod): CredentialController =
+        override fun createCredential(method: AuthMethod): BaseCredentialController =
             when (method) {
-                is PhoneCredential  -> PhoneCredentialController(authService, method)
-                else                -> super.createCredential(method)
+                is PhoneAuthMethod -> PhoneCredentialController(authService, method)
+                else               -> super.createCredential(method)
             }
 
     }

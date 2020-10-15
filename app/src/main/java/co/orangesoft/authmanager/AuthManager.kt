@@ -4,17 +4,15 @@ import android.accounts.AccountManager
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import by.orangesoft.auth.AuthManager
-import by.orangesoft.auth.credentials.CredentialsManager
+import by.orangesoft.auth.BaseAuthManager
+import by.orangesoft.auth.credentials.BaseCredentialsManager
 import by.orangesoft.auth.credentials.firebase.FirebaseCredentialsManager
-import co.orangesoft.authmanager.api.AuthService
 import co.orangesoft.authmanager.api.provideAuthService
 import co.orangesoft.authmanager.api.provideOkHttp
 import co.orangesoft.authmanager.api.provideProfileService
-import co.orangesoft.authmanager.user.SVBaseUserController
-import okhttp3.Interceptor
+import co.orangesoft.authmanager.user.UserController
 
-class SVAuthManager private constructor(credManager: SVCredentialManager): AuthManager<SVBaseUserController, FirebaseCredentialsManager.FirebaseCredential>(credManager as CredentialsManager<SVBaseUserController, FirebaseCredentialsManager.FirebaseCredential>) {
+class AuthManager private constructor(credManager: CredentialManager): BaseAuthManager<UserController, FirebaseCredentialsManager.FirebaseCredential>(credManager as BaseCredentialsManager<UserController, FirebaseCredentialsManager.FirebaseCredential>) {
 
     enum class UserStatus {
         REGISTERED,
@@ -22,9 +20,9 @@ class SVAuthManager private constructor(credManager: SVCredentialManager): AuthM
     }
 
     companion object {
-        fun getInstance(context: Context): SVAuthManager {
-            return SVAuthManager(
-                SVCredentialManager(
+        fun getInstance(context: Context): AuthManager {
+            return AuthManager(
+                CredentialManager(
                     AccountManager.get(context),
                     provideAuthService("http://github.com", provideOkHttp(arrayListOf())),
                     provideProfileService("http://github.com", provideOkHttp(arrayListOf())),

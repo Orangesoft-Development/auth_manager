@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import co.orangesoft.authmanager.api.TokenService
 import co.orangesoft.authmanager.api.request.TokenRequest
-import co.orangesoft.authmanager.user.SVBaseUserController
+import co.orangesoft.authmanager.user.UserController
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.*
@@ -15,7 +15,7 @@ import java.net.HttpURLConnection
 
 class TokenManager(
     private val clientManager: Interceptor,
-    private val user: LiveData<SVBaseUserController>,
+    private val user: LiveData<UserController>,
     private val tokenServiceBaseUrl: String
 ) : Interceptor {
 

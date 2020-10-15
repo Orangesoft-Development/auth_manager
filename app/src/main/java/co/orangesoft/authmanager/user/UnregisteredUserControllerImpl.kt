@@ -4,7 +4,7 @@ import com.facebook.FacebookSdk.getApplicationContext
 import android.provider.Settings.Secure
 import java.io.File
 
-class SVUnregisteredUserController: SVBaseUserController {
+class UnregisteredUserControllerImpl: UserController {
 
     private var _accessToken: String = ""
     private var _refreshToken: String = ""

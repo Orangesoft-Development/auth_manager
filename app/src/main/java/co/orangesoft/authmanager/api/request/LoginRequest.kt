@@ -1,7 +1,7 @@
 package co.orangesoft.authmanager.api.request
 
 import androidx.annotation.Keep
-import co.orangesoft.authmanager.api.ApiCredentials
+import by.orangesoft.auth.credentials.ApiCredentials
 import com.google.firebase.iid.FirebaseInstanceId
 import com.squareup.moshi.Json
 

@@ -1,5 +1,7 @@
 package co.orangesoft.authmanager.api
 
+import by.orangesoft.auth.credentials.ApiCredentials
+import by.orangesoft.auth.credentials.AuthMethod
 import co.orangesoft.authmanager.api.response.ApiProfile
 import co.orangesoft.authmanager.api.request.LoginRequest
 import co.orangesoft.authmanager.api.request.SendSmsRequest

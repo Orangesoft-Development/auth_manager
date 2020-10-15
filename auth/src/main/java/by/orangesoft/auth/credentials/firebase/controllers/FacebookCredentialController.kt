@@ -1,13 +1,12 @@
-package by.orangesoft.auth.credentials.firebase
+package by.orangesoft.auth.credentials.firebase.controllers
 
 import android.content.Intent
-import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
-import androidx.core.app.ComponentActivity
 import androidx.fragment.app.FragmentActivity
-import by.orangesoft.auth.credentials.CredentialController
+import by.orangesoft.auth.credentials.BaseCredentialController
 import by.orangesoft.auth.credentials.CredentialListener
 import by.orangesoft.auth.credentials.CredentialResult
+import by.orangesoft.auth.credentials.firebase.Firebase
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
@@ -18,7 +17,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.*
 import java.lang.RuntimeException
 
-class FacebookCredentialController: CredentialController(Firebase.Facebook) {
+class FacebookCredentialController: BaseCredentialController(Firebase.Facebook) {
 
     private val authInstance: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 

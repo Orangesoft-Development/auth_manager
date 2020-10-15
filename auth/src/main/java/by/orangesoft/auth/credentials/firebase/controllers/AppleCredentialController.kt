@@ -1,11 +1,12 @@
-package by.orangesoft.auth.credentials.firebase
+package by.orangesoft.auth.credentials.firebase.controllers
 
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.FragmentActivity
-import by.orangesoft.auth.credentials.CredentialController
+import by.orangesoft.auth.credentials.BaseCredentialController
 import by.orangesoft.auth.credentials.CredentialListener
 import by.orangesoft.auth.credentials.CredentialResult
+import by.orangesoft.auth.credentials.firebase.Firebase
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
@@ -13,7 +14,7 @@ import com.google.firebase.auth.OAuthProvider
 import java.lang.RuntimeException
 import java.util.*
 
-class AppleCredentialController: CredentialController(Firebase.Apple) {
+class AppleCredentialController: BaseCredentialController(Firebase.Apple) {
 
     private lateinit var activityCallback: Task<AuthResult>
 

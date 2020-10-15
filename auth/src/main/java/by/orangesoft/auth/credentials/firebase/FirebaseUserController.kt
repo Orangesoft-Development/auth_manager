@@ -1,17 +1,17 @@
 package by.orangesoft.auth.credentials.firebase
 
-import by.orangesoft.auth.user.UserController
+import by.orangesoft.auth.user.BaseUserController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import java.io.File
 
-open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth): UserController<FirebaseUser, UserController.UserSettings> {
+open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth): BaseUserController<FirebaseUser, BaseUserController.UserSettings> {
 
     override val profile: FirebaseUser
         get() = firebaseInstance.currentUser!!
 
-    override val settings: UserController.UserSettings by lazy {
-        object : UserController.UserSettings {}
+    override val settings: BaseUserController.UserSettings by lazy {
+        object : BaseUserController.UserSettings {}
     }
 
     override fun update() {

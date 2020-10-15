@@ -4,13 +4,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
-import by.orangesoft.auth.user.UserController
+import by.orangesoft.auth.user.BaseUserController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class AuthListener<T: UserController<*, *>>(private var lifecycleOwner: LifecycleOwner? = null, override val coroutineContext: CoroutineContext = Dispatchers.Main): CoroutineScope,
+class AuthListener<T: BaseUserController<*, *>>(private var lifecycleOwner: LifecycleOwner? = null, override val coroutineContext: CoroutineContext = Dispatchers.Main): CoroutineScope,
     LifecycleObserver {
 
     constructor(unit: AuthListener<T>.()-> Unit):this() {
