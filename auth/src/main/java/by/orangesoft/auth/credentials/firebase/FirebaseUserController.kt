@@ -25,6 +25,6 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth):
         profile.reload()
     }
 
-    override fun getAccessToken(): String =
+    override suspend fun getAccessToken(): String =
         profile.getIdToken(true).result?.token ?: ""
 }

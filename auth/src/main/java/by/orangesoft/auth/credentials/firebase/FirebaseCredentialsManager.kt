@@ -90,13 +90,10 @@ abstract class FirebaseCredentialsManager<T: BaseUserController<*, *>>: BaseCred
         override fun createCredential(method: AuthMethod): BaseCredentialController =
             when (method) {
                 is Firebase.Apple       -> AppleCredentialController()
-                is Firebase.Google      -> GoogleCredentialController(
-                    method
-                )
+                is Firebase.Google      -> GoogleCredentialController(method)
                 is Firebase.Facebook    -> FacebookCredentialController()
                 else -> throw UnsupportedOperationException("Method $method is not supported")
             }
-
     }
 
     data class FirebaseCredential(val uid: String,

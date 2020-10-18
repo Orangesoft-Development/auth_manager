@@ -20,7 +20,10 @@ class UnregisteredUserControllerImpl: UserController {
 
     override fun refresh() {}
 
-    override fun getAccessToken(): String  = _accessToken
+    override fun getAccessToken(listener: (String) -> Unit) {
+        listener.invoke(_accessToken)
+    }
+
     override fun updateAccessToken(token: String) { _accessToken = token }
 
     override fun getRefreshToken(): String = _refreshToken

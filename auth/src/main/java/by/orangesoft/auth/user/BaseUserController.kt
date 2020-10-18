@@ -4,7 +4,7 @@ import java.io.File
 
 interface BaseUserController<U, S: BaseUserController.UserSettings> {
 
-    val profile: U
+    val profile: U?
 
     val settings: S
 
@@ -12,9 +12,7 @@ interface BaseUserController<U, S: BaseUserController.UserSettings> {
     fun updateAvatar(file: File, listener: (Throwable?) -> Unit)
     fun refresh()
 
-    fun getAccessToken(): String
-
+    fun getAccessToken(listener: (String) -> Unit)
 
     interface UserSettings
-
 }

@@ -5,6 +5,7 @@ import by.orangesoft.auth.user.BaseUserController
 class Profile(
     val id: String,
     var name: String? = null,
+    var phoneNumber: String? = null,
     var avatarUrl: String? = null,
     var birthday: String? = null
 )

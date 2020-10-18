@@ -40,7 +40,7 @@ abstract class BaseCredentialsManager<T: BaseUserController<*, *>, C: Any> (over
 
     open fun login(activity: FragmentActivity, method: AuthMethod) {
         getBuilder(method).build(activity).addCredential {
-            onAddCredentialSucces {
+            onAddCredentialSuccess {
                 launch {
                     try {
                         listener?.invoke(onLogged(it))
@@ -64,12 +64,12 @@ abstract class BaseCredentialsManager<T: BaseUserController<*, *>, C: Any> (over
         }
 
         getBuilder(method).build(activity).addCredential {
-            onAddCredentialSucces {
+            onAddCredentialSuccess {
                 launch {
                     try {
                         onCredentialAdded(it, user)
                         listener?.invoke(user)
-                    } catch (e: Exception){
+                    } catch (e: Exception) {
                         onCredentialException.invoke(e)
                     }
                 }
@@ -86,7 +86,7 @@ abstract class BaseCredentialsManager<T: BaseUserController<*, *>, C: Any> (over
         }
 
         getBuilder(credential).build().removeCredential {
-            onRemoveCredentialSucces {
+            onRemoveCredentialSuccess {
                 launch {
                     try {
                         onCredentialRemoved(credential, user)

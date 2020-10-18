@@ -1,7 +1,5 @@
 package co.orangesoft.authmanager.api
 
-import by.orangesoft.auth.credentials.ApiCredentials
-import by.orangesoft.auth.credentials.AuthMethod
 import co.orangesoft.authmanager.api.response.ApiProfile
 import co.orangesoft.authmanager.api.request.LoginRequest
 import co.orangesoft.authmanager.api.request.SendSmsRequest
@@ -18,7 +16,7 @@ interface AuthService {
     fun sendSmsCode(@Body body: SendSmsRequest): Call<ResponseBody>
 
     @POST("/firebase/custom-token")
-    suspend fun createPhoneToken(@Body body: ApiCredentials.Phone): CustomTokenResponse
+    suspend fun createPhoneToken(@Query("methodId") methodId: String?): CustomTokenResponse
 
     @POST("/auth/login")
     suspend fun login(@Body body: LoginRequest): LoginResponse
@@ -30,9 +28,9 @@ interface AuthService {
     suspend fun delete(@Header("Authorization") accessToken: String): Response<Unit>
 
     @POST("/account/auth-credentials")
-    suspend fun addCreds(@Header("Authorization") accessToken: String, @Body credentials: ApiCredentials): ApiProfile
+    suspend fun addCreds(@Header("Authorization") accessToken: String, @Query("methodId") methodId: String?): ApiProfile
 
     @DELETE("/account/auth-credentials/{method}")
-    suspend fun removeCreds(@Header("Authorization") accessToken: String, @Path(value = "method") @AuthMethod method: String): ApiProfile
+    suspend fun removeCreds(@Header("Authorization") accessToken: String, @Path(value = "methodId") methodId: String?): ApiProfile
 
 }

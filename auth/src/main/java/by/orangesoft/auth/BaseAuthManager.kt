@@ -14,11 +14,6 @@ abstract class BaseAuthManager<T: BaseUserController<*, *>, C: Any>(protected va
 
     private var authListener:  AuthListener<T>? = null
 
-    private val credentialListener: AuthListener<T> = AuthListener(Dispatchers.IO) {
-            onAuthSucces(onAuthSuccessListener)
-            onAuthException(onAuthErrorListener)
-        }
-
     protected open val onAuthSuccessListener: (T) -> Unit = {
             (currentUser as MutableLiveData).postValue(it)
 
@@ -33,6 +28,11 @@ abstract class BaseAuthManager<T: BaseUserController<*, *>, C: Any>(protected va
             authListener?.invoke(it)
             authListener = null
         }
+    }
+
+    private val credentialListener: AuthListener<T> = AuthListener(Dispatchers.IO) {
+        onAuthSucces(onAuthSuccessListener)
+        onAuthException(onAuthErrorListener)
     }
 
     init {

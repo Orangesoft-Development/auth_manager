@@ -20,13 +20,11 @@ class AuthManager private constructor(credManager: CredentialManager): BaseAuthM
     }
 
     companion object {
-        fun getInstance(context: Context): AuthManager {
+        fun getInstance(): AuthManager {
             return AuthManager(
                 CredentialManager(
-                    AccountManager.get(context),
                     provideAuthService("http://github.com", provideOkHttp(arrayListOf())),
-                    provideProfileService("http://github.com", provideOkHttp(arrayListOf())),
-                    "co.orangesoft.authmanager", ""
+                    provideProfileService("http://github.com", provideOkHttp(arrayListOf()))
                 )
             )
         }

@@ -42,7 +42,10 @@ class TokenManager(
 
     override fun intercept(chain: Interceptor.Chain): Response {
         // Trying to make request with existing access token
-        val response = chain.proceed(overrideRequest(chain.request(), user.value?.getAccessToken() ?: ""))
+
+        //TODO accessToken thread?
+        //user.value?.getAccessToken() ?: ""
+        val response = chain.proceed(overrideRequest(chain.request(), ""))
 
         // If request is failed by auth error, trying to refresh tokens and make one more request attempt
         return if (response.code == HttpURLConnection.HTTP_UNAUTHORIZED) {
@@ -65,15 +68,17 @@ class TokenManager(
     }
 
     private fun refreshAccessToken(): String? {
-        val accessToken = user.value?.getAccessToken()?.notEmpty() ?: run {
-            Log.e(TAG, "Access token not found")
-            return null
-        }
+//        TODO accessToken thread?
+//        val accessToken = user.value?.getAccessToken()?.notEmpty() ?: run {
+//            Log.e(TAG, "Access token not found")
+//            return null
+//        }
         val refreshToken = user.value?.getRefreshToken()?.notEmpty() ?: run {
             Log.e(TAG, "Refresh token not found")
             return null
         }
-        val currentTokens = TokenRequest(accessToken, refreshToken)
+        //TODO paste access token
+        val currentTokens = TokenRequest("", refreshToken)
         val newTokensResponse = tokenService.updateTokens(currentTokens).execute()
         if(!newTokensResponse.isSuccessful) {
             Log.e("AuthManager", newTokensResponse.errorBody()?.string())

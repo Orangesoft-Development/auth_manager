@@ -8,8 +8,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import by.orangesoft.auth.credentials.firebase.Firebase
-import by.orangesoft.auth.credentials.phone.PhoneAuthMethod
 import co.orangesoft.authmanager.user.UserController
+import com.google.firebase.FirebaseApp
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        val authManager = AuthManager.getInstance(this)
+        val authManager = AuthManager.getInstance()
 
         googleBtn.setOnClickListener {
             authManager.login(this, Firebase.Google(getString(R.string.server_client_id))) {
@@ -70,18 +70,6 @@ class MainActivity : AppCompatActivity() {
 
         appleBtn.setOnClickListener {
             authManager.login(this, Firebase.Apple) {
-                onAuthException(loginErrorListener)
-                onAuthSucces(loginSuccessListener)
-            }
-        }
-
-        phoneBtn.setOnClickListener {
-            authManager.login(this,
-                PhoneAuthMethod(
-                    "+375000000000",
-                    ""
-                )
-            ) {
                 onAuthException(loginErrorListener)
                 onAuthSucces(loginSuccessListener)
             }

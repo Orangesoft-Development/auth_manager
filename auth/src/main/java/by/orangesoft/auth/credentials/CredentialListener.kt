@@ -16,11 +16,11 @@ class CredentialListener constructor(override val coroutineContext: CoroutineCon
     private var onRemoveSucces: ((AuthMethod) -> Unit)? = null
     private var onException: ((Throwable) -> Unit)? = null
 
-    fun onAddCredentialSucces(listener: (CredentialResult) -> Unit) {
+    fun onAddCredentialSuccess(listener: (CredentialResult) -> Unit) {
         onAddSucces = listener
     }
 
-    fun onRemoveCredentialSucces(listener: (AuthMethod) -> Unit) {
+    fun onRemoveCredentialSuccess(listener: (AuthMethod) -> Unit) {
         onRemoveSucces = listener
     }
 
