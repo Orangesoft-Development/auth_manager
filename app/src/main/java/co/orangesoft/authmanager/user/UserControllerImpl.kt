@@ -2,29 +2,31 @@ package co.orangesoft.authmanager.user
 
 import android.net.Uri
 import android.util.Log
+import by.orangesoft.auth.user.BaseUserController
 import co.orangesoft.authmanager.api.request.UpdateProfileRequest
 import co.orangesoft.authmanager.api.ProfileService
 import co.orangesoft.authmanager.api.response.ApiProfile
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
+import kotlin.coroutines.CoroutineContext
 
 class UserControllerImpl(
     private val profileService: ProfileService,
     private val firebaseInstance: FirebaseAuth
-): UserController {
+): UserController, CoroutineScope {
 
     private val TAG = "UserControllerImpl"
+    override val coroutineContext: CoroutineContext = Dispatchers.IO
 
-    //TODO ask about tokens
-    private var _accessToken: String = ""
-    //TODO ask about tokens
-    private var _refreshToken: String = ""
 
     override val profile: Profile? by lazy {
         firebaseInstance.currentUser?.let {
@@ -37,7 +39,7 @@ class UserControllerImpl(
         Settings("customSetting1", "customSetting2")
     }
 
-    override fun update() {
+    override suspend fun update() {
         getAccessToken {
             profileService.patchProfile(it, UpdateProfileRequest(profile?.name, profile?.birthday))
                 .enqueue(object: Callback<ApiProfile> {
@@ -56,7 +58,7 @@ class UserControllerImpl(
         }
     }
 
-    override fun updateAvatar(file: File, listener: (Throwable?) -> Unit) {
+    override suspend fun updateAvatar(file: File, listener: (Throwable?) -> Unit) {
         val body = file.asRequestBody("image/*".toMediaTypeOrNull())
         profile?.avatarUrl = file.absolutePath
 
@@ -96,7 +98,7 @@ class UserControllerImpl(
         }
     }
 
-    override fun refresh() {
+    override suspend fun refresh() {
         getAccessToken { token ->
             profileService.getProfile(token).enqueue(object: Callback<ApiProfile>{
                 override fun onResponse(call: Call<ApiProfile>, response: Response<ApiProfile>) {
@@ -115,27 +117,14 @@ class UserControllerImpl(
         }
     }
 
-    //TODO ask about tokens
-    override fun getRefreshToken(): String {
-        return _refreshToken
-    }
-
-    //TODO ask about tokens
-    override fun updateAccessToken(token: String) {
-        _accessToken = token
-    }
-
-    //TODO ask about tokens
-    override fun updateRefreshToken(token: String) {
-        _refreshToken = token
-    }
-
-    override fun getAccessToken(listener: (String) -> Unit) {
+    override suspend fun getAccessToken(listener: suspend (String) -> Unit) {
         firebaseInstance.currentUser?.getIdToken(true)?.addOnCompleteListener {
-            if  (it.isSuccessful) {
-                listener.invoke(it.result?.token ?: "")
-            } else {
-                Log.e(TAG, "Cannot get access token")
+            launch {
+                if  (it.isSuccessful) {
+                    listener.invoke(it.result?.token ?: "")
+                } else {
+                    Log.e(TAG, "Cannot get access token")
+                }
             }
         }
     }

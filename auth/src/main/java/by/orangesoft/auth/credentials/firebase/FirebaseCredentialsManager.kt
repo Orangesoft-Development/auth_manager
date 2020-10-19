@@ -65,7 +65,7 @@ abstract class FirebaseCredentialsManager<T: BaseUserController<*, *>>: BaseCred
         }
 
         getBuilder(credential).build().removeCredential {
-            onRemoveCredentialSucces {
+            onRemoveCredentialSuccess {
                 launch {
                     onCredentialRemoved(credential, user)
                     listener?.invoke(user)

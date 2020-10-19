@@ -9,13 +9,13 @@ import retrofit2.http.*
 interface ProfileService {
 
     @GET( "/account")
-    fun getProfile(@Header(AUTH_HEADER) accessToken: String): Call<ApiProfile>
+    suspend fun getProfile(@Header(AUTH_HEADER) accessToken: String): ApiProfile
 
     @PATCH( "/account")
-    fun patchProfile(@Header(AUTH_HEADER) accessToken: String, @Body body: UpdateProfileRequest): Call<ApiProfile>
+    suspend fun patchProfile(@Header(AUTH_HEADER) accessToken: String, @Body body: UpdateProfileRequest): ApiProfile
 
     @POST("/account/avatar")
-    fun postProfileAvatar(@Header(AUTH_HEADER) accessToken: String, @Body body: RequestBody): Call<ApiProfile>
+    suspend fun postProfileAvatar(@Header(AUTH_HEADER) accessToken: String, @Body body: RequestBody): ApiProfile
 
     companion object {
         const val AUTH_HEADER = "Authorization"

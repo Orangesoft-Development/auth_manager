@@ -7,17 +7,24 @@ import co.orangesoft.authmanager.api.request.TokenRequest
 import co.orangesoft.authmanager.user.UserController
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.net.HttpURLConnection
+import kotlin.coroutines.CoroutineContext
 
 class TokenManager(
     private val clientManager: Interceptor,
     private val user: LiveData<UserController>,
     private val tokenServiceBaseUrl: String
-) : Interceptor {
+) : Interceptor, CoroutineScope {
+
+    override val coroutineContext: CoroutineContext = Dispatchers.IO
 
     private val okHttp: OkHttpClient by lazy {
         OkHttpClient.Builder()
@@ -43,20 +50,25 @@ class TokenManager(
     override fun intercept(chain: Interceptor.Chain): Response {
         // Trying to make request with existing access token
 
-        //TODO accessToken thread?
-        //user.value?.getAccessToken() ?: ""
-        val response = chain.proceed(overrideRequest(chain.request(), ""))
+        var response: Response? = null
 
-        // If request is failed by auth error, trying to refresh tokens and make one more request attempt
-        return if (response.code == HttpURLConnection.HTTP_UNAUTHORIZED) {
-            synchronized(this) {
-                refreshAccessToken()?.let {
-                    response.close()
-                    chain.proceed(overrideRequest(chain.request(), it))
-                } ?: response
+        launch {
+            withContext(coroutineContext) {
+               user.value?.getAccessToken {
+                    response = chain.proceed(overrideRequest(chain.request(), it))
+
+                    // If request is failed by auth error, trying to refresh tokens and make one more request attempt
+                    if (response?.code == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                        refreshAccessToken {
+                            response?.close()
+                            response = chain.proceed(overrideRequest(chain.request(), it))
+                        }
+                    }
+                }
             }
-        } else
-             response
+        }
+
+        return response ?: throw KotlinNullPointerException("Response is null")
     }
 
     private fun overrideRequest(request: Request, authToken: String): Request {
@@ -67,28 +79,16 @@ class TokenManager(
         return headerBuilder.build()
     }
 
-    private fun refreshAccessToken(): String? {
-//        TODO accessToken thread?
-//        val accessToken = user.value?.getAccessToken()?.notEmpty() ?: run {
-//            Log.e(TAG, "Access token not found")
-//            return null
-//        }
-        val refreshToken = user.value?.getRefreshToken()?.notEmpty() ?: run {
-            Log.e(TAG, "Refresh token not found")
-            return null
-        }
-        //TODO paste access token
-        val currentTokens = TokenRequest("", refreshToken)
-        val newTokensResponse = tokenService.updateTokens(currentTokens).execute()
-        if(!newTokensResponse.isSuccessful) {
-            Log.e("AuthManager", newTokensResponse.errorBody()?.string())
-            return null
-        }
-
-        return newTokensResponse.body()?.let { tokenPair ->
-            user.value!!.updateAccessToken(tokenPair.accessToken)
-            user.value!!.updateRefreshToken(tokenPair.refreshToken)
-            tokenPair.accessToken
+    private suspend fun refreshAccessToken(successListener: () -> Unit) {
+        user.value?.getAccessToken {
+            if (it.isNotEmpty()) {
+                val newTokensResponse = tokenService.updateTokens(it)
+                if(!newTokensResponse.isSuccessful) {
+                    Log.e("AuthManager", newTokensResponse.message())
+                } else {
+                    successListener.invoke()
+                }
+            }
         }
     }
 

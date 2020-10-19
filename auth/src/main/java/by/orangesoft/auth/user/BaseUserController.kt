@@ -8,11 +8,11 @@ interface BaseUserController<U, S: BaseUserController.UserSettings> {
 
     val settings: S
 
-    fun update()
-    fun updateAvatar(file: File, listener: (Throwable?) -> Unit)
-    fun refresh()
+    suspend fun update()
+    suspend fun updateAvatar(file: File, listener: (Throwable?) -> Unit)
+    suspend fun refresh()
 
-    fun getAccessToken(listener: (String) -> Unit)
+    suspend fun getAccessToken(listener: suspend (String) -> Unit)
 
     interface UserSettings
 }

@@ -14,17 +14,18 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth):
         object : BaseUserController.UserSettings {}
     }
 
-    override fun update() {
+    override suspend fun update() {
         firebaseInstance.updateCurrentUser(profile)
     }
 
-    override fun updateAvatar(file: File, listener: (Throwable?) -> Unit) {
+    override suspend fun updateAvatar(file: File, listener: (Throwable?) -> Unit) {
     }
 
-    override fun refresh() {
+    override suspend fun refresh() {
         profile.reload()
     }
 
-    override suspend fun getAccessToken(): String =
-        profile.getIdToken(true).result?.token ?: ""
+    override suspend fun getAccessToken(listener: suspend (String) -> Unit) {
+        listener.invoke(profile.getIdToken(true).result?.token ?: "")
+    }
 }

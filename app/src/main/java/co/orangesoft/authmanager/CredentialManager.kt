@@ -12,8 +12,8 @@ import co.orangesoft.authmanager.api.AuthService
 import co.orangesoft.authmanager.api.request.LoginRequest
 import co.orangesoft.authmanager.api.ProfileService
 import co.orangesoft.authmanager.api.response.ApiProfile
-import co.orangesoft.authmanager.user.UserController
 import co.orangesoft.authmanager.user.UnregisteredUserControllerImpl
+import co.orangesoft.authmanager.user.UserController
 import co.orangesoft.authmanager.user.UserControllerImpl
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -52,17 +52,17 @@ internal class CredentialManager(
 
     //TODO getAccessToken suspend?
     override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: UserController) {
-//        user.getAccessToken {
-//            val profile = authService.addCreds(it, credentialResult.method.providerId)
-//            (credentials as MutableLiveData).postValue(getCredentials())
-//        }
+        user.getAccessToken {
+            val profile = authService.addCreds(it, credentialResult.method.providerId)
+            (credentials as MutableLiveData).postValue(getCredentials())
+        }
     }
 
     override suspend fun onCredentialRemoved(credential: FirebaseCredential, user: UserController) {
-//      user.getAccessToken {
-//          val profile = authService.removeCreds(it, credential.providerId.replace(".com",""))
-//          (credentials as MutableLiveData).postValue(getCredentials())
-//      }
+      user.getAccessToken {
+          val profile = authService.removeCreds(it, credential.providerId.replace(".com",""))
+          (credentials as MutableLiveData).postValue(getCredentials())
+      }
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
@@ -85,8 +85,9 @@ internal class CredentialManager(
         launch {
             try {
                 if(user is UserControllerImpl) {
-                    //TODO accessToken thread?
-                    //authService.delete("Bearer ${user.getAccessToken()}")
+                    user.getAccessToken {
+                        authService.delete(it)
+                    }
                 }
 
                 firebaseInstance.currentUser?.apply {
