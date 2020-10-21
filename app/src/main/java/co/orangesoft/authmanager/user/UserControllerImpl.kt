@@ -2,10 +2,8 @@ package co.orangesoft.authmanager.user
 
 import android.net.Uri
 import android.util.Log
-import by.orangesoft.auth.user.BaseUserController
 import co.orangesoft.authmanager.api.request.UpdateProfileRequest
 import co.orangesoft.authmanager.api.ProfileService
-import co.orangesoft.authmanager.api.response.ApiProfile
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.CoroutineScope
@@ -13,10 +11,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.io.File
+import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
 
 class UserControllerImpl(
@@ -34,27 +30,28 @@ class UserControllerImpl(
         }
     }
 
-    //TODO ask how get settings, get with profile?
+    //TODO ask how get settings, get with profile? and where should stored
     override val settings: Settings by lazy {
         Settings("customSetting1", "customSetting2")
     }
 
     override suspend fun update() {
         getAccessToken {
-            profileService.patchProfile(it, UpdateProfileRequest(profile?.name, profile?.birthday))
-                .enqueue(object: Callback<ApiProfile> {
-                    override fun onResponse(call: Call<ApiProfile>, response: Response<ApiProfile>) {
-                        if (response.isSuccessful) {
-                            updateAccount()
-                        } else {
-                            Log.e(TAG, response.errorBody()?.string())
-                        }
-                    }
+            try {
+                val response = profileService.patchProfile(
+                    it,
+                    UpdateProfileRequest(profile?.name, profile?.birthday)
+                )
 
-                    override fun onFailure(call: Call<ApiProfile>, t: Throwable) {
-                        t.printStackTrace()
-                    }
-                })
+                if (response.isSuccessful) {
+                    updateAccount()
+                } else {
+                    Log.e(TAG, response.message())
+                }
+
+            } catch (e: Exception) {
+                Log.e(TAG, e.message)
+            }
         }
     }
 
@@ -63,28 +60,25 @@ class UserControllerImpl(
         profile?.avatarUrl = file.absolutePath
 
         getAccessToken {
-            profileService.postProfileAvatar(it, body).enqueue(object : Callback<ApiProfile> {
-                override fun onResponse(call: Call<ApiProfile>, response: Response<ApiProfile>) {
-                    if (response.isSuccessful) {
-                        profile?.avatarUrl = response.body()?.avatarUrl
-                        updateAccount()
-                        listener(null)
-                    } else {
-                        val error = response.errorBody()?.string()
-                        Log.e(TAG, error)
-                        profile?.avatarUrl = null
-                        listener(Throwable(error))
-                    }
-                }
+            try {
+                val response = profileService.postProfileAvatar(it, body)
 
-                override fun onFailure(call: Call<ApiProfile>, t: Throwable) {
-                    t.printStackTrace()
+                if (response.isSuccessful) {
+                    profile?.avatarUrl = response.body()?.avatarUrl
+                    updateAccount()
+                    listener(null)
+                } else {
+                    val errorMsg = response.message()
+                    Log.e(TAG, errorMsg)
                     profile?.avatarUrl = null
-                    listener(t)
+                    listener(Throwable(errorMsg))
                 }
-            })
+            } catch (e: Exception) {
+                Log.e(TAG, e.message)
+                profile?.avatarUrl = null
+                listener(e)
+            }
         }
-
     }
 
     private fun updateAccount() {
@@ -100,20 +94,17 @@ class UserControllerImpl(
 
     override suspend fun refresh() {
         getAccessToken { token ->
-            profileService.getProfile(token).enqueue(object: Callback<ApiProfile>{
-                override fun onResponse(call: Call<ApiProfile>, response: Response<ApiProfile>) {
-                    response.body()?.apply {
-                        profile?.let {
-                            it.name = name
-                            it.phoneNumber = phoneNumber
-                            it.avatarUrl = avatarUrl
-                            it.birthday = birthday
-                        }
-                        updateAccount()
-                    }
+            val response = profileService.getProfile(token)
+
+            response.body()?.apply {
+                profile?.let {
+                    it.name = name
+                    it.phoneNumber = phoneNumber
+                    it.avatarUrl = avatarUrl
+                    it.birthday = birthday
                 }
-                override fun onFailure(call: Call<ApiProfile>, t: Throwable) {}
-            })
+                updateAccount()
+            }
         }
     }
 

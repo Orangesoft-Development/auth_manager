@@ -5,6 +5,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import java.io.File
 
+//TODO how to use it? is it necessary?
 open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth): BaseUserController<FirebaseUser, BaseUserController.UserSettings> {
 
     override val profile: FirebaseUser

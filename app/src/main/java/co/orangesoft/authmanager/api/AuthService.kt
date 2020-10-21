@@ -1,25 +1,14 @@
 package co.orangesoft.authmanager.api
 
-import co.orangesoft.authmanager.api.response.ApiProfile
-import co.orangesoft.authmanager.api.request.LoginRequest
-import co.orangesoft.authmanager.api.request.SendSmsRequest
-import co.orangesoft.authmanager.api.response.CustomTokenResponse
-import co.orangesoft.authmanager.api.response.LoginResponse
-import okhttp3.ResponseBody
-import retrofit2.Call
+import by.orangesoft.auth.credentials.CredentialResult
+import co.orangesoft.authmanager.api.response.ProfileResponse
 import retrofit2.Response
 import retrofit2.http.*
 
 interface AuthService {
 
-    @POST("/auth/send-sms")
-    fun sendSmsCode(@Body body: SendSmsRequest): Call<ResponseBody>
-
-    @POST("/firebase/custom-token")
-    suspend fun createPhoneToken(@Query("methodId") methodId: String?): CustomTokenResponse
-
     @POST("/auth/login")
-    suspend fun login(@Body body: LoginRequest): LoginResponse
+    suspend fun login(@Body credentialResult: CredentialResult): ProfileResponse
 
     @POST("/auth/logout")
     suspend fun logout(@Header("Authorization") accessToken: String): Response<Unit>
@@ -28,9 +17,12 @@ interface AuthService {
     suspend fun delete(@Header("Authorization") accessToken: String): Response<Unit>
 
     @POST("/account/auth-credentials")
-    suspend fun addCreds(@Header("Authorization") accessToken: String, @Query("methodId") methodId: String?): ApiProfile
+    suspend fun addCreds(@Header("Authorization") accessToken: String, @Query("methodId") methodId: String?): ProfileResponse
 
     @DELETE("/account/auth-credentials/{method}")
-    suspend fun removeCreds(@Header("Authorization") accessToken: String, @Path(value = "methodId") methodId: String?): ApiProfile
+    suspend fun removeCreds(@Header("Authorization") accessToken: String, @Path(value = "methodId") methodId: String?): ProfileResponse
 
+    companion object {
+        const val AUTH_HEADER = "Authorization"
+    }
 }

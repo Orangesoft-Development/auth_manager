@@ -1,0 +1,59 @@
+{
+  "project_info": {
+    "project_number": "159284128303",
+    "firebase_url": "https://stream-vision-2.firebaseio.com",
+    "project_id": "stream-vision-2",
+    "storage_bucket": "stream-vision-2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:159284128303:android:295d9150169407484ab4da",
+        "android_client_info": {
+          "package_name": "co.orangesoft.authmanager"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "159284128303-b4aomm5pg44e2rnacocki6ch3m1g3hgg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "co.orangesoft.authmanager",
+            "certificate_hash": "bde17701c7954b512c90a1fd52cf7af54a90b516"
+          }
+        },
+        {
+          "client_id": "159284128303-i9cp8n6sre1rq5c4cjfat5cp8s6ig1rh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "co.orangesoft.authmanager",
+            "certificate_hash": "1a41a389b85f0ee6fb64692f203299e386a6628b"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqM2aAefTRmIdgP4W5UUfQsnOsZZUy8a8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "159284128303-haeabapbf2vlhdkfvptnpms67ldck0f3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "159284128303-9troi5mba50e44ei9r3t7p0qgjs5ps6j.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "co.orangesoft.authmanager"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -8,6 +8,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import by.orangesoft.auth.credentials.firebase.Firebase
+import co.orangesoft.authmanager.user.UserController
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {

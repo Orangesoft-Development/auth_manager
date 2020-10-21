@@ -2,7 +2,7 @@ package co.orangesoft.authmanager.api.response
 
 import com.squareup.moshi.Json
 
-data class ApiProfile(
+data class ProfileResponse(
     val id: String,
     val name: String? = null,
     val phoneNumber: String? = null,

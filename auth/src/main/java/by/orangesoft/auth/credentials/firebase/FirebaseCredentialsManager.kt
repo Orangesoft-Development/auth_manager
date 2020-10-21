@@ -46,11 +46,11 @@ abstract class FirebaseCredentialsManager<T: BaseUserController<*, *>>: BaseCred
         (credentials as MutableLiveData).postValue(getCredentials())
     }
 
-    override fun logout(user: T) {
+    override suspend fun logout(user: T) {
         launch { firebaseInstance.signOut() }
     }
 
-    override fun deleteUser(user: T) {
+    override suspend fun deleteUser(user: T) {
         launch {
             firebaseInstance.currentUser?.delete()
             firebaseInstance.signOut()

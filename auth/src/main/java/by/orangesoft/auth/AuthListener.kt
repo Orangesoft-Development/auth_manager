@@ -25,7 +25,7 @@ class AuthListener<T: BaseUserController<*, *>>(private var lifecycleOwner: Life
         apply(unit)
     }
 
-    private var onSucces: ((T) -> Unit)? = null
+    private var onSuccess: ((T) -> Unit)? = null
     private var onException: ((Throwable) -> Unit)? = null
 
     init {
@@ -35,7 +35,7 @@ class AuthListener<T: BaseUserController<*, *>>(private var lifecycleOwner: Life
     }
 
     fun onAuthSucces(listener: (T) -> Unit) {
-        onSucces = listener
+        onSuccess = listener
     }
 
     fun onAuthException(listener: (Throwable) -> Unit) {
@@ -47,7 +47,7 @@ class AuthListener<T: BaseUserController<*, *>>(private var lifecycleOwner: Life
         source.lifecycle.removeObserver(this)
         lifecycleOwner = null
         synchronized(this) {
-            onSucces = null
+            onSuccess = null
             onException = null
         }
     }
@@ -55,7 +55,7 @@ class AuthListener<T: BaseUserController<*, *>>(private var lifecycleOwner: Life
     operator fun invoke(result: T) {
         launch {
             synchronized(this) {
-                onSucces?.invoke(result)
+                onSuccess?.invoke(result)
             }
         }
     }

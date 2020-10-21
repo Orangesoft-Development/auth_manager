@@ -53,9 +53,9 @@ abstract class BaseCredentialsManager<T: BaseUserController<*, *>, C: Any> (over
         }
     }
 
-    abstract fun logout(user: T)
+    abstract suspend fun logout(user: T)
 
-    abstract fun deleteUser(user: T)
+    abstract suspend fun deleteUser(user: T)
 
     open fun addCredential(activity: FragmentActivity, user: T, method: AuthMethod) {
         if(credentials.value?.firstOrNull { it.equals(method) } != null){

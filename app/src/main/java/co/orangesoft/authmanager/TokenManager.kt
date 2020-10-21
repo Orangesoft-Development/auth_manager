@@ -3,7 +3,6 @@ package co.orangesoft.authmanager
 import android.util.Log
 import androidx.lifecycle.LiveData
 import co.orangesoft.authmanager.api.TokenService
-import co.orangesoft.authmanager.api.request.TokenRequest
 import co.orangesoft.authmanager.user.UserController
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -41,7 +40,6 @@ class TokenManager(
     private val tokenService: TokenService by lazy {
         Retrofit.Builder()
             .baseUrl(tokenServiceBaseUrl)
-            .addConverterFactory(MoshiConverterFactory.create(Moshi.Builder().add(KotlinJsonAdapterFactory()).build()))
             .client(okHttp)
             .build()
             .create(TokenService::class.java)
@@ -89,14 +87,6 @@ class TokenManager(
                     successListener.invoke()
                 }
             }
-        }
-    }
-
-    private fun String.notEmpty(): String? {
-        return if (isEmpty()) {
-            null
-        } else {
-            this
         }
     }
 

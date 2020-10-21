@@ -12,16 +12,16 @@ class CredentialListener constructor(override val coroutineContext: CoroutineCon
         apply(unit)
     }
 
-    private var onAddSucces: ((CredentialResult) -> Unit)? = null
-    private var onRemoveSucces: ((AuthMethod) -> Unit)? = null
+    private var onAddSuccess: ((CredentialResult) -> Unit)? = null
+    private var onRemoveSuccess: ((AuthMethod) -> Unit)? = null
     private var onException: ((Throwable) -> Unit)? = null
 
     fun onAddCredentialSuccess(listener: (CredentialResult) -> Unit) {
-        onAddSucces = listener
+        onAddSuccess = listener
     }
 
     fun onRemoveCredentialSuccess(listener: (AuthMethod) -> Unit) {
-        onRemoveSucces = listener
+        onRemoveSuccess = listener
     }
 
     fun onCredentialException(listener: (Throwable) -> Unit) {
@@ -32,7 +32,7 @@ class CredentialListener constructor(override val coroutineContext: CoroutineCon
     operator fun invoke(result: CredentialResult) {
         launch {
             synchronized(this) {
-                onAddSucces?.invoke(result)
+                onAddSuccess?.invoke(result)
             }
         }
     }
@@ -40,7 +40,7 @@ class CredentialListener constructor(override val coroutineContext: CoroutineCon
     operator fun invoke(result: AuthMethod) {
         launch {
             synchronized(this) {
-                onRemoveSucces?.invoke(result)
+                onRemoveSuccess?.invoke(result)
             }
         }
     }

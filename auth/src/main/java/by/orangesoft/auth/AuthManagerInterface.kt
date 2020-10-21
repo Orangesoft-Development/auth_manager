@@ -12,9 +12,9 @@ interface AuthManagerInterface<T : BaseUserController<*, *>, C: Any> {
     fun login(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>? = null)
     fun login(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>.() -> Unit) = login(activity, method, AuthListener<T>(activity).apply(listener))
 
-    fun logout(listener: AuthListener<T>? = null)
+    suspend fun logout(listener: AuthListener<T>? = null)
 
-    fun deleteUser(listener: AuthListener<T>? = null)
+    suspend fun deleteUser(listener: AuthListener<T>? = null)
 
     fun addCredential(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>? = null)
     fun addCredential(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>.() -> Unit) = addCredential(activity, method, AuthListener<T>(activity).apply(listener))

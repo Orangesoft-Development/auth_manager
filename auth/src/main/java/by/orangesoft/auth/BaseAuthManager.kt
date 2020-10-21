@@ -45,13 +45,13 @@ abstract class BaseAuthManager<T: BaseUserController<*, *>, C: Any>(protected va
         credentialsManager.login(activity, method)
     }
 
-    override fun logout(listener: AuthListener<T>?) {
+    override suspend fun logout(listener: AuthListener<T>?) {
         authListener = listener
         credentialsManager.logout(currentUser.value!!)
 
     }
 
-    override fun deleteUser(listener: AuthListener<T>?) {
+    override suspend fun deleteUser(listener: AuthListener<T>?) {
         authListener = listener
         credentialsManager.deleteUser(currentUser.value!!)
     }
