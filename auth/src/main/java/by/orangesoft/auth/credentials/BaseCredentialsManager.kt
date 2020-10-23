@@ -5,6 +5,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import by.orangesoft.auth.AuthListener
 import by.orangesoft.auth.AuthMethod
+import by.orangesoft.auth.credentials.firebase.FirebaseUserController
 import by.orangesoft.auth.user.BaseUserController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,7 +14,7 @@ import java.lang.Exception
 import java.lang.UnsupportedOperationException
 import kotlin.coroutines.CoroutineContext
 
-abstract class BaseCredentialsManager<T: BaseUserController<*, *>, C: Any> (override val coroutineContext: CoroutineContext = Dispatchers.IO): CoroutineScope {
+abstract class BaseCredentialsManager<T: FirebaseUserController<*>, C: Any> (override val coroutineContext: CoroutineContext = Dispatchers.IO): CoroutineScope {
 
     protected val TAG = "CredentialsController"
 

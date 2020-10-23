@@ -3,11 +3,14 @@ package co.orangesoft.authmanager.user
 import android.annotation.SuppressLint
 import com.facebook.FacebookSdk.getApplicationContext
 import android.provider.Settings.Secure
+import by.orangesoft.auth.credentials.firebase.FirebaseUserController
 import by.orangesoft.auth.user.BaseUserController
+import com.google.firebase.auth.FirebaseAuth
 import java.io.File
 
+
 @SuppressLint("HardwareIds")
-class UnregisteredUserControllerImpl: UserController {
+class UnregisteredUserControllerImpl(firebaseInstance: FirebaseAuth): FirebaseUserController<Profile>(firebaseInstance) {
 
     override val profile: Profile by lazy {
         Profile(Secure.getString(getApplicationContext().contentResolver, Secure.ANDROID_ID) ?: "unknown")
@@ -27,7 +30,5 @@ class UnregisteredUserControllerImpl: UserController {
         //do nothing
     }
 
-    override suspend fun getAccessToken(listener: suspend (String) -> Unit) {
-        listener.invoke("")
-    }
+    override suspend fun getAccessToken(): String = ""
 }

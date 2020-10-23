@@ -2,7 +2,9 @@ package co.orangesoft.authmanager.api
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import by.orangesoft.auth.credentials.firebase.FirebaseUserController
 import co.orangesoft.authmanager.TokenManager
+import co.orangesoft.authmanager.user.Profile
 import co.orangesoft.authmanager.user.UserController
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -41,7 +43,7 @@ internal fun provideProfileService(baseUrl: String, okHttpClient: OkHttpClient):
         .create(ProfileService::class.java)
 }
 
-fun provideTokenInterceptor(user: LiveData<UserController>,
+fun provideTokenInterceptor(user: LiveData<FirebaseUserController<Profile>>,
                             tokenServiceBaseUrl: String,
                             interceptors: List<Interceptor>): TokenManager {
     return TokenManager(user, tokenServiceBaseUrl, interceptors)

@@ -12,7 +12,7 @@ interface BaseUserController<U, S: BaseUserController.UserSettings> {
     suspend fun updateAvatar(file: File, listener: (Throwable?) -> Unit)
     suspend fun refresh()
 
-    suspend fun getAccessToken(listener: suspend (String) -> Unit)
+    suspend fun getAccessToken(): String
 
     interface UserSettings
 }

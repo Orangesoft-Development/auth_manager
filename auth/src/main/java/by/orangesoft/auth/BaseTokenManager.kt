@@ -5,9 +5,10 @@ import androidx.lifecycle.LiveData
 import by.orangesoft.auth.user.BaseUserController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.*
+import kotlinx.coroutines.runBlocking
+import okhttp3.Interceptor
+import okhttp3.Request
+import okhttp3.Response
 import java.net.HttpURLConnection
 import kotlin.coroutines.CoroutineContext
 
@@ -21,22 +22,17 @@ abstract class BaseTokenManager<T : BaseUserController<*, *>> (
 
     override fun intercept(chain: Interceptor.Chain): Response {
         // Trying to make request with existing access token
+        var response: Response?
 
-        var response: Response? = null
+        runBlocking {
+            val token = user.value?.getAccessToken() ?: ""
+            response = chain.proceed(overrideRequest(chain.request(), token))
 
-        launch {
-            withContext(coroutineContext) {
-               user.value?.getAccessToken {
-                   //TODO check this
-                    response = chain.proceed(overrideRequest(chain.request(), it))
-
-                    // If request is failed by auth error, trying to refresh tokens and make one more request attempt
-                    if (response?.code == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                        refreshAccessToken {
-                            response?.close()
-                            response = chain.proceed(overrideRequest(chain.request(), it))
-                        }
-                    }
+            // If request is failed by auth error, trying to refresh tokens and make one more request attempt
+            if (response?.code == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                refreshAccessToken {
+                    response?.close()
+                    response = chain.proceed(overrideRequest(chain.request(), token))
                 }
             }
         }
@@ -54,14 +50,13 @@ abstract class BaseTokenManager<T : BaseUserController<*, *>> (
     }
 
     private suspend fun refreshAccessToken(successListener: () -> Unit) {
-        user.value?.getAccessToken {
-            if (it.isNotEmpty()) {
-                val responseModel = updateTokenApi(it)
-                if (!responseModel.isSuccessful) {
-                    Log.e(TAG, responseModel.errorMessage)
-                } else {
-                    successListener.invoke()
-                }
+        val token = user.value?.getAccessToken() ?: ""
+        if (token.isNotEmpty()) {
+            val responseModel = updateTokenApi(token)
+            if (!responseModel.isSuccessful) {
+                Log.e(TAG, responseModel.errorMessage)
+            } else {
+                successListener.invoke()
             }
         }
     }
