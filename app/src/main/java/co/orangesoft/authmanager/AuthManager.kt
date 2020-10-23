@@ -9,6 +9,7 @@ import by.orangesoft.auth.user.BaseUserController
 import co.orangesoft.authmanager.api.provideAuthService
 import co.orangesoft.authmanager.api.provideOkHttp
 import co.orangesoft.authmanager.api.provideProfileService
+import co.orangesoft.authmanager.api.provideTokenInterceptor
 import co.orangesoft.authmanager.user.Profile
 import co.orangesoft.authmanager.user.Settings
 import co.orangesoft.authmanager.user.UserController
@@ -21,31 +22,34 @@ class AuthManager private constructor(credManager: BaseCredentialsManager<UserCo
         UNREGISTERED
     }
 
-    companion object {
-        fun getInstance(): AuthManager {
-            return AuthManager(
-                CredentialManager(
-                    provideAuthService("http://github.com", provideOkHttp(arrayListOf())),
-                    provideProfileService("http://github.com", provideOkHttp(arrayListOf()))
-                )
-            )
-        }
-    }
-
     val userStatus: LiveData<UserStatus> by lazy {
         MutableLiveData<UserStatus>().apply { postValue(
             UserStatus.UNREGISTERED
         ) }
     }
 
-
     init {
-        currentUser.value
         userCredentials.observeForever { creds ->
-            if(creds.isEmpty() || (creds.size == 1 && creds.first().providerId == "firebase"))
+            if (creds.isEmpty() || (creds.size == 1 && creds.first().providerId == "firebase")) {
                 (userStatus as MutableLiveData).postValue(UserStatus.UNREGISTERED)
-            else
+            } else {
                 (userStatus as MutableLiveData).postValue(UserStatus.REGISTERED)
+            }
+        }
+    }
+
+    companion object {
+
+        const val BASE_URL = "http://github.com"
+
+        fun getInstance(): AuthManager {
+
+            return AuthManager(
+                CredentialManager(
+                    provideAuthService(BASE_URL, provideOkHttp()),
+                    provideProfileService(BASE_URL, provideOkHttp())
+                )
+            )
         }
     }
 }

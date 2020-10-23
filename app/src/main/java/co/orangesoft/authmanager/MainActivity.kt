@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val loginErrorListener: (Throwable) -> Unit = {
-        Toast.makeText(this, "ERROR", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

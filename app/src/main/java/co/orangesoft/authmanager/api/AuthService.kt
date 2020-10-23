@@ -21,8 +21,4 @@ interface AuthService {
 
     @DELETE("/account/auth-credentials/{method}")
     suspend fun removeCreds(@Header("Authorization") accessToken: String, @Path(value = "methodId") methodId: String?): ProfileResponse
-
-    companion object {
-        const val AUTH_HEADER = "Authorization"
-    }
 }

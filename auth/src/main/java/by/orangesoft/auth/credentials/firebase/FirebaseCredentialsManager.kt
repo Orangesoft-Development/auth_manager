@@ -30,8 +30,8 @@ abstract class FirebaseCredentialsManager<T: BaseUserController<*, *>>: BaseCred
     }
 
     protected open fun getCredentials(): Set<FirebaseCredential> = firebaseInstance.currentUser?.providerData?.mapNotNull {
-        if(it.providerId!="firebase")
-            FirebaseCredential(it.uid ?: UUID.randomUUID().toString(), it.providerId, it.displayName ?: "", it.photoUrl?.path ?: "", it.email ?: "", it.phoneNumber ?: "")
+        if (it.providerId != "firebase")
+            FirebaseCredential(it.uid, it.providerId, it.displayName ?: "", it.photoUrl?.path ?: "", it.email ?: "", it.phoneNumber ?: "")
         else
             null
     }?.toSet() ?: HashSet()

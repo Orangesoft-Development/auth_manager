@@ -1,10 +1,12 @@
 package co.orangesoft.authmanager.user
 
+import android.annotation.SuppressLint
 import com.facebook.FacebookSdk.getApplicationContext
 import android.provider.Settings.Secure
 import by.orangesoft.auth.user.BaseUserController
 import java.io.File
 
+@SuppressLint("HardwareIds")
 class UnregisteredUserControllerImpl: UserController {
 
     override val profile: Profile by lazy {
@@ -13,10 +15,17 @@ class UnregisteredUserControllerImpl: UserController {
 
     override val settings: Settings by lazy { Settings() }
 
-    override suspend fun update() {}
-    override suspend fun updateAvatar(file: File, listener: (Throwable?) -> Unit) {}
+    override suspend fun update() {
+        //do nothing
+    }
 
-    override suspend fun refresh() {}
+    override suspend fun updateAvatar(file: File, listener: (Throwable?) -> Unit) {
+        //do nothing
+    }
+
+    override suspend fun refresh() {
+        //do nothing
+    }
 
     override suspend fun getAccessToken(listener: suspend (String) -> Unit) {
         listener.invoke("")

@@ -1,12 +1,15 @@
 package co.orangesoft.authmanager.api
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import co.orangesoft.authmanager.TokenManager
+import co.orangesoft.authmanager.user.UserController
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 
-fun provideOkHttp(interceptors: List<Interceptor>): OkHttpClient {
+fun provideOkHttp(interceptors: List<Interceptor> = arrayListOf()): OkHttpClient {
     val builder = OkHttpClient.Builder()
     interceptors.forEach { builder.addInterceptor(it) }
 
@@ -22,7 +25,7 @@ fun provideOkHttp(interceptors: List<Interceptor>): OkHttpClient {
     return builder.build()
 }
 
-fun provideAuthService(baseUrl: String, okHttpClient: OkHttpClient): AuthService {
+internal fun provideAuthService(baseUrl: String, okHttpClient: OkHttpClient): AuthService {
     return Retrofit.Builder()
         .baseUrl(baseUrl)
         .client(okHttpClient)
@@ -36,4 +39,10 @@ internal fun provideProfileService(baseUrl: String, okHttpClient: OkHttpClient):
         .client(okHttpClient)
         .build()
         .create(ProfileService::class.java)
+}
+
+fun provideTokenInterceptor(user: LiveData<UserController>,
+                            tokenServiceBaseUrl: String,
+                            interceptors: List<Interceptor>): TokenManager {
+    return TokenManager(user, tokenServiceBaseUrl, interceptors)
 }
