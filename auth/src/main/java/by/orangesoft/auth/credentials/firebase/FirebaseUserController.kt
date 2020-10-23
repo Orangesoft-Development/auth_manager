@@ -1,32 +1,51 @@
 package by.orangesoft.auth.credentials.firebase
 
+import android.util.Log
 import by.orangesoft.auth.user.BaseUserController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.File
+import kotlin.coroutines.CoroutineContext
 
-//TODO how to use it? is it necessary?
-open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth): BaseUserController<FirebaseUser, BaseUserController.UserSettings> {
+abstract class FirebaseUserController<PROFILE>(protected val firebaseInstance: FirebaseAuth): BaseUserController<PROFILE, BaseUserController.UserSettings> {
 
-    override val profile: FirebaseUser
-        get() = firebaseInstance.currentUser!!
+    abstract override val profile: PROFILE?
 
-    override val settings: BaseUserController.UserSettings by lazy {
+    override val settings by lazy {
         object : BaseUserController.UserSettings {}
     }
 
+    val currentUser: FirebaseUser? = firebaseInstance.currentUser
+
     override suspend fun update() {
-        firebaseInstance.updateCurrentUser(profile)
+        currentUser?.let {
+            firebaseInstance.updateCurrentUser(it)
+        }
     }
 
     override suspend fun updateAvatar(file: File, listener: (Throwable?) -> Unit) {
     }
 
     override suspend fun refresh() {
-        profile.reload()
+        currentUser?.reload()
     }
 
-    override suspend fun getAccessToken(listener: suspend (String) -> Unit) {
-        listener.invoke(profile.getIdToken(true).result?.token ?: "")
+    override suspend fun getAccessToken(): String {
+        var token = ""
+        runBlocking {
+            firebaseInstance.currentUser?.getIdToken(true)?.addOnCompleteListener {
+                if  (it.isSuccessful) {
+                    token = it.result?.token ?: ""
+                } else {
+                    Log.e("FirebaseUserController", "Cannot get access token")
+                }
+            }
+        }
+
+        return token
     }
 }

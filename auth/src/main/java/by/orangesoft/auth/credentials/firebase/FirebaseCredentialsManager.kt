@@ -9,14 +9,13 @@ import by.orangesoft.auth.credentials.BaseCredentialsManager
 import by.orangesoft.auth.credentials.firebase.controllers.AppleCredentialController
 import by.orangesoft.auth.credentials.firebase.controllers.FacebookCredentialController
 import by.orangesoft.auth.credentials.firebase.controllers.GoogleCredentialController
-import by.orangesoft.auth.user.BaseUserController
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.NoSuchElementException
 import kotlin.collections.HashSet
 
-abstract class FirebaseCredentialsManager<T: BaseUserController<*, *>>: BaseCredentialsManager<T, FirebaseCredentialsManager.FirebaseCredential>() {
+abstract class FirebaseCredentialsManager<T: FirebaseUserController<*>>: BaseCredentialsManager<T, FirebaseCredentialsManager.FirebaseCredential>() {
 
     protected val firebaseInstance: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 

@@ -6,10 +6,7 @@ import co.orangesoft.authmanager.api.TokenService
 import co.orangesoft.authmanager.user.UserController
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -29,7 +26,9 @@ class TokenManager(
         OkHttpClient.Builder()
             .addInterceptor(clientManager)
             .addInterceptor(HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
-                override fun log(message: String) { Log.d("TokenApi", message) }
+                override fun log(message: String) {
+                    Log.d("TokenApi", message)
+                }
             }).apply {
                 setLevel(HttpLoggingInterceptor.Level.BODY)
             })
@@ -47,21 +46,17 @@ class TokenManager(
 
     override fun intercept(chain: Interceptor.Chain): Response {
         // Trying to make request with existing access token
+        var response: Response?
 
-        var response: Response? = null
+        runBlocking {
+            val token = user.value?.getAccessToken() ?: ""
+            response = chain.proceed(overrideRequest(chain.request(), token))
 
-        launch {
-            withContext(coroutineContext) {
-               user.value?.getAccessToken {
-                    response = chain.proceed(overrideRequest(chain.request(), it))
-
-                    // If request is failed by auth error, trying to refresh tokens and make one more request attempt
-                    if (response?.code == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                        refreshAccessToken {
-                            response?.close()
-                            response = chain.proceed(overrideRequest(chain.request(), it))
-                        }
-                    }
+            // If request is failed by auth error, trying to refresh tokens and make one more request attempt
+            if (response?.code == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                refreshAccessToken {
+                    response?.close()
+                    response = chain.proceed(overrideRequest(chain.request(), token))
                 }
             }
         }
@@ -70,22 +65,21 @@ class TokenManager(
     }
 
     private fun overrideRequest(request: Request, authToken: String): Request {
-        val headerBuilder =  request.newBuilder()
-        if(authToken.isNotBlank())
+        val headerBuilder = request.newBuilder()
+        if (authToken.isNotBlank())
             headerBuilder.header(AUTH, "$BEARER $authToken")
 
         return headerBuilder.build()
     }
 
     private suspend fun refreshAccessToken(successListener: () -> Unit) {
-        user.value?.getAccessToken {
-            if (it.isNotEmpty()) {
-                val newTokensResponse = tokenService.updateTokens(it)
-                if(!newTokensResponse.isSuccessful) {
-                    Log.e("AuthManager", newTokensResponse.message())
-                } else {
-                    successListener.invoke()
-                }
+        val token = user.value?.getAccessToken() ?: ""
+        if (token.isNotEmpty()) {
+            val newTokensResponse = tokenService.updateTokens(token)
+            if (!newTokensResponse.isSuccessful) {
+                Log.e("AuthManager", newTokensResponse.message())
+            } else {
+                successListener.invoke()
             }
         }
     }
