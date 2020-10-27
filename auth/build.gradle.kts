@@ -40,10 +40,10 @@ dependencies {
     implementation(Depends.Kotlin.core)
     implementation(Depends.Kotlin.extensions)
 
-    implementation("androidx.activity:activity:1.2.0-alpha08")
-    implementation("androidx.activity:activity-ktx:1.2.0-alpha08")
     implementation(Depends.BaseAndroid.appcompat)
     implementation(Depends.BaseAndroid.annotations)
+    implementation(Depends.BaseAndroid.activityKtx)
+    implementation(Depends.BaseAndroid.fragments)
 
     implementation(Depends.Coroutines.core)
     implementation(Depends.Coroutines.android)

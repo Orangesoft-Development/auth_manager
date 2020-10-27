@@ -7,7 +7,7 @@ buildscript {
         classpath(Depends.BuildPlugins.gradlePlugin)
         classpath(Depends.BuildPlugins.kotlinPlugin)
         classpath(Depends.BuildPlugins.mavenGradlePlugin)
-        classpath("com.google.gms:google-services:4.3.3")
+        classpath(Depends.BuildPlugins.googleServices)
     }
 }
 

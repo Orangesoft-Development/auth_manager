@@ -11,6 +11,7 @@ object Versions {
     }
     
     const val kotlin = "1.3.61"
+    const val googleServices = "4.3.3"
 
     const val ktxVersion = "1.2.+"
 
@@ -33,40 +34,21 @@ object Versions {
     const val arch_core_testing = "2.0.1"
     const val espresso = "3.3.0"
 
-
-
-    const val navigation = "2.3.0"
-
-    const val navigationVersion = "2.3.0"
     const val searchablePaging = "1.0.5"
-    const val transition = "1.3.1"
 
     const val lifecycle = "2.2.0"
     const val constraintLayout = "2.0.+"
     const val fragments = "1.3.0-alpha08"
-    const val swipeToRefresh = "1.0.0"
+    const val activityKtx = "1.2.0-alpha08"
+    const val annotations = "1.1.0"
+    const val cardView = "1.0.0"
 
     const val moshi = "1.8.0"
-    const val glide = "4.11.0"
     const val bindingCollections = "4.0.0"
 
-    const val di = "2.25.4"
-
-    const val swipeLayout = "1.2.0@aar"
-
-    const val pinEntry = "2.0.6"
-
-    const val firebaseAnalytics = "17.4.4"
     const val firebaseAuth = "19.3.2"
-    const val crashlytics = "17.1.1"
     const val facebookAuth = "7.1.0"
 
     const val playServices = "18.1.0"
 
-    const val handy = "0.1.1"
-
-    const val inputMask = "6.0.0"
-    const val worker = "2.3.4"
-
-    const val lokalise = "2.0.0-beta-6"
 }

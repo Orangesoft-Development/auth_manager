@@ -88,8 +88,6 @@ dependencies {
     androidTestImplementation(Depends.Test.arch_core_testing)
     androidTestImplementation(Depends.Test.espresso)
 
-
-
     implementation(Depends.BaseAndroid.constraint)
     implementation(Depends.BaseAndroid.cardview)
     implementation(Depends.BaseAndroid.annotations)
