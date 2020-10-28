@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
 import co.orangesoft.authmanager.TokenManager
 import co.orangesoft.authmanager.user.Profile
-import co.orangesoft.authmanager.user.UserController
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

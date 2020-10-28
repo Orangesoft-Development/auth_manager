@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class AuthListener<T: BaseUserController<*, *>>(private var lifecycleOwner: LifecycleOwner? = null, override val coroutineContext: CoroutineContext = Dispatchers.Main): CoroutineScope,
+class AuthListener<T: BaseUserController<*>>(private var lifecycleOwner: LifecycleOwner? = null, override val coroutineContext: CoroutineContext = Dispatchers.Main): CoroutineScope,
     LifecycleObserver {
 
     constructor(unit: AuthListener<T>.()-> Unit):this() {

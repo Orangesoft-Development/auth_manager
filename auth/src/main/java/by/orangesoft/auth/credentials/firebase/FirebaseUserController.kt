@@ -4,20 +4,14 @@ import android.util.Log
 import by.orangesoft.auth.user.BaseUserController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.runBlocking
 import java.io.File
-import kotlin.coroutines.CoroutineContext
 
-abstract class FirebaseUserController<PROFILE>(protected val firebaseInstance: FirebaseAuth): BaseUserController<PROFILE, BaseUserController.UserSettings> {
+abstract class FirebaseUserController<T>(protected val firebaseInstance: FirebaseAuth)
+    : BaseUserController<T> {
 
-    abstract override val profile: PROFILE?
-
-    override val settings by lazy {
-        object : BaseUserController.UserSettings {}
-    }
+    abstract override var profile: T?
 
     val currentUser: FirebaseUser? = firebaseInstance.currentUser
 
@@ -48,5 +42,15 @@ abstract class FirebaseUserController<PROFILE>(protected val firebaseInstance: F
         }
 
         return token
+    }
+
+    override fun updateAccount(function: (UserProfileChangeRequest.Builder) -> Unit) {
+        firebaseInstance.currentUser?.apply {
+            updateProfile(UserProfileChangeRequest.Builder().also {
+                function.invoke(it)
+            }.build()).addOnSuccessListener {
+                firebaseInstance.updateCurrentUser(this)
+            }
+        }
     }
 }

@@ -1,12 +1,11 @@
 package by.orangesoft.auth.user
 
+import com.google.firebase.auth.UserProfileChangeRequest
 import java.io.File
 
-interface BaseUserController<U, S: BaseUserController.UserSettings> {
+interface BaseUserController<T> {
 
-    val profile: U?
-
-    val settings: S
+    val profile: T?
 
     suspend fun update()
     suspend fun updateAvatar(file: File, listener: (Throwable?) -> Unit)
@@ -14,5 +13,5 @@ interface BaseUserController<U, S: BaseUserController.UserSettings> {
 
     suspend fun getAccessToken(): String
 
-    interface UserSettings
+    fun updateAccount(function: (UserProfileChangeRequest.Builder) -> Unit)
 }

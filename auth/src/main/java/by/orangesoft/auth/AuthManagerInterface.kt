@@ -4,7 +4,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import by.orangesoft.auth.user.BaseUserController
 
-interface AuthManagerInterface<T : BaseUserController<*, *>, C: Any> {
+interface AuthManagerInterface<T : BaseUserController<*>, C: Any> {
 
     val currentUser: LiveData<T>
     val userCredentials: LiveData<Set<C>>

@@ -3,10 +3,8 @@ package co.orangesoft.authmanager.user
 import android.net.Uri
 import android.util.Log
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
-import co.orangesoft.authmanager.api.request.UpdateProfileRequest
 import co.orangesoft.authmanager.api.ProfileService
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -23,23 +21,13 @@ class UserControllerImpl(
     private val TAG = "UserControllerImpl"
     override val coroutineContext: CoroutineContext = Dispatchers.IO
 
-    override val profile: Profile? by lazy {
-        firebaseInstance.currentUser?.let {
-            Profile(it.uid, it.displayName, it.phoneNumber)
-        }
-    }
-
-    //TODO ask how get settings, get with profile? and should stored in prefs
-    override val settings: Settings by lazy {
-        Settings("customSetting1", "customSetting2")
+    override var profile: Profile? = firebaseInstance.currentUser?.let {
+        Profile(it.uid, it.displayName, it.phoneNumber)
     }
 
     override suspend fun update() {
         try {
-            val response = profileService.patchProfile(
-                getAccessToken(),
-                UpdateProfileRequest(profile?.name, profile?.birthday)
-            )
+            val response = profileService.patchProfile(getAccessToken(), profile!!)
 
             if (response.isSuccessful) {
                 updateAccount()
@@ -64,40 +52,35 @@ class UserControllerImpl(
                 updateAccount()
                 listener(null)
             } else {
-                val errorMsg = response.message()
-                Log.e(TAG, errorMsg)
                 profile?.avatarUrl = null
-                listener(Throwable(errorMsg))
+                listener(Throwable(response.message()))
             }
         } catch (e: Exception) {
-            Log.e(TAG, e.message)
             profile?.avatarUrl = null
             listener(e)
         }
     }
 
-    private fun updateAccount() {
-        firebaseInstance.currentUser?.apply {
-            updateProfile(UserProfileChangeRequest.Builder().also {
-                it.displayName = profile?.name
-                it.photoUri = Uri.parse(profile?.avatarUrl ?: "")
-            }.build()).addOnSuccessListener {
-                firebaseInstance.updateCurrentUser(this)
+    override suspend fun refresh() {
+        try {
+            val response = profileService.getProfile(getAccessToken())
+
+            if (response.isSuccessful) {
+                profile = response.body()
+                updateAccount()
+            } else {
+                Log.e(TAG, response.message())
             }
+
+        } catch (e: Exception) {
+            Log.e(TAG, e.message)
         }
     }
 
-    override suspend fun refresh() {
-        val response = profileService.getProfile(getAccessToken())
-
-        response.body()?.apply {
-            profile?.let {
-                it.name = name
-                it.phoneNumber = phoneNumber
-                it.avatarUrl = avatarUrl
-                it.birthday = birthday
-            }
-            updateAccount()
+    private fun updateAccount() {
+        updateAccount {
+            it.displayName = profile?.name
+            it.photoUri = Uri.parse(profile?.avatarUrl ?: "")
         }
     }
 }

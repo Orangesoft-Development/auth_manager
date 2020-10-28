@@ -8,10 +8,8 @@ import by.orangesoft.auth.credentials.CredentialResult
 import by.orangesoft.auth.credentials.firebase.Firebase
 import by.orangesoft.auth.credentials.firebase.FirebaseCredentialsManager
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
-import by.orangesoft.auth.user.BaseUserController
 import co.orangesoft.authmanager.api.AuthService
 import co.orangesoft.authmanager.api.ProfileService
-import co.orangesoft.authmanager.api.response.ProfileResponse
 import co.orangesoft.authmanager.user.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -24,13 +22,6 @@ internal class CredentialManager(
 
     override fun getLoggedUser(): FirebaseUserController<Profile> =
         firebaseInstance.currentUser?.let { user ->
-                var name = user.displayName ?:
-                           user.providerData.firstOrNull { it.displayName?.isNotBlank() == true } ?.displayName ?:
-                           user.providerData.firstOrNull { it.phoneNumber?.isNotBlank() == true || it.email?.isNotBlank() == true }.let { it?.phoneNumber ?: it?.email }
-
-                if (name.isNullOrBlank())
-                    name = "Unknown"
-
                 UserControllerImpl(profileService, firebaseInstance)
             } ?: UnregisteredUserControllerImpl(firebaseInstance)
 
@@ -74,7 +65,7 @@ internal class CredentialManager(
             Log.e(TAG, e.message)
         }
 
-        listener!!.invoke(getLoggedUser()!!)
+        listener!!.invoke(getLoggedUser())
         (credentials as MutableLiveData).postValue(getCredentials())
     }
 
@@ -89,7 +80,7 @@ internal class CredentialManager(
                             delete()
                         }
                         (credentials as MutableLiveData).postValue(getCredentials())
-                        listener!!.invoke(getLoggedUser()!!)
+                        listener!!.invoke(getLoggedUser())
                     } else {
                         listener!!.invoke(Throwable(response.message()))
                     }
@@ -100,12 +91,13 @@ internal class CredentialManager(
         }
     }
 
-    private fun updateFirebaseUser(user: FirebaseUser, profileResponse: ProfileResponse) {
+    //TODO check the same thing in updateAccount() in FirebaseUserController
+    private fun updateFirebaseUser(user: FirebaseUser, profile: Profile) {
         user.updateProfile(
             UserProfileChangeRequest.Builder()
                 .apply {
-                    displayName = profileResponse.name
-                    photoUri = Uri.parse(profileResponse.avatarUrl ?: "")
+                    displayName = profile.name
+                    photoUri = Uri.parse(profile.avatarUrl ?: "")
                 }.build()
         ).addOnFailureListener { Log.e(TAG, "Unable update firebase profile", it) }
 
@@ -126,6 +118,4 @@ internal class CredentialManager(
                 else -> throw UnsupportedOperationException("Method $credential is not supported")
             }
         )
-
-
 }

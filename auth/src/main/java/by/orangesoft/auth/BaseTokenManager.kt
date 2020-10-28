@@ -12,7 +12,7 @@ import okhttp3.Response
 import java.net.HttpURLConnection
 import kotlin.coroutines.CoroutineContext
 
-abstract class BaseTokenManager<T : BaseUserController<*, *>> (
+abstract class BaseTokenManager<T : BaseUserController<*>> (
     private val user: LiveData<T>,
     protected open val AUTH_HEADER: String = DEFAULT_AUTH_HEADER,
     protected open val TOKEN_PREFIX: String = DEFAULT_TOKEN_PREFIX
