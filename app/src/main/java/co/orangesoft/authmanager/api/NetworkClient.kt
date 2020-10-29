@@ -42,8 +42,8 @@ internal fun provideProfileService(baseUrl: String, okHttpClient: OkHttpClient):
         .create(ProfileService::class.java)
 }
 
-fun provideTokenInterceptor(user: LiveData<FirebaseUserController<Profile>>,
+fun provideTokenInterceptor(user: FirebaseUserController<Profile>,
                             tokenServiceBaseUrl: String,
-                            interceptors: List<Interceptor>): TokenManager {
+                            interceptors: List<Interceptor> = arrayListOf()): TokenManager {
     return TokenManager(user, tokenServiceBaseUrl, interceptors)
 }

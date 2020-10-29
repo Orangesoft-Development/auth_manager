@@ -8,8 +8,6 @@ import by.orangesoft.auth.credentials.firebase.FirebaseCredentialsManager
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.provideAuthService
 import co.orangesoft.authmanager.api.provideOkHttp
-import co.orangesoft.authmanager.api.provideProfileService
-import co.orangesoft.authmanager.api.provideTokenInterceptor
 import co.orangesoft.authmanager.user.Profile
 
 class AuthManager private constructor(credManager: BaseCredentialsManager<FirebaseUserController<Profile>, FirebaseCredentialsManager.FirebaseCredential>)
@@ -41,13 +39,7 @@ class AuthManager private constructor(credManager: BaseCredentialsManager<Fireba
         const val BASE_URL = "http://github.com"
 
         fun getInstance(): AuthManager {
-
-            return AuthManager(
-                CredentialManager(
-                    provideAuthService(BASE_URL, provideOkHttp()),
-                    provideProfileService(BASE_URL, provideOkHttp())
-                )
-            )
+            return AuthManager(CredentialManager(provideAuthService(BASE_URL, provideOkHttp())))
         }
     }
 }

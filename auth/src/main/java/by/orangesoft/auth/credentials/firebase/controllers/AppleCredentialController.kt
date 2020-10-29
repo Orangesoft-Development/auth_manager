@@ -31,7 +31,7 @@ class AppleCredentialController: BaseCredentialController(Firebase.Apple) {
         authInstance.currentUser?.let { user ->
             user.providerData.firstOrNull { it.providerId == method.providerId }?.let {
                 user.getIdToken(true)
-                    .addOnSuccessListener { listener(CredentialResult(method, it.token!!)) }
+                    .addOnSuccessListener { listener(CredentialResult(method, it.token ?: "")) }
                     .addOnFailureListener {
                         authInstance.signOut()
                         addCredential(listener)
@@ -47,14 +47,17 @@ class AppleCredentialController: BaseCredentialController(Firebase.Apple) {
 
         activityCallback
             .addOnSuccessListener { result ->
-                if(result.user == null) {
-                    listener(RuntimeException("Firebase user is NULL"))
-                    return@addOnSuccessListener
-                }
+                val user = result.user
 
-                result.user!!.getIdToken(true)
-                    .addOnSuccessListener { listener(CredentialResult(method, it.token!!)) }
-                    .addOnFailureListener { listener(it) }
+                if (user == null) {
+                    listener(KotlinNullPointerException("Firebase user is NULL"))
+                    return@addOnSuccessListener
+
+                } else {
+                    user.getIdToken(true)
+                        .addOnSuccessListener { listener(CredentialResult(method, it.token ?: "")) }
+                        .addOnFailureListener { listener(it) }
+                }
             }
             .addOnFailureListener { listener(it) }
     }

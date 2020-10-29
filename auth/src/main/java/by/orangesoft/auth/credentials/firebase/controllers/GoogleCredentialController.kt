@@ -37,7 +37,7 @@ class GoogleCredentialController(method: Firebase.Google): BaseCredentialControl
         authInstance.currentUser?.let { user ->
             user.providerData.firstOrNull { it.providerId == method.providerId }?.let {
                 user.getIdToken(true)
-                    .addOnSuccessListener { listener(CredentialResult(method, it.token!!)) }
+                    .addOnSuccessListener { listener(CredentialResult(method, it.token ?: "")) }
                     .addOnFailureListener {
                         authInstance.signOut()
                         addCredential(listener)
@@ -47,7 +47,6 @@ class GoogleCredentialController(method: Firebase.Google): BaseCredentialControl
         }
 
         if (!::activityCallback.isInitialized) {
-            Log.e("GoogleCredentialController", "suspend call")
             addCredListener = listener
             return
         }
@@ -59,9 +58,9 @@ class GoogleCredentialController(method: Firebase.Google): BaseCredentialControl
             .addOnSuccessListener { result ->
                 result.user?.let { user ->
                     user.getIdToken(true)
-                        .addOnSuccessListener { listener(CredentialResult(method, it.token!!)) }
+                        .addOnSuccessListener { listener(CredentialResult(method, it.token ?: "")) }
                         .addOnFailureListener { listener(it) }
-                } ?: listener(RuntimeException("Firebase user is NULL"))
+                } ?: listener(KotlinNullPointerException("Firebase user is NULL"))
             }
 
         addCredListener = null
@@ -78,7 +77,7 @@ class GoogleCredentialController(method: Firebase.Google): BaseCredentialControl
     }
 
     override fun createProvider(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {
-        activityLauncher?.launch(googleSingInClient(activity).signInIntent)
+        activityLauncher.launch(googleSingInClient(activity).signInIntent)
     }
 
     override fun onActivityResult(code: Int, data: Intent?) {

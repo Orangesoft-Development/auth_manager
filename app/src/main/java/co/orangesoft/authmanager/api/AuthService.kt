@@ -8,7 +8,7 @@ import retrofit2.http.*
 interface AuthService {
 
     @POST("/auth/login")
-    suspend fun login(@Body credentialResult: CredentialResult): Profile
+    suspend fun login(@Body credentialResult: CredentialResult): Response<Profile>
 
     @POST("/auth/logout")
     suspend fun logout(@Header("Authorization") accessToken: String): Response<Unit>
@@ -17,8 +17,8 @@ interface AuthService {
     suspend fun delete(@Header("Authorization") accessToken: String): Response<Unit>
 
     @POST("/account/auth-credentials")
-    suspend fun addCreds(@Header("Authorization") accessToken: String, @Query("methodId") methodId: String?): Profile
+    suspend fun addCreds(@Header("Authorization") accessToken: String, @Query("methodId") methodId: String?): Response<Profile>
 
     @DELETE("/account/auth-credentials/{method}")
-    suspend fun removeCreds(@Header("Authorization") accessToken: String, @Path(value = "methodId") methodId: String?): Profile
+    suspend fun removeCreds(@Header("Authorization") accessToken: String, @Path(value = "methodId") methodId: String?): Response<Profile>
 }

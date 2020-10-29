@@ -48,23 +48,22 @@ abstract class BaseAuthManager<T: FirebaseUserController<*>, C: Any>(protected v
 
     override suspend fun logout(listener: AuthListener<T>?) {
         authListener = listener
-        credentialsManager.logout(currentUser.value!!)
-
+        currentUser.value?.let { credentialsManager.logout(it) }
     }
 
     override suspend fun deleteUser(listener: AuthListener<T>?) {
         authListener = listener
-        credentialsManager.deleteUser(currentUser.value!!)
+        currentUser.value?.let { credentialsManager.deleteUser(it) }
     }
 
     override fun addCredential(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>?) {
         authListener = listener
-        credentialsManager.addCredential(activity, currentUser.value!!, method)
+        currentUser.value?.let { credentialsManager.addCredential(activity, it, method) }
     }
 
     override fun removeCredential(credential: C, listener: AuthListener<T>?) {
         authListener = listener
-        credentialsManager.removeCredential(currentUser.value!!, credential)
+        currentUser.value?.let { credentialsManager.removeCredential(it, credential) }
     }
 
 }

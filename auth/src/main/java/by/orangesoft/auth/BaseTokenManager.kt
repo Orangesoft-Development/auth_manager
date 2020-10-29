@@ -13,7 +13,7 @@ import java.net.HttpURLConnection
 import kotlin.coroutines.CoroutineContext
 
 abstract class BaseTokenManager<T : BaseUserController<*>> (
-    private val user: LiveData<T>,
+    private val user: T,
     protected open val AUTH_HEADER: String = DEFAULT_AUTH_HEADER,
     protected open val TOKEN_PREFIX: String = DEFAULT_TOKEN_PREFIX
 ) : Interceptor, CoroutineScope {
@@ -25,7 +25,7 @@ abstract class BaseTokenManager<T : BaseUserController<*>> (
         var response: Response?
 
         runBlocking {
-            val token = user.value?.getAccessToken() ?: ""
+            val token = user.getAccessToken()
             response = chain.proceed(overrideRequest(chain.request(), token))
 
             // If request is failed by auth error, trying to refresh tokens and make one more request attempt
@@ -50,7 +50,7 @@ abstract class BaseTokenManager<T : BaseUserController<*>> (
     }
 
     private suspend fun refreshAccessToken(successListener: () -> Unit) {
-        val token = user.value?.getAccessToken() ?: ""
+        val token = user.getAccessToken()
         if (token.isNotEmpty()) {
             val responseModel = updateTokenApi(token)
             if (!responseModel.isSuccessful) {

@@ -11,7 +11,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 
 class TokenManager(
-    user: LiveData<FirebaseUserController<Profile>>,
+    user: FirebaseUserController<Profile>,
     private val tokenServiceBaseUrl: String,
     private val interceptors: List<Interceptor>
 ) : BaseTokenManager<FirebaseUserController<Profile>>(user) {

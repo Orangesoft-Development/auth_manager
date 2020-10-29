@@ -9,30 +9,37 @@ import by.orangesoft.auth.credentials.firebase.Firebase
 import by.orangesoft.auth.credentials.firebase.FirebaseCredentialsManager
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.AuthService
-import co.orangesoft.authmanager.api.ProfileService
 import co.orangesoft.authmanager.user.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 
 internal class CredentialManager(
-    private val authService: AuthService,
-    private val profileService: ProfileService
+    private val authService: AuthService
 ): FirebaseCredentialsManager<FirebaseUserController<Profile>>() {
 
     override fun getLoggedUser(): FirebaseUserController<Profile> =
-        firebaseInstance.currentUser?.let { user ->
-                UserControllerImpl(profileService, firebaseInstance)
-            } ?: UnregisteredUserControllerImpl(firebaseInstance)
+        firebaseInstance.currentUser?.let {
+            UserControllerImpl(firebaseInstance)
+        } ?: UnregisteredUserControllerImpl(firebaseInstance)
 
     override suspend fun onLogged(credentialResult: CredentialResult): FirebaseUserController<Profile> {
 
         try {
-            val profile = authService.login(credentialResult)
+            val profileResponse = authService.login(credentialResult)
+            if (profileResponse.isSuccessful) {
 
-            updateFirebaseUser(firebaseInstance.currentUser!!, profile)
+                profileResponse.body()?.let { profile ->
+                    firebaseInstance.currentUser?.let { updateFirebaseUser(it, profile) }
+                }
 
-            return createUserController(credentialResult, firebaseInstance)
+                return createUserController(credentialResult, firebaseInstance)
+
+            } else {
+                firebaseInstance.signOut()
+                throw Throwable(profileResponse.message())
+            }
+
         } catch (e: Exception){
             firebaseInstance.signOut()
             throw e
@@ -41,13 +48,13 @@ internal class CredentialManager(
 
     override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: FirebaseUserController<Profile>) {
         //TODO what should do with profile here
-        val profile = authService.addCreds(user.getAccessToken(), credentialResult.method.providerId)
+        val profileResponse = authService.addCreds(user.getAccessToken(), credentialResult.method.providerId)
         (credentials as MutableLiveData).postValue(getCredentials())
     }
 
     override suspend fun onCredentialRemoved(credential: FirebaseCredential, user: FirebaseUserController<Profile>) {
         //TODO what should do with profile here
-        val profile = authService.removeCreds(user.getAccessToken(), credential.providerId.replace(".com", ""))
+        val profileResponse = authService.removeCreds(user.getAccessToken(), credential.providerId.replace(".com", ""))
         (credentials as MutableLiveData).postValue(getCredentials())
     }
 
@@ -65,29 +72,28 @@ internal class CredentialManager(
             Log.e(TAG, e.message)
         }
 
-        listener!!.invoke(getLoggedUser())
+        listener?.invoke(getLoggedUser())
         (credentials as MutableLiveData).postValue(getCredentials())
     }
 
     override suspend fun deleteUser(user: FirebaseUserController<Profile>) {
         try {
             if (user is UserControllerImpl) {
-
-                    val response = authService.delete(user.getAccessToken())
-                    if (response.isSuccessful) {
-                        firebaseInstance.currentUser?.apply {
-                            firebaseInstance.signOut()
-                            delete()
-                        }
-                        (credentials as MutableLiveData).postValue(getCredentials())
-                        listener!!.invoke(getLoggedUser())
-                    } else {
-                        listener!!.invoke(Throwable(response.message()))
+                val response = authService.delete(user.getAccessToken())
+                if (response.isSuccessful) {
+                    firebaseInstance.currentUser?.apply {
+                        firebaseInstance.signOut()
+                        delete()
                     }
+                    (credentials as MutableLiveData).postValue(getCredentials())
+                    listener?.invoke(getLoggedUser())
+                } else {
+                    listener?.invoke(Throwable(response.message()))
                 }
+            }
 
         } catch (e: Exception) {
-            listener!!.invoke(e)
+            listener?.invoke(e)
         }
     }
 
@@ -104,7 +110,7 @@ internal class CredentialManager(
         (credentials as MutableLiveData).postValue(getCredentials())
     }
 
-    override fun createUserController(credentialResult: CredentialResult, firebaseInstance: FirebaseAuth): FirebaseUserController<Profile> = getLoggedUser()!!
+    override fun createUserController(credentialResult: CredentialResult, firebaseInstance: FirebaseAuth): FirebaseUserController<Profile> = getLoggedUser()
 
     override fun getBuilder(method: AuthMethod): Builder =
         CredBuilder(method)
