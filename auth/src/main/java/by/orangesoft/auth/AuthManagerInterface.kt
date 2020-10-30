@@ -7,7 +7,6 @@ import by.orangesoft.auth.user.BaseUserController
 interface AuthManagerInterface<T : BaseUserController<*>, C: Any> {
 
     val currentUser: LiveData<T>
-    val userCredentials: LiveData<Set<C>>
 
     fun login(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>? = null)
     fun login(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>.() -> Unit) = login(activity, method, AuthListener<T>(activity).apply(listener))
@@ -15,6 +14,8 @@ interface AuthManagerInterface<T : BaseUserController<*>, C: Any> {
     suspend fun logout(listener: AuthListener<T>? = null)
 
     suspend fun deleteUser(listener: AuthListener<T>? = null)
+
+    fun getCredentials(): LiveData<Set<C>>
 
     fun addCredential(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>? = null)
     fun addCredential(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>.() -> Unit) = addCredential(activity, method, AuthListener<T>(activity).apply(listener))

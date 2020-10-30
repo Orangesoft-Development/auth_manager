@@ -4,14 +4,11 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
 import by.orangesoft.auth.credentials.BaseCredentialsManager
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
-import by.orangesoft.auth.user.BaseUserController
 import kotlinx.coroutines.Dispatchers
 
 abstract class BaseAuthManager<T: FirebaseUserController<*>, C: Any>(protected val credentialsManager: BaseCredentialsManager<T, C>): AuthManagerInterface<T, C> {
 
     override val currentUser: LiveData<T> = MutableLiveData()
-
-    override val userCredentials: LiveData<Set<C>> by lazy { credentialsManager.credentials }
 
     private var authListener:  AuthListener<T>? = null
 
@@ -56,6 +53,10 @@ abstract class BaseAuthManager<T: FirebaseUserController<*>, C: Any>(protected v
         currentUser.value?.let { credentialsManager.deleteUser(it) }
     }
 
+    override fun getCredentials(): LiveData<Set<C>> {
+        return credentialsManager.credentials
+    }
+
     override fun addCredential(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>?) {
         authListener = listener
         currentUser.value?.let { credentialsManager.addCredential(activity, it, method) }
@@ -65,5 +66,4 @@ abstract class BaseAuthManager<T: FirebaseUserController<*>, C: Any>(protected v
         authListener = listener
         currentUser.value?.let { credentialsManager.removeCredential(it, credential) }
     }
-
 }

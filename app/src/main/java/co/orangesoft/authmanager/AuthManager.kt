@@ -25,7 +25,7 @@ class AuthManager private constructor(credManager: BaseCredentialsManager<Fireba
     }
 
     init {
-        userCredentials.observeForever { creds ->
+        getCredentials().observeForever { creds ->
             if (creds.isEmpty() || (creds.size == 1 && creds.first().providerId == "firebase")) {
                 (userStatus as MutableLiveData).postValue(UserStatus.UNREGISTERED)
             } else {

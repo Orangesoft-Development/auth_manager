@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData
 import by.orangesoft.auth.AuthListener
 import by.orangesoft.auth.AuthMethod
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
-import by.orangesoft.auth.user.BaseUserController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
