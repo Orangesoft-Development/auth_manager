@@ -14,6 +14,7 @@ abstract class FirebaseUserController<T>(protected val firebaseInstance: Firebas
     abstract override var profile: T?
 
     val currentUser: FirebaseUser? = firebaseInstance.currentUser
+    private val TAG = "FirebaseUserController";
 
     override suspend fun update() {
         currentUser?.let {
@@ -36,7 +37,7 @@ abstract class FirebaseUserController<T>(protected val firebaseInstance: Firebas
                 if  (it.isSuccessful) {
                     token = it.result?.token ?: ""
                 } else {
-                    Log.e("FirebaseUserController", "Cannot get access token")
+                    Log.e(TAG, "Cannot get access token")
                 }
             }
         }
@@ -50,7 +51,7 @@ abstract class FirebaseUserController<T>(protected val firebaseInstance: Firebas
                 function.invoke(it)
             }.build()).addOnSuccessListener {
                 firebaseInstance.updateCurrentUser(this)
-            }
+            }.addOnFailureListener { Log.e(TAG, "Unable update firebase profile", it) }
         }
     }
 }

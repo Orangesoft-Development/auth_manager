@@ -11,8 +11,6 @@ import by.orangesoft.auth.credentials.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.AuthService
 import co.orangesoft.authmanager.user.*
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.UserProfileChangeRequest
 
 internal class CredentialManager(
     private val authService: AuthService
@@ -30,7 +28,10 @@ internal class CredentialManager(
             if (profileResponse.isSuccessful) {
 
                 profileResponse.body()?.let { profile ->
-                    firebaseInstance.currentUser?.let { updateFirebaseUser(it, profile) }
+                    getLoggedUser().updateAccount {
+                        it.displayName = profile.name
+                        it.photoUri = Uri.parse(profile.avatarUrl ?: "")
+                    }
                 }
 
                 return createUserController(credentialResult, firebaseInstance)
@@ -47,15 +48,29 @@ internal class CredentialManager(
     }
 
     override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: FirebaseUserController<Profile>) {
-        //TODO what should do with profile here
-        val profileResponse = authService.addCreds(user.getAccessToken(), credentialResult.method.providerId)
-        (credentials as MutableLiveData).postValue(getCredentials())
+        try {
+            val profileResponse = authService.addCreds(user.getAccessToken(), credentialResult.method.providerId)
+            if (profileResponse.isSuccessful) {
+                (credentials as MutableLiveData).postValue(getCredentials())
+            } else {
+                Log.e(TAG, profileResponse.message())
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, e.message)
+        }
     }
 
     override suspend fun onCredentialRemoved(credential: FirebaseCredential, user: FirebaseUserController<Profile>) {
-        //TODO what should do with profile here
-        val profileResponse = authService.removeCreds(user.getAccessToken(), credential.providerId.replace(".com", ""))
-        (credentials as MutableLiveData).postValue(getCredentials())
+        try {
+            val profileResponse = authService.removeCreds(user.getAccessToken(), credential.providerId.replace(".com", ""))
+            if (profileResponse.isSuccessful) {
+                (credentials as MutableLiveData).postValue(getCredentials())
+            } else {
+                Log.e(TAG, profileResponse.message())
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, e.message)
+        }
     }
 
     override suspend fun logout(user: FirebaseUserController<Profile>) {
@@ -95,19 +110,6 @@ internal class CredentialManager(
         } catch (e: Exception) {
             listener?.invoke(e)
         }
-    }
-
-    //TODO check the same thing in updateAccount() in FirebaseUserController
-    private fun updateFirebaseUser(user: FirebaseUser, profile: Profile) {
-        user.updateProfile(
-            UserProfileChangeRequest.Builder()
-                .apply {
-                    displayName = profile.name
-                    photoUri = Uri.parse(profile.avatarUrl ?: "")
-                }.build()
-        ).addOnFailureListener { Log.e(TAG, "Unable update firebase profile", it) }
-
-        (credentials as MutableLiveData).postValue(getCredentials())
     }
 
     override fun createUserController(credentialResult: CredentialResult, firebaseInstance: FirebaseAuth): FirebaseUserController<Profile> = getLoggedUser()

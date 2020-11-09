@@ -53,21 +53,21 @@ class MainActivity : AppCompatActivity() {
         googleBtn.setOnClickListener {
             authManager.login(this, Firebase.Google(getString(R.string.server_client_id))) {
                 onAuthException(loginErrorListener)
-                onAuthSucces(loginSuccessListener)
+                onAuthSuccess(loginSuccessListener)
             }
         }
 
         facebookBtn.setOnClickListener {
             authManager.login(this, Firebase.Facebook) {
                 onAuthException(loginErrorListener)
-                onAuthSucces(loginSuccessListener)
+                onAuthSuccess(loginSuccessListener)
             }
         }
 
         appleBtn.setOnClickListener {
             authManager.login(this, Firebase.Apple) {
                 onAuthException(loginErrorListener)
-                onAuthSucces(loginSuccessListener)
+                onAuthSuccess(loginSuccessListener)
             }
         }
     }

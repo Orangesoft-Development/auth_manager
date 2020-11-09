@@ -34,7 +34,7 @@ class AuthListener<T: BaseUserController<*>>(private var lifecycleOwner: Lifecyc
         }
     }
 
-    fun onAuthSucces(listener: (T) -> Unit) {
+    fun onAuthSuccess(listener: (T) -> Unit) {
         onSuccess = listener
     }
 

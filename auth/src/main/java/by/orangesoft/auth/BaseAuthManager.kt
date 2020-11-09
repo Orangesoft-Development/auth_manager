@@ -29,7 +29,7 @@ abstract class BaseAuthManager<T: FirebaseUserController<*>, C: Any>(protected v
     }
 
     private val credentialListener: AuthListener<T> = AuthListener(Dispatchers.IO) {
-        onAuthSucces(onAuthSuccessListener)
+        onAuthSuccess(onAuthSuccessListener)
         onAuthException(onAuthErrorListener)
     }
 

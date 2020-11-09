@@ -11,7 +11,6 @@ import by.orangesoft.auth.credentials.firebase.controllers.FacebookCredentialCon
 import by.orangesoft.auth.credentials.firebase.controllers.GoogleCredentialController
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
-import java.util.*
 import kotlin.NoSuchElementException
 import kotlin.collections.HashSet
 
