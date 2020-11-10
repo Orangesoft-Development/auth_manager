@@ -2,9 +2,9 @@ package by.orangesoft.auth.credentials
 
 import android.util.Log
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.LiveData
 import by.orangesoft.auth.AuthListener
 import by.orangesoft.auth.AuthMethod
+import by.orangesoft.auth.credentials.firebase.FirebaseCredential
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,11 +13,9 @@ import java.lang.Exception
 import java.lang.UnsupportedOperationException
 import kotlin.coroutines.CoroutineContext
 
-abstract class BaseCredentialsManager<T: FirebaseUserController<*>, C: Any> (override val coroutineContext: CoroutineContext = Dispatchers.IO): CoroutineScope {
+abstract class BaseCredentialsManager<T: FirebaseUserController<*>> (override val coroutineContext: CoroutineContext = Dispatchers.IO): CoroutineScope {
 
     protected val TAG = "CredentialsController"
-
-    abstract val credentials: LiveData<Set<C>>
 
     protected val onCredentialException: (Throwable) -> Unit = {
         Log.e(TAG, "Credential exception: ", it)
@@ -33,10 +31,10 @@ abstract class BaseCredentialsManager<T: FirebaseUserController<*>, C: Any> (ove
     @Throws(Exception::class)
     protected abstract suspend fun onCredentialAdded(credentialResult: CredentialResult, user: T)
     @Throws(Exception::class)
-    protected abstract suspend fun onCredentialRemoved(credential: C, user: T)
+    protected abstract suspend fun onCredentialRemoved(credential: FirebaseCredential, user: T)
 
     protected abstract fun getBuilder(method: AuthMethod): Builder
-    protected abstract fun getBuilder(credential: C): Builder
+    protected abstract fun getBuilder(credential: FirebaseCredential): Builder
 
     open fun login(activity: FragmentActivity, method: AuthMethod) {
         getBuilder(method).build(activity).addCredential {
@@ -58,7 +56,7 @@ abstract class BaseCredentialsManager<T: FirebaseUserController<*>, C: Any> (ove
     abstract suspend fun deleteUser(user: T)
 
     open fun addCredential(activity: FragmentActivity, user: T, method: AuthMethod) {
-        if(credentials.value?.firstOrNull { it.equals(method) } != null){
+        if(user.credentials.value?.firstOrNull { it.equals(method) } != null){
             listener?.invoke(user)
             return
         }
@@ -78,9 +76,8 @@ abstract class BaseCredentialsManager<T: FirebaseUserController<*>, C: Any> (ove
         }
     }
 
-    open fun removeCredential(user: T, credential: C) {
-
-        if(credentials.value?.let { creds -> creds.firstOrNull { it.equals(credential) } != null && creds.size > 1 } != true){
+    open fun removeCredential(user: T, credential: FirebaseCredential) {
+        if(user.credentials.value?.let { creds -> creds.firstOrNull { it.equals(credential) } != null && creds.size > 1 } != true){
             onCredentialException.invoke(NoSuchElementException("Cannot remove method $credential"))
             return
         }

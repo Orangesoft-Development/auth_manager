@@ -1,6 +1,8 @@
 package by.orangesoft.auth.credentials.firebase
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import by.orangesoft.auth.user.BaseUserController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -13,6 +15,10 @@ abstract class FirebaseUserController<T>(protected val firebaseInstance: Firebas
 
     abstract override var profile: T?
 
+    override val credentials: LiveData<Set<FirebaseCredential>> by lazy {
+        MutableLiveData<Set<FirebaseCredential>>().apply { postValue(getCredentials()) }
+    }
+
     val currentUser: FirebaseUser? = firebaseInstance.currentUser
     private val TAG = "FirebaseUserController";
 
@@ -20,6 +26,24 @@ abstract class FirebaseUserController<T>(protected val firebaseInstance: Firebas
         currentUser?.let {
             firebaseInstance.updateCurrentUser(it)
         }
+    }
+
+    protected open fun getCredentials(): Set<FirebaseCredential> = firebaseInstance.currentUser?.providerData?.mapNotNull {
+        if (it.providerId != "firebase")
+            FirebaseCredential(
+                it.uid,
+                it.providerId,
+                it.displayName ?: "",
+                it.photoUrl?.path ?: "",
+                it.email ?: "",
+                it.phoneNumber ?: ""
+            )
+        else
+            null
+    }?.toSet() ?: HashSet()
+
+    fun updateCredentials() {
+        (credentials as MutableLiveData).postValue(getCredentials())
     }
 
     override suspend fun updateAvatar(file: File, listener: (Throwable?) -> Unit) {

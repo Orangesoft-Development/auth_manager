@@ -1,7 +1,5 @@
 package by.orangesoft.auth.credentials.firebase
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import by.orangesoft.auth.AuthMethod
 import by.orangesoft.auth.credentials.BaseCredentialController
 import by.orangesoft.auth.credentials.CredentialResult
@@ -12,36 +10,25 @@ import by.orangesoft.auth.credentials.firebase.controllers.GoogleCredentialContr
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import kotlin.NoSuchElementException
-import kotlin.collections.HashSet
 
-abstract class FirebaseCredentialsManager<T: FirebaseUserController<*>>: BaseCredentialsManager<T, FirebaseCredentialsManager.FirebaseCredential>() {
+abstract class FirebaseCredentialsManager<T: FirebaseUserController<*>>: BaseCredentialsManager<T>() {
 
     protected val firebaseInstance: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
-    override val credentials: LiveData<Set<FirebaseCredential>> by lazy {
-        MutableLiveData<Set<FirebaseCredential>>().apply { postValue(getCredentials()) }
-    }
-
     override suspend fun onLogged(credentialResult: CredentialResult): T {
-        (credentials as MutableLiveData).postValue(getCredentials())
-        return createUserController(credentialResult, firebaseInstance)
+        val user = createUserController(credentialResult, firebaseInstance)
+        user.updateCredentials()
+        return user
     }
-
-    protected open fun getCredentials(): Set<FirebaseCredential> = firebaseInstance.currentUser?.providerData?.mapNotNull {
-        if (it.providerId != "firebase")
-            FirebaseCredential(it.uid, it.providerId, it.displayName ?: "", it.photoUrl?.path ?: "", it.email ?: "", it.phoneNumber ?: "")
-        else
-            null
-    }?.toSet() ?: HashSet()
 
     abstract fun createUserController(credentialResult: CredentialResult, firebaseInstance: FirebaseAuth): T
 
     override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: T) {
-        (credentials as MutableLiveData).postValue(getCredentials())
+        user.updateCredentials()
     }
 
     override suspend fun onCredentialRemoved(credential: FirebaseCredential, user: T) {
-        (credentials as MutableLiveData).postValue(getCredentials())
+        user.updateCredentials()
     }
 
     override suspend fun logout(user: T) {
@@ -56,8 +43,7 @@ abstract class FirebaseCredentialsManager<T: FirebaseUserController<*>>: BaseCre
     }
 
     override fun removeCredential(user: T, credential: FirebaseCredential) {
-
-        if(credentials.value?.let { creds -> creds.firstOrNull { it.equals(credential) } != null && creds.size > 1 } != true){
+        if(user.credentials.value?.let { creds -> creds.firstOrNull { it.equals(credential) } != null && creds.size > 1 } != true){
             onCredentialException.invoke(NoSuchElementException("Cannot remove method $credential"))
             return
         }
@@ -93,11 +79,4 @@ abstract class FirebaseCredentialsManager<T: FirebaseUserController<*>>: BaseCre
                 else -> throw UnsupportedOperationException("Method $method is not supported")
             }
     }
-
-    data class FirebaseCredential(val uid: String,
-                                  val providerId: String,
-                                  var displayName: String = "",
-                                  var photoUrl: String = "",
-                                  var email: String = "",
-                                  var phoneNumber: String = "")
 }

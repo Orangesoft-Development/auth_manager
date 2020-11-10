@@ -4,7 +4,6 @@ import android.net.Uri
 import android.util.Log
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
 import co.orangesoft.authmanager.AuthManager
-import co.orangesoft.authmanager.api.ProfileService
 import co.orangesoft.authmanager.api.provideOkHttp
 import co.orangesoft.authmanager.api.provideProfileService
 import co.orangesoft.authmanager.api.provideTokenInterceptor

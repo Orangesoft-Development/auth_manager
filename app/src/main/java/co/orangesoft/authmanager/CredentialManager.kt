@@ -2,10 +2,10 @@ package co.orangesoft.authmanager
 
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import by.orangesoft.auth.AuthMethod
 import by.orangesoft.auth.credentials.CredentialResult
 import by.orangesoft.auth.credentials.firebase.Firebase
+import by.orangesoft.auth.credentials.firebase.FirebaseCredential
 import by.orangesoft.auth.credentials.firebase.FirebaseCredentialsManager
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.AuthService
@@ -51,7 +51,7 @@ internal class CredentialManager(
         try {
             val profileResponse = authService.addCreds(user.getAccessToken(), credentialResult.method.providerId)
             if (profileResponse.isSuccessful) {
-                (credentials as MutableLiveData).postValue(getCredentials())
+                user.updateCredentials()
             } else {
                 Log.e(TAG, profileResponse.message())
             }
@@ -64,7 +64,7 @@ internal class CredentialManager(
         try {
             val profileResponse = authService.removeCreds(user.getAccessToken(), credential.providerId.replace(".com", ""))
             if (profileResponse.isSuccessful) {
-                (credentials as MutableLiveData).postValue(getCredentials())
+                user.updateCredentials()
             } else {
                 Log.e(TAG, profileResponse.message())
             }
@@ -88,7 +88,7 @@ internal class CredentialManager(
         }
 
         listener?.invoke(getLoggedUser())
-        (credentials as MutableLiveData).postValue(getCredentials())
+        user.updateCredentials()
     }
 
     override suspend fun deleteUser(user: FirebaseUserController<Profile>) {
@@ -100,7 +100,7 @@ internal class CredentialManager(
                         firebaseInstance.signOut()
                         delete()
                     }
-                    (credentials as MutableLiveData).postValue(getCredentials())
+                    user.updateCredentials()
                     listener?.invoke(getLoggedUser())
                 } else {
                     listener?.invoke(Throwable(response.message()))
