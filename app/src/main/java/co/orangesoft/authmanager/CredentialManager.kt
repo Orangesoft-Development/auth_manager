@@ -9,16 +9,18 @@ import by.orangesoft.auth.credentials.firebase.FirebaseCredential
 import by.orangesoft.auth.credentials.firebase.FirebaseCredentialsManager
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.AuthService
+import co.orangesoft.authmanager.api.ProfileService
 import co.orangesoft.authmanager.user.*
 import com.google.firebase.auth.FirebaseAuth
 
 internal class CredentialManager(
-    private val authService: AuthService
+    private val authService: AuthService,
+    private val profileService: ProfileService
 ): FirebaseCredentialsManager<FirebaseUserController<Profile>>() {
 
     override fun getLoggedUser(): FirebaseUserController<Profile> =
         firebaseInstance.currentUser?.let {
-            UserControllerImpl(firebaseInstance)
+            UserControllerImpl(firebaseInstance, profileService)
         } ?: UnregisteredUserControllerImpl(firebaseInstance)
 
     override suspend fun onLogged(credentialResult: CredentialResult): FirebaseUserController<Profile> {

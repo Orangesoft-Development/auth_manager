@@ -1,9 +1,8 @@
 package co.orangesoft.authmanager.api
 
 import android.util.Log
-import by.orangesoft.auth.credentials.firebase.FirebaseUserController
+import co.orangesoft.authmanager.AuthManager
 import co.orangesoft.authmanager.TokenManager
-import co.orangesoft.authmanager.user.Profile
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -13,6 +12,7 @@ fun provideOkHttp(interceptors: List<Interceptor> = arrayListOf()): OkHttpClient
     val builder = OkHttpClient.Builder()
     interceptors.forEach { builder.addInterceptor(it) }
 
+    builder.addInterceptor(provideTokenInterceptor(AuthManager.BASE_URL))
     builder.addInterceptor(
             HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
                 override fun log(message: String) {
@@ -41,8 +41,7 @@ internal fun provideProfileService(baseUrl: String, okHttpClient: OkHttpClient):
         .create(ProfileService::class.java)
 }
 
-fun provideTokenInterceptor(user: FirebaseUserController<Profile>,
-                            tokenServiceBaseUrl: String,
+fun provideTokenInterceptor(tokenServiceBaseUrl: String,
                             interceptors: List<Interceptor> = arrayListOf()): TokenManager {
-    return TokenManager(user, tokenServiceBaseUrl, interceptors)
+    return TokenManager(tokenServiceBaseUrl, interceptors)
 }

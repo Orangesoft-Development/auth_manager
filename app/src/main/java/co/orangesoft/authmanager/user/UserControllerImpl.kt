@@ -3,10 +3,7 @@ package co.orangesoft.authmanager.user
 import android.net.Uri
 import android.util.Log
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
-import co.orangesoft.authmanager.AuthManager
-import co.orangesoft.authmanager.api.provideOkHttp
-import co.orangesoft.authmanager.api.provideProfileService
-import co.orangesoft.authmanager.api.provideTokenInterceptor
+import co.orangesoft.authmanager.api.ProfileService
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,14 +14,11 @@ import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
 
 class UserControllerImpl(
-    firebaseInstance: FirebaseAuth
+    firebaseInstance: FirebaseAuth,
+    private val profileService: ProfileService
 ) : FirebaseUserController<Profile>(firebaseInstance), CoroutineScope {
 
     private val TAG = "UserControllerImpl"
-    private val profileService by lazy {
-        val tokenInterceptor = provideTokenInterceptor(this, AuthManager.BASE_URL)
-        provideProfileService(AuthManager.BASE_URL, provideOkHttp(arrayListOf(tokenInterceptor)))
-    }
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO
 

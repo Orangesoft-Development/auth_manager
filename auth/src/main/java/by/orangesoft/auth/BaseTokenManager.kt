@@ -1,8 +1,9 @@
 package by.orangesoft.auth
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import by.orangesoft.auth.user.BaseUserController
+import by.orangesoft.auth.user.UserHelper
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -13,19 +14,19 @@ import java.net.HttpURLConnection
 import kotlin.coroutines.CoroutineContext
 
 abstract class BaseTokenManager<T : BaseUserController<*>> (
-    private val user: T,
     protected open val AUTH_HEADER: String = DEFAULT_AUTH_HEADER,
     protected open val TOKEN_PREFIX: String = DEFAULT_TOKEN_PREFIX
 ) : Interceptor, CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO
 
+    protected val firebaseInstance: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
+
     override fun intercept(chain: Interceptor.Chain): Response {
         // Trying to make request with existing access token
         var response: Response?
-
         runBlocking {
-            val token = user.getAccessToken()
+            val token = UserHelper.getAccessToken()
             response = chain.proceed(overrideRequest(chain.request(), token))
 
             // If request is failed by auth error, trying to refresh tokens and make one more request attempt
@@ -50,7 +51,7 @@ abstract class BaseTokenManager<T : BaseUserController<*>> (
     }
 
     private suspend fun refreshAccessToken(successListener: () -> Unit) {
-        val token = user.getAccessToken()
+        val token = UserHelper.getAccessToken()
         if (token.isNotEmpty()) {
             val responseModel = updateTokenApi(token)
             if (!responseModel.isSuccessful) {
