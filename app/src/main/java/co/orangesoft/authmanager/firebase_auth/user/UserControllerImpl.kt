@@ -1,9 +1,10 @@
-package co.orangesoft.authmanager.user
+package co.orangesoft.authmanager.firebase_auth.user
 
 import android.net.Uri
 import android.util.Log
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.ProfileService
+import co.orangesoft.authmanager.models.Profile
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +24,11 @@ class UserControllerImpl(
     override val coroutineContext: CoroutineContext = Dispatchers.IO
 
     override var profile: Profile? = firebaseInstance.currentUser?.let {
-        Profile(it.uid, it.displayName, it.phoneNumber)
+        Profile(
+            it.uid,
+            it.displayName,
+            it.phoneNumber
+        )
     }
 
     override suspend fun update() {

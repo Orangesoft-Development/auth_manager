@@ -2,7 +2,6 @@ package by.orangesoft.auth
 
 import android.util.Log
 import by.orangesoft.auth.user.BaseUserController
-import by.orangesoft.auth.user.UserHelper
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,8 +13,8 @@ import java.net.HttpURLConnection
 import kotlin.coroutines.CoroutineContext
 
 abstract class BaseTokenManager<T : BaseUserController<*>> (
-    protected open val AUTH_HEADER: String = DEFAULT_AUTH_HEADER,
-    protected open val TOKEN_PREFIX: String = DEFAULT_TOKEN_PREFIX
+    protected open val authHeader: String = DEFAULT_AUTH_HEADER,
+    protected open val tokenPrefix: String = DEFAULT_TOKEN_PREFIX
 ) : Interceptor, CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO
@@ -26,7 +25,7 @@ abstract class BaseTokenManager<T : BaseUserController<*>> (
         // Trying to make request with existing access token
         var response: Response?
         runBlocking {
-            val token = UserHelper.getAccessToken()
+            val token = getAccessToken()
             response = chain.proceed(overrideRequest(chain.request(), token))
 
             // If request is failed by auth error, trying to refresh tokens and make one more request attempt
@@ -44,14 +43,14 @@ abstract class BaseTokenManager<T : BaseUserController<*>> (
     private fun overrideRequest(request: Request, authToken: String): Request {
         val headerBuilder =  request.newBuilder()
         if (authToken.isNotBlank()) {
-            headerBuilder.header(AUTH_HEADER, "$TOKEN_PREFIX$authToken")
+            headerBuilder.header(authHeader, "$tokenPrefix$authToken")
         }
 
         return headerBuilder.build()
     }
 
     private suspend fun refreshAccessToken(successListener: () -> Unit) {
-        val token = UserHelper.getAccessToken()
+        val token = getAccessToken()
         if (token.isNotEmpty()) {
             val responseModel = updateTokenApi(token)
             if (!responseModel.isSuccessful) {
@@ -60,6 +59,21 @@ abstract class BaseTokenManager<T : BaseUserController<*>> (
                 successListener.invoke()
             }
         }
+    }
+
+    private fun getAccessToken(): String {
+        var token = ""
+        runBlocking {
+            FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.addOnCompleteListener {
+                if  (it.isSuccessful) {
+                    token = it.result?.token ?: ""
+                } else {
+                    Log.e("TOKEN", "Cannot get access token")
+                }
+            }
+        }
+
+        return token
     }
 
     abstract suspend fun updateTokenApi(accessToken: String) : ResponseModel

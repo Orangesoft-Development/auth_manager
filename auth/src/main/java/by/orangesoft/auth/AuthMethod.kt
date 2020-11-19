@@ -8,8 +8,8 @@ open class AuthMethod(val providerId: String) : Parcelable {
 
     override fun equals(other: Any?): Boolean =
         when(other) {
-            is AuthMethod   -> providerId.equals(other.providerId)
-            is String       -> providerId.equals(other)
+            is AuthMethod   -> providerId == other.providerId
+            is String       -> providerId == other
             else            ->  super.equals(other)
         }
 

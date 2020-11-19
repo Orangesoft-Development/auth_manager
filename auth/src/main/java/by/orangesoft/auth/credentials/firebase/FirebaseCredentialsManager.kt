@@ -1,6 +1,7 @@
 package by.orangesoft.auth.credentials.firebase
 
 import by.orangesoft.auth.AuthMethod
+import by.orangesoft.auth.credentials.BaseCredential
 import by.orangesoft.auth.credentials.BaseCredentialController
 import by.orangesoft.auth.credentials.CredentialResult
 import by.orangesoft.auth.credentials.BaseCredentialsManager
@@ -27,7 +28,7 @@ abstract class FirebaseCredentialsManager<T: FirebaseUserController<*>>: BaseCre
         user.updateCredentials()
     }
 
-    override suspend fun onCredentialRemoved(credential: FirebaseCredential, user: T) {
+    override suspend fun onCredentialRemoved(credential: BaseCredential, user: T) {
         user.updateCredentials()
     }
 
@@ -42,7 +43,7 @@ abstract class FirebaseCredentialsManager<T: FirebaseUserController<*>>: BaseCre
         }
     }
 
-    override fun removeCredential(user: T, credential: FirebaseCredential) {
+    override fun removeCredential(user: T, credential: BaseCredential) {
         if(user.credentials.value?.let { creds -> creds.firstOrNull { it.equals(credential) } != null && creds.size > 1 } != true){
             onCredentialException.invoke(NoSuchElementException("Cannot remove method $credential"))
             return
@@ -60,7 +61,7 @@ abstract class FirebaseCredentialsManager<T: FirebaseUserController<*>>: BaseCre
     }
 
     override fun getBuilder(method: AuthMethod): Builder = CredBuilder(method)
-    override fun getBuilder(credential: FirebaseCredential): Builder = CredBuilder(
+    override fun getBuilder(credential: BaseCredential): Builder = CredBuilder(
         when (credential.providerId) {
             Firebase.Apple.providerId               -> Firebase.Apple
             Firebase.Facebook.providerId            -> Firebase.Facebook

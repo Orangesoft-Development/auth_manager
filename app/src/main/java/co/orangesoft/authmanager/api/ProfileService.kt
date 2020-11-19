@@ -1,6 +1,6 @@
 package co.orangesoft.authmanager.api
 
-import co.orangesoft.authmanager.user.Profile
+import co.orangesoft.authmanager.models.Profile
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*

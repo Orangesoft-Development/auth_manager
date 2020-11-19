@@ -1,16 +1,17 @@
-package co.orangesoft.authmanager
+package co.orangesoft.authmanager.firebase_auth
 
 import android.net.Uri
 import android.util.Log
 import by.orangesoft.auth.AuthMethod
+import by.orangesoft.auth.credentials.BaseCredential
 import by.orangesoft.auth.credentials.CredentialResult
 import by.orangesoft.auth.credentials.firebase.Firebase
-import by.orangesoft.auth.credentials.firebase.FirebaseCredential
 import by.orangesoft.auth.credentials.firebase.FirebaseCredentialsManager
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.AuthService
 import co.orangesoft.authmanager.api.ProfileService
-import co.orangesoft.authmanager.user.*
+import co.orangesoft.authmanager.firebase_auth.user.*
+import co.orangesoft.authmanager.models.Profile
 import com.google.firebase.auth.FirebaseAuth
 
 internal class CredentialManager(
@@ -62,7 +63,7 @@ internal class CredentialManager(
         }
     }
 
-    override suspend fun onCredentialRemoved(credential: FirebaseCredential, user: FirebaseUserController<Profile>) {
+    override suspend fun onCredentialRemoved(credential: BaseCredential, user: FirebaseUserController<Profile>) {
         try {
             val profileResponse = authService.removeCreds(user.getAccessToken(), credential.providerId.replace(".com", ""))
             if (profileResponse.isSuccessful) {
@@ -119,7 +120,7 @@ internal class CredentialManager(
     override fun getBuilder(method: AuthMethod): Builder =
         CredBuilder(method)
 
-    override fun getBuilder(credential: FirebaseCredential): Builder =
+    override fun getBuilder(credential: BaseCredential): Builder =
         CredBuilder(
             when (credential.providerId) {
                 Firebase.Apple.providerId -> Firebase.Apple

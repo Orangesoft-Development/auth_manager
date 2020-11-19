@@ -4,12 +4,12 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
 import by.orangesoft.auth.credentials.BaseCredentialsManager
 import by.orangesoft.auth.credentials.firebase.FirebaseCredential
-import by.orangesoft.auth.credentials.firebase.FirebaseUserController
+import by.orangesoft.auth.user.BaseUserController
 import kotlinx.coroutines.Dispatchers
 
-abstract class BaseAuthManager<T: FirebaseUserController<*>>(protected val credentialsManager: BaseCredentialsManager<T>): AuthManagerInterface<T> {
+abstract class BaseAuthManager<T: BaseUserController<*>>(protected val credentialsManager: BaseCredentialsManager<T>): AuthManagerInterface<T> {
 
-    override val currentUser: LiveData<T> = MutableLiveData()
+    final override val currentUser: LiveData<T> = MutableLiveData()
 
     private var authListener:  AuthListener<T>? = null
 

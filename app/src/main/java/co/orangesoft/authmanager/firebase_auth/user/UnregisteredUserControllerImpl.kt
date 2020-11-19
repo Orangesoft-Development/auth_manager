@@ -1,9 +1,10 @@
-package co.orangesoft.authmanager.user
+package co.orangesoft.authmanager.firebase_auth.user
 
 import android.annotation.SuppressLint
 import com.facebook.FacebookSdk.getApplicationContext
 import android.provider.Settings.Secure
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
+import co.orangesoft.authmanager.models.Profile
 import com.google.firebase.auth.FirebaseAuth
 import java.io.File
 
@@ -12,7 +13,12 @@ import java.io.File
 class UnregisteredUserControllerImpl(firebaseInstance: FirebaseAuth): FirebaseUserController<Profile>(firebaseInstance) {
 
     override var profile: Profile? =
-        Profile(Secure.getString(getApplicationContext().contentResolver, Secure.ANDROID_ID) ?: "unknown")
+        Profile(
+            Secure.getString(
+                getApplicationContext().contentResolver,
+                Secure.ANDROID_ID
+            ) ?: "unknown"
+        )
 
     override suspend fun update() {
         //do nothing

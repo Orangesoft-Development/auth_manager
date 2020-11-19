@@ -10,8 +10,7 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.runBlocking
 import java.io.File
 
-abstract class FirebaseUserController<T>(protected val firebaseInstance: FirebaseAuth)
-    : BaseUserController<T> {
+abstract class FirebaseUserController<T>(protected val firebaseInstance: FirebaseAuth) : BaseUserController<T> {
 
     abstract override var profile: T?
 

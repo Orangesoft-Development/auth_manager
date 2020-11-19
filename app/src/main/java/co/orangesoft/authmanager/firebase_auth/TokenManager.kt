@@ -1,10 +1,10 @@
-package co.orangesoft.authmanager
+package co.orangesoft.authmanager.firebase_auth
 
 import android.util.Log
 import by.orangesoft.auth.BaseTokenManager
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.TokenService
-import co.orangesoft.authmanager.user.Profile
+import co.orangesoft.authmanager.models.Profile
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

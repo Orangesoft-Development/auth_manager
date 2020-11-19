@@ -1,12 +1,12 @@
-package co.orangesoft.authmanager.user
+package co.orangesoft.authmanager.models
 
-import com.squareup.moshi.Json
+import com.google.gson.annotations.SerializedName
 
 class Profile(
     val id: String,
     var name: String? = null,
     var phoneNumber: String? = null,
-    @Json(name = "avatar_url")
+    @SerializedName("avatar_url")
     var avatarUrl: String? = null,
     var birthday: String? = null,
     var settings: Settings? = null
