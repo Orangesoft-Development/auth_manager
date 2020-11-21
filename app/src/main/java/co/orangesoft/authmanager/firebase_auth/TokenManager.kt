@@ -1,18 +1,19 @@
 package co.orangesoft.authmanager.firebase_auth
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import by.orangesoft.auth.BaseTokenManager
-import by.orangesoft.auth.credentials.firebase.FirebaseUserController
+import by.orangesoft.auth.user.BaseUserController
 import co.orangesoft.authmanager.api.TokenService
-import co.orangesoft.authmanager.models.Profile
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 
 class TokenManager(
+    user: LiveData<out BaseUserController<*>>,
     private val tokenServiceBaseUrl: String,
     private val interceptors: List<Interceptor>
-) : BaseTokenManager<FirebaseUserController<Profile>>() {
+) : BaseTokenManager(user) {
 
     private val okHttp: OkHttpClient by lazy {
         val builder = OkHttpClient.Builder()

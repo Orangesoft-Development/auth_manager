@@ -2,11 +2,11 @@ package co.orangesoft.authmanager
 
 import android.os.Bundle
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.lifecycle.MutableLiveData
 import by.orangesoft.auth.credentials.firebase.Firebase
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
 import co.orangesoft.authmanager.firebase_auth.AuthManager
@@ -15,8 +15,11 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
+    private val userLiveData = MutableLiveData<FirebaseUserController<Profile>>()
+
     private val loginSuccessListener: (FirebaseUserController<Profile>) -> Unit  = {
         Toast.makeText(this, "SUCCESS", Toast.LENGTH_SHORT).show()
+        userLiveData.postValue(it)
     }
 
     private val loginErrorListener: (Throwable) -> Unit = {
@@ -27,11 +30,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
-
-        findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }
 
         initViews()
     }
@@ -49,7 +47,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        val authManager = AuthManager.getInstance()
+        findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { view -> }
+
+        val authManager = AuthManager.getInstance(userLiveData)
 
         googleBtn.setOnClickListener {
             authManager.login(this, Firebase.Google(getString(R.string.server_client_id))) {

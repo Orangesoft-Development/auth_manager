@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import by.orangesoft.auth.credentials.BaseCredentialsManager
 import by.orangesoft.auth.credentials.firebase.FirebaseAuthManager
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
+import by.orangesoft.auth.user.BaseUserController
 import co.orangesoft.authmanager.api.provideAuthService
 import co.orangesoft.authmanager.api.provideOkHttp
 import co.orangesoft.authmanager.api.provideProfileService
@@ -37,10 +38,10 @@ class AuthManager(credManager: BaseCredentialsManager<FirebaseUserController<Pro
 
         const val BASE_URL = "http://github.com"
 
-        fun getInstance(): AuthManager {
+        fun getInstance(user: LiveData<out BaseUserController<*>> = MutableLiveData()): AuthManager {
             return AuthManager(
-                CredentialManager(provideAuthService(BASE_URL, provideOkHttp()),
-                    provideProfileService(BASE_URL, provideOkHttp())
+                CredentialManager(provideAuthService(BASE_URL, provideOkHttp(user)),
+                    provideProfileService(BASE_URL, provideOkHttp(user))
                 )
             )
         }

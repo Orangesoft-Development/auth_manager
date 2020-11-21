@@ -2,7 +2,7 @@ package by.orangesoft.auth
 
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
-import by.orangesoft.auth.credentials.firebase.FirebaseCredential
+import by.orangesoft.auth.credentials.BaseCredential
 import by.orangesoft.auth.user.BaseUserController
 
 interface AuthManagerInterface<T : BaseUserController<*>> {
@@ -16,12 +16,12 @@ interface AuthManagerInterface<T : BaseUserController<*>> {
 
     suspend fun deleteUser(listener: AuthListener<T>? = null)
 
-    fun getCredentials(): LiveData<Set<FirebaseCredential>>
+    fun getCredentials(): LiveData<Set<BaseCredential>>
 
     fun addCredential(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>? = null)
     fun addCredential(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>.() -> Unit) = addCredential(activity, method, AuthListener<T>(activity).apply(listener))
 
-    fun removeCredential(credential: FirebaseCredential, listener: AuthListener<T>? = null)
-    fun removeCredential(credential: FirebaseCredential, listener: AuthListener<T>.() -> Unit) = removeCredential(credential, AuthListener<T>().apply(listener))
+    fun removeCredential(credential: BaseCredential, listener: AuthListener<T>? = null)
+    fun removeCredential(credential: BaseCredential, listener: AuthListener<T>.() -> Unit) = removeCredential(credential, AuthListener<T>().apply(listener))
 
 }

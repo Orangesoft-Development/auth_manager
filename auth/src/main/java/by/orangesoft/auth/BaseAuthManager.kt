@@ -2,8 +2,8 @@ package by.orangesoft.auth
 
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
+import by.orangesoft.auth.credentials.BaseCredential
 import by.orangesoft.auth.credentials.BaseCredentialsManager
-import by.orangesoft.auth.credentials.firebase.FirebaseCredential
 import by.orangesoft.auth.user.BaseUserController
 import kotlinx.coroutines.Dispatchers
 
@@ -54,7 +54,7 @@ abstract class BaseAuthManager<T: BaseUserController<*>>(protected val credentia
         currentUser.value?.let { credentialsManager.deleteUser(it) }
     }
 
-    override fun getCredentials(): LiveData<Set<FirebaseCredential>> {
+    override fun getCredentials(): LiveData<Set<BaseCredential>> {
         return currentUser.value?.let {it.credentials } ?: throw KotlinNullPointerException("User does not exist")
     }
 
@@ -63,7 +63,7 @@ abstract class BaseAuthManager<T: BaseUserController<*>>(protected val credentia
         currentUser.value?.let { credentialsManager.addCredential(activity, it, method) }
     }
 
-    override fun removeCredential(credential: FirebaseCredential, listener: AuthListener<T>?) {
+    override fun removeCredential(credential: BaseCredential, listener: AuthListener<T>?) {
         authListener = listener
         currentUser.value?.let { credentialsManager.removeCredential(it, credential) }
     }
