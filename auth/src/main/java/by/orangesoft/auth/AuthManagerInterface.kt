@@ -7,7 +7,7 @@ import by.orangesoft.auth.user.BaseUserController
 
 interface AuthManagerInterface<T : BaseUserController<*>> {
 
-    val currentUser: LiveData<T>
+    fun getCurrentUser(): LiveData<T>
 
     fun login(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>? = null)
     fun login(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>.() -> Unit) = login(activity, method, AuthListener<T>(activity).apply(listener))

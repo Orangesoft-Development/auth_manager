@@ -15,11 +15,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    private val userLiveData = MutableLiveData<FirebaseUserController<Profile>>()
-
     private val loginSuccessListener: (FirebaseUserController<Profile>) -> Unit  = {
         Toast.makeText(this, "SUCCESS", Toast.LENGTH_SHORT).show()
-        userLiveData.postValue(it)
     }
 
     private val loginErrorListener: (Throwable) -> Unit = {
@@ -49,7 +46,7 @@ class MainActivity : AppCompatActivity() {
     private fun initViews() {
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { view -> }
 
-        val authManager = AuthManager.getInstance(userLiveData)
+        val authManager = AuthManager.getInstance()
 
         googleBtn.setOnClickListener {
             authManager.login(this, Firebase.Google(getString(R.string.server_client_id))) {

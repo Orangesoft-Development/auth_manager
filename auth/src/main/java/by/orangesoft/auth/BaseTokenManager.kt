@@ -1,8 +1,7 @@
 package by.orangesoft.auth
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import by.orangesoft.auth.user.BaseUserController
+import by.orangesoft.auth.user.UserProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -13,7 +12,6 @@ import java.net.HttpURLConnection
 import kotlin.coroutines.CoroutineContext
 
 abstract class BaseTokenManager (
-    protected val user: LiveData<out BaseUserController<*>>,
     protected open val authHeader: String = DEFAULT_AUTH_HEADER,
     protected open val tokenPrefix: String = DEFAULT_TOKEN_PREFIX
 ) : Interceptor, CoroutineScope {
@@ -24,7 +22,7 @@ abstract class BaseTokenManager (
         // Trying to make request with existing access token
         var response: Response?
         runBlocking {
-            val token = user.value?.getAccessToken() ?: ""
+            val token = UserProvider.currentUser.value?.getAccessToken() ?: ""
             response = chain.proceed(overrideRequest(chain.request(), token))
 
             // If request is failed by auth error, trying to refresh tokens and make one more request attempt
@@ -49,7 +47,7 @@ abstract class BaseTokenManager (
     }
 
     private suspend fun refreshAccessToken(successListener: () -> Unit) {
-        val token = user.value?.getAccessToken() ?: ""
+        val token = UserProvider.currentUser.value?.getAccessToken() ?: ""
         if (token.isNotEmpty()) {
             val responseModel = updateTokenApi(token)
             if (!responseModel.isSuccessful) {

@@ -1,9 +1,6 @@
 package co.orangesoft.authmanager.api
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import by.orangesoft.auth.user.BaseUserController
 import co.orangesoft.authmanager.firebase_auth.AuthManager
 import co.orangesoft.authmanager.firebase_auth.TokenManager
 import okhttp3.Interceptor
@@ -11,12 +8,11 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 
-fun provideOkHttp(user: LiveData<out BaseUserController<*>> = MutableLiveData(),
-                  interceptors: List<Interceptor> = arrayListOf()): OkHttpClient {
+fun provideOkHttp(interceptors: List<Interceptor> = arrayListOf()): OkHttpClient {
     val builder = OkHttpClient.Builder()
     interceptors.forEach { builder.addInterceptor(it) }
 
-    builder.addInterceptor(provideTokenInterceptor(AuthManager.BASE_URL, user))
+    builder.addInterceptor(provideTokenInterceptor(AuthManager.BASE_URL))
     builder.addInterceptor(
             HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
                 override fun log(message: String) {
@@ -46,7 +42,6 @@ internal fun provideProfileService(baseUrl: String, okHttpClient: OkHttpClient):
 }
 
 fun provideTokenInterceptor(tokenServiceBaseUrl: String,
-                            user: LiveData<out BaseUserController<*>>,
                             interceptors: List<Interceptor> = arrayListOf()): TokenManager {
-    return TokenManager(user, tokenServiceBaseUrl, interceptors)
+    return TokenManager(tokenServiceBaseUrl, interceptors)
 }

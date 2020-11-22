@@ -1,26 +1,31 @@
 package by.orangesoft.auth
 
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import by.orangesoft.auth.credentials.BaseCredential
 import by.orangesoft.auth.credentials.BaseCredentialsManager
 import by.orangesoft.auth.user.BaseUserController
+import by.orangesoft.auth.user.UserProvider
 import kotlinx.coroutines.Dispatchers
 
 abstract class BaseAuthManager<T: BaseUserController<*>>(protected val credentialsManager: BaseCredentialsManager<T>): AuthManagerInterface<T> {
 
-    final override val currentUser: LiveData<T> = MutableLiveData()
+    private var authListener: AuthListener<T>? = null
 
-    private var authListener:  AuthListener<T>? = null
+    @Suppress("UNCHECKED_CAST")
+    final override fun getCurrentUser(): LiveData<T> {
+        return UserProvider.currentUser as LiveData<T>
+    }
 
     protected open val onAuthSuccessListener: (T) -> Unit = {
-            (currentUser as MutableLiveData).postValue(it)
+        (getCurrentUser() as MutableLiveData).postValue(it)
 
-            synchronized(this@BaseAuthManager) {
-                authListener?.invoke(it)
-                authListener = null
-            }
+        synchronized(this@BaseAuthManager) {
+            authListener?.invoke(it)
+            authListener = null
         }
+    }
 
     protected open val onAuthErrorListener: (Throwable) -> Unit = {
         synchronized(this@BaseAuthManager) {
@@ -36,7 +41,7 @@ abstract class BaseAuthManager<T: BaseUserController<*>>(protected val credentia
 
     init {
         credentialsManager.setAuthListener(credentialListener)
-        (currentUser as MutableLiveData).postValue(credentialsManager.getLoggedUser())
+        (getCurrentUser() as MutableLiveData).postValue(credentialsManager.getLoggedUser())
     }
 
     override fun login(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>?) {
@@ -46,25 +51,29 @@ abstract class BaseAuthManager<T: BaseUserController<*>>(protected val credentia
 
     override suspend fun logout(listener: AuthListener<T>?) {
         authListener = listener
-        currentUser.value?.let { credentialsManager.logout(it) }
+        getCurrentUser().value?.let { credentialsManager.logout(it) }
     }
 
     override suspend fun deleteUser(listener: AuthListener<T>?) {
         authListener = listener
-        currentUser.value?.let { credentialsManager.deleteUser(it) }
+        getCurrentUser().value?.let { credentialsManager.deleteUser(it) }
     }
 
     override fun getCredentials(): LiveData<Set<BaseCredential>> {
-        return currentUser.value?.let {it.credentials } ?: throw KotlinNullPointerException("User does not exist")
+        return getCurrentUser().value?.let {it.credentials } ?: throw KotlinNullPointerException("User does not exist")
     }
 
-    override fun addCredential(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>?) {
+    override fun addCredential(
+        activity: FragmentActivity,
+        method: AuthMethod,
+        listener: AuthListener<T>?
+    ) {
         authListener = listener
-        currentUser.value?.let { credentialsManager.addCredential(activity, it, method) }
+        getCurrentUser().value?.let { credentialsManager.addCredential(activity, it, method) }
     }
 
     override fun removeCredential(credential: BaseCredential, listener: AuthListener<T>?) {
         authListener = listener
-        currentUser.value?.let { credentialsManager.removeCredential(it, credential) }
+        getCurrentUser().value?.let { credentialsManager.removeCredential(it, credential) }
     }
 }

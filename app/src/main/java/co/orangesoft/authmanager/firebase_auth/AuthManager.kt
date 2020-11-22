@@ -38,10 +38,10 @@ class AuthManager(credManager: BaseCredentialsManager<FirebaseUserController<Pro
 
         const val BASE_URL = "http://github.com"
 
-        fun getInstance(user: LiveData<out BaseUserController<*>> = MutableLiveData()): AuthManager {
+        fun getInstance(): AuthManager {
             return AuthManager(
-                CredentialManager(provideAuthService(BASE_URL, provideOkHttp(user)),
-                    provideProfileService(BASE_URL, provideOkHttp(user))
+                CredentialManager(provideAuthService(BASE_URL, provideOkHttp()),
+                    provideProfileService(BASE_URL, provideOkHttp())
                 )
             )
         }
