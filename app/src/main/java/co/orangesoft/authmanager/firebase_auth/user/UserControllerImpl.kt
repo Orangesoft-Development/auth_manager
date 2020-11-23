@@ -6,6 +6,7 @@ import by.orangesoft.auth.credentials.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.ProfileService
 import co.orangesoft.authmanager.models.Profile
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -22,14 +23,6 @@ class UserControllerImpl(
     private val TAG = "UserControllerImpl"
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO
-
-    override var profile: Profile? = firebaseInstance.currentUser?.let {
-        Profile(
-            it.uid,
-            it.displayName,
-            it.phoneNumber
-        )
-    }
 
     override suspend fun update() {
         profile?.let {
@@ -85,10 +78,16 @@ class UserControllerImpl(
         }
     }
 
-    private fun updateAccount() {
-        updateAccount {
-            it.displayName = profile?.name
-            it.photoUri = Uri.parse(profile?.avatarUrl ?: "")
+    override fun updateAccount(profile: Profile?) {
+        val resultProfile = profile ?: this.profile
+
+        firebaseInstance.currentUser?.apply {
+            updateProfile(UserProfileChangeRequest.Builder().also {
+                it.displayName = resultProfile?.name
+                it.photoUri = Uri.parse(resultProfile?.avatarUrl ?: "")
+            }.build()).addOnSuccessListener {
+                firebaseInstance.updateCurrentUser(this)
+            }.addOnFailureListener { Log.e(TAG, "Unable update firebase profile", it) }
         }
     }
 }

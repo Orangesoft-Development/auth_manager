@@ -2,16 +2,14 @@ package co.orangesoft.authmanager.firebase_auth
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import by.orangesoft.auth.credentials.BaseCredentialsManager
 import by.orangesoft.auth.credentials.firebase.FirebaseAuthManager
-import by.orangesoft.auth.credentials.firebase.FirebaseUserController
-import by.orangesoft.auth.user.BaseUserController
+import by.orangesoft.auth.credentials.firebase.FirebaseCredentialsManager
 import co.orangesoft.authmanager.api.provideAuthService
 import co.orangesoft.authmanager.api.provideOkHttp
 import co.orangesoft.authmanager.api.provideProfileService
 import co.orangesoft.authmanager.models.Profile
 
-class AuthManager(credManager: BaseCredentialsManager<FirebaseUserController<Profile>>) : FirebaseAuthManager<FirebaseUserController<Profile>>(credManager) {
+class AuthManager(credManager: FirebaseCredentialsManager<Profile>) : FirebaseAuthManager<Profile>(credManager) {
 
     enum class UserStatus {
         REGISTERED,

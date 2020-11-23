@@ -1,6 +1,5 @@
 package co.orangesoft.authmanager.firebase_auth
 
-import android.net.Uri
 import android.util.Log
 import by.orangesoft.auth.AuthMethod
 import by.orangesoft.auth.credentials.BaseCredential
@@ -17,7 +16,7 @@ import com.google.firebase.auth.FirebaseAuth
 internal class CredentialManager(
     private val authService: AuthService,
     private val profileService: ProfileService
-): FirebaseCredentialsManager<FirebaseUserController<Profile>>() {
+): FirebaseCredentialsManager<Profile>() {
 
     override fun getLoggedUser(): FirebaseUserController<Profile> =
         firebaseInstance.currentUser?.let {
@@ -31,13 +30,10 @@ internal class CredentialManager(
             if (profileResponse.isSuccessful) {
 
                 profileResponse.body()?.let { profile ->
-                    getLoggedUser().updateAccount {
-                        it.displayName = profile.name
-                        it.photoUri = Uri.parse(profile.avatarUrl ?: "")
-                    }
+                    getLoggedUser().updateAccount(profile)
                 }
 
-                return createUserController(credentialResult, firebaseInstance)
+                return getLoggedUser()
 
             } else {
                 firebaseInstance.signOut()
@@ -114,8 +110,6 @@ internal class CredentialManager(
             listener?.invoke(e)
         }
     }
-
-    override fun createUserController(credentialResult: CredentialResult, firebaseInstance: FirebaseAuth): FirebaseUserController<Profile> = getLoggedUser()
 
     override fun getBuilder(method: AuthMethod): Builder =
         CredBuilder(method)

@@ -7,20 +7,19 @@ import by.orangesoft.auth.credentials.BaseCredential
 import by.orangesoft.auth.user.BaseUserController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.runBlocking
 import java.io.File
 
-abstract class FirebaseUserController<T>(protected val firebaseInstance: FirebaseAuth) : BaseUserController<T> {
+open class FirebaseUserController<T>(protected val firebaseInstance: FirebaseAuth) : BaseUserController<T> {
 
-    abstract override var profile: T?
+    override var profile: T? = null
 
     override val credentials: LiveData<Set<BaseCredential>> by lazy {
         MutableLiveData<Set<BaseCredential>>().apply { postValue(getCredentialsList()) }
     }
 
     val currentUser: FirebaseUser? = firebaseInstance.currentUser
-    private val TAG = "FirebaseUserController";
+    private val TAG = "FirebaseUserController"
 
     override suspend fun update() {
         currentUser?.let {
@@ -54,6 +53,7 @@ abstract class FirebaseUserController<T>(protected val firebaseInstance: Firebas
         currentUser?.reload()
     }
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     override suspend fun getAccessToken(): String {
         var token = ""
         runBlocking {
@@ -69,13 +69,5 @@ abstract class FirebaseUserController<T>(protected val firebaseInstance: Firebas
         return token
     }
 
-    override fun updateAccount(function: (UserProfileChangeRequest.Builder) -> Unit) {
-        firebaseInstance.currentUser?.apply {
-            updateProfile(UserProfileChangeRequest.Builder().also {
-                function.invoke(it)
-            }.build()).addOnSuccessListener {
-                firebaseInstance.updateCurrentUser(this)
-            }.addOnFailureListener { Log.e(TAG, "Unable update firebase profile", it) }
-        }
-    }
+    override fun updateAccount(profile: T?) {}
 }
