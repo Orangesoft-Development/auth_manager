@@ -1,6 +1,6 @@
 package co.orangesoft.authmanager.api
 
-import co.orangesoft.authmanager.models.Profile
+import co.orangesoft.authmanager.firebase_auth.user.Profile
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*

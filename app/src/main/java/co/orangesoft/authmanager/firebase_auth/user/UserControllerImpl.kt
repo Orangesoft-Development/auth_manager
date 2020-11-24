@@ -2,9 +2,9 @@ package co.orangesoft.authmanager.firebase_auth.user
 
 import android.net.Uri
 import android.util.Log
+import by.orangesoft.auth.credentials.firebase.FirebaseProfile
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.ProfileService
-import co.orangesoft.authmanager.models.Profile
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.CoroutineScope
@@ -18,14 +18,23 @@ import kotlin.coroutines.CoroutineContext
 class UserControllerImpl(
     firebaseInstance: FirebaseAuth,
     private val profileService: ProfileService
-) : FirebaseUserController<Profile>(firebaseInstance), CoroutineScope {
+) : FirebaseUserController(firebaseInstance), CoroutineScope {
 
-    private val TAG = "UserControllerImpl"
+    override var profile: FirebaseProfile? =
+        currentUser?.let {
+            Profile(
+                it.uid,
+                it.providerId,
+                it.displayName,
+                it.phoneNumber,
+                it.photoUrl.toString()
+            )
+        }
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO
 
     override suspend fun update() {
-        profile?.let {
+        (profile as? Profile)?.let {
             try {
                 val response = profileService.patchProfile(getAccessToken(), it)
 
@@ -42,23 +51,25 @@ class UserControllerImpl(
     }
 
     override suspend fun updateAvatar(file: File, listener: (Throwable?) -> Unit) {
-        val body = file.asRequestBody("image/*".toMediaTypeOrNull())
-        profile?.avatarUrl = file.absolutePath
+        (profile as? Profile)?.let {profile ->
+            val body = file.asRequestBody("image/*".toMediaTypeOrNull())
+            profile.avatarUrl = file.absolutePath
 
-        try {
-            val response = profileService.postProfileAvatar(getAccessToken(), body)
+            try {
+                val response = profileService.postProfileAvatar(getAccessToken(), body)
 
-            if (response.isSuccessful) {
-                profile?.avatarUrl = response.body()?.avatarUrl
-                updateAccount()
-                listener(null)
-            } else {
-                profile?.avatarUrl = null
-                listener(Throwable(response.message()))
+                if (response.isSuccessful) {
+                    profile.avatarUrl = response.body()?.avatarUrl
+                    updateAccount()
+                    listener(null)
+                } else {
+                    profile.avatarUrl = null
+                    listener(Throwable(response.message()))
+                }
+            } catch (e: Exception) {
+                profile.avatarUrl = null
+                listener(e)
             }
-        } catch (e: Exception) {
-            profile?.avatarUrl = null
-            listener(e)
         }
     }
 
@@ -67,8 +78,7 @@ class UserControllerImpl(
             val response = profileService.getProfile(getAccessToken())
 
             if (response.isSuccessful) {
-                profile = response.body()
-                updateAccount()
+                updateAccount(response.body())
             } else {
                 Log.e(TAG, response.message())
             }
@@ -78,16 +88,24 @@ class UserControllerImpl(
         }
     }
 
-    override fun updateAccount(profile: Profile?) {
-        val resultProfile = profile ?: this.profile
+    override fun updateAccount(firebaseProfile: FirebaseProfile?) {
+        firebaseProfile?.let {
+            this.profile = it
+        }
 
         firebaseInstance.currentUser?.apply {
             updateProfile(UserProfileChangeRequest.Builder().also {
-                it.displayName = resultProfile?.name
-                it.photoUri = Uri.parse(resultProfile?.avatarUrl ?: "")
+                (profile as? Profile)?.let { profile ->
+                    it.displayName = profile.name
+                    it.photoUri = Uri.parse(profile.avatarUrl ?: "")
+                }
             }.build()).addOnSuccessListener {
                 firebaseInstance.updateCurrentUser(this)
             }.addOnFailureListener { Log.e(TAG, "Unable update firebase profile", it) }
         }
+    }
+
+    companion object {
+        private const val TAG = "UserControllerImpl"
     }
 }

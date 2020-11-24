@@ -3,16 +3,16 @@ package co.orangesoft.authmanager.firebase_auth.user
 import android.annotation.SuppressLint
 import com.facebook.FacebookSdk.getApplicationContext
 import android.provider.Settings.Secure
+import by.orangesoft.auth.credentials.firebase.FirebaseProfile
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
-import co.orangesoft.authmanager.models.Profile
 import com.google.firebase.auth.FirebaseAuth
 import java.io.File
 
 
 @SuppressLint("HardwareIds")
-class UnregisteredUserControllerImpl(firebaseInstance: FirebaseAuth): FirebaseUserController<Profile>(firebaseInstance) {
+class UnregisteredUserControllerImpl(firebaseInstance: FirebaseAuth): FirebaseUserController(firebaseInstance) {
 
-    override var profile: Profile? =
+    override var profile: FirebaseProfile? =
         Profile(
             Secure.getString(
                 getApplicationContext().contentResolver,

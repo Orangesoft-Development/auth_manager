@@ -4,9 +4,9 @@ import androidx.lifecycle.LiveData
 import by.orangesoft.auth.credentials.BaseCredential
 import java.io.File
 
-interface BaseUserController<T> {
+interface BaseUserController<P> {
 
-    val profile: T?
+    var profile: P?
     val credentials: LiveData<Set<BaseCredential>>
 
     suspend fun update()
@@ -15,5 +15,5 @@ interface BaseUserController<T> {
 
     suspend fun getAccessToken(): String
 
-    fun updateAccount(profile: T? = null)
+    fun updateAccount(profile: P? = null)
 }

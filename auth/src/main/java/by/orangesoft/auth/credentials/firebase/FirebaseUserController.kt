@@ -10,16 +10,22 @@ import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.runBlocking
 import java.io.File
 
-open class FirebaseUserController<T>(protected val firebaseInstance: FirebaseAuth) : BaseUserController<T> {
+open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) : BaseUserController<FirebaseProfile> {
 
-    override var profile: T? = null
+    val currentUser: FirebaseUser? = firebaseInstance.currentUser
+
+    override var profile = currentUser?.let {
+        FirebaseProfile(it.uid,
+            it.providerId,
+            it.displayName,
+            it.phoneNumber,
+            it.photoUrl.toString(),
+            it.email)
+    }
 
     override val credentials: LiveData<Set<BaseCredential>> by lazy {
         MutableLiveData<Set<BaseCredential>>().apply { postValue(getCredentialsList()) }
     }
-
-    val currentUser: FirebaseUser? = firebaseInstance.currentUser
-    private val TAG = "FirebaseUserController"
 
     override suspend fun update() {
         currentUser?.let {
@@ -49,6 +55,10 @@ open class FirebaseUserController<T>(protected val firebaseInstance: FirebaseAut
         //do nothing
     }
 
+    override fun updateAccount(firebaseProfile: FirebaseProfile?) {
+        //do nothing
+    }
+
     override suspend fun refresh() {
         currentUser?.reload()
     }
@@ -69,5 +79,7 @@ open class FirebaseUserController<T>(protected val firebaseInstance: FirebaseAut
         return token
     }
 
-    override fun updateAccount(profile: T?) {}
+    companion object {
+        private const val TAG = "FirebaseUserController"
+    }
 }

@@ -9,12 +9,11 @@ import android.widget.Toast
 import by.orangesoft.auth.credentials.firebase.Firebase
 import by.orangesoft.auth.credentials.firebase.FirebaseUserController
 import co.orangesoft.authmanager.firebase_auth.AuthManager
-import co.orangesoft.authmanager.models.Profile
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    private val loginSuccessListener: (FirebaseUserController<Profile>) -> Unit  = {
+    private val loginSuccessListener: (FirebaseUserController) -> Unit  = {
         Toast.makeText(this, "SUCCESS", Toast.LENGTH_SHORT).show()
     }
 

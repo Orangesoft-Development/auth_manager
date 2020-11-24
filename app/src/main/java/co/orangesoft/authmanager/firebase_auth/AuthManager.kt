@@ -7,9 +7,8 @@ import by.orangesoft.auth.credentials.firebase.FirebaseCredentialsManager
 import co.orangesoft.authmanager.api.provideAuthService
 import co.orangesoft.authmanager.api.provideOkHttp
 import co.orangesoft.authmanager.api.provideProfileService
-import co.orangesoft.authmanager.models.Profile
 
-class AuthManager(credManager: FirebaseCredentialsManager<Profile>) : FirebaseAuthManager<Profile>(credManager) {
+class AuthManager(credManager: FirebaseCredentialsManager) : FirebaseAuthManager(credManager) {
 
     enum class UserStatus {
         REGISTERED,

@@ -10,21 +10,18 @@ import by.orangesoft.auth.credentials.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.AuthService
 import co.orangesoft.authmanager.api.ProfileService
 import co.orangesoft.authmanager.firebase_auth.user.*
-import co.orangesoft.authmanager.models.Profile
-import com.google.firebase.auth.FirebaseAuth
 
 internal class CredentialManager(
     private val authService: AuthService,
     private val profileService: ProfileService
-): FirebaseCredentialsManager<Profile>() {
+): FirebaseCredentialsManager() {
 
-    override fun getLoggedUser(): FirebaseUserController<Profile> =
+    override fun getLoggedUser(): FirebaseUserController =
         firebaseInstance.currentUser?.let {
             UserControllerImpl(firebaseInstance, profileService)
         } ?: UnregisteredUserControllerImpl(firebaseInstance)
 
-    override suspend fun onLogged(credentialResult: CredentialResult): FirebaseUserController<Profile> {
-
+    override suspend fun onLogged(credentialResult: CredentialResult): FirebaseUserController {
         try {
             val profileResponse = authService.login(credentialResult)
             if (profileResponse.isSuccessful) {
@@ -46,7 +43,7 @@ internal class CredentialManager(
         }
     }
 
-    override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: FirebaseUserController<Profile>) {
+    override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: FirebaseUserController) {
         try {
             val profileResponse = authService.addCreds(user.getAccessToken(), credentialResult.method.providerId)
             if (profileResponse.isSuccessful) {
@@ -59,7 +56,7 @@ internal class CredentialManager(
         }
     }
 
-    override suspend fun onCredentialRemoved(credential: BaseCredential, user: FirebaseUserController<Profile>) {
+    override suspend fun onCredentialRemoved(credential: BaseCredential, user: FirebaseUserController) {
         try {
             val profileResponse = authService.removeCreds(user.getAccessToken(), credential.providerId.replace(".com", ""))
             if (profileResponse.isSuccessful) {
@@ -72,7 +69,7 @@ internal class CredentialManager(
         }
     }
 
-    override suspend fun logout(user: FirebaseUserController<Profile>) {
+    override suspend fun logout(user: FirebaseUserController) {
         try {
             val response = authService.logout(user.getAccessToken())
 
@@ -90,7 +87,7 @@ internal class CredentialManager(
         user.updateCredentials()
     }
 
-    override suspend fun deleteUser(user: FirebaseUserController<Profile>) {
+    override suspend fun deleteUser(user: FirebaseUserController) {
         try {
             if (user is UserControllerImpl) {
                 val response = authService.delete(user.getAccessToken())

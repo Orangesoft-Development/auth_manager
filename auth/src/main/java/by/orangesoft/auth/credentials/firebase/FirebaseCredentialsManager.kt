@@ -8,45 +8,44 @@ import by.orangesoft.auth.credentials.BaseCredentialsManager
 import by.orangesoft.auth.credentials.firebase.controllers.AppleCredentialController
 import by.orangesoft.auth.credentials.firebase.controllers.FacebookCredentialController
 import by.orangesoft.auth.credentials.firebase.controllers.GoogleCredentialController
-import by.orangesoft.auth.user.BaseProfile
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import kotlin.NoSuchElementException
 
-open class FirebaseCredentialsManager<P: BaseProfile>: BaseCredentialsManager<FirebaseUserController<P>>() {
+open class FirebaseCredentialsManager: BaseCredentialsManager<FirebaseUserController>() {
 
     protected val firebaseInstance: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
-    override suspend fun onLogged(credentialResult: CredentialResult): FirebaseUserController<P> {
+    override suspend fun onLogged(credentialResult: CredentialResult): FirebaseUserController {
         val user = getLoggedUser()
         user.updateCredentials()
         return user
     }
 
-    override fun getLoggedUser(): FirebaseUserController<P> {
+    override fun getLoggedUser(): FirebaseUserController {
         return FirebaseUserController(firebaseInstance = this.firebaseInstance)
     }
 
-    override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: FirebaseUserController<P>) {
+    override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: FirebaseUserController) {
         user.updateCredentials()
     }
 
-    override suspend fun onCredentialRemoved(credential: BaseCredential, user: FirebaseUserController<P>) {
+    override suspend fun onCredentialRemoved(credential: BaseCredential, user: FirebaseUserController) {
         user.updateCredentials()
     }
 
-    override suspend fun logout(user: FirebaseUserController<P>) {
+    override suspend fun logout(user: FirebaseUserController) {
         launch { firebaseInstance.signOut() }
     }
 
-    override suspend fun deleteUser(user: FirebaseUserController<P>) {
+    override suspend fun deleteUser(user: FirebaseUserController) {
         launch {
             firebaseInstance.currentUser?.delete()
             firebaseInstance.signOut()
         }
     }
 
-    override fun removeCredential(user: FirebaseUserController<P>, credential: BaseCredential) {
+    override fun removeCredential(user: FirebaseUserController, credential: BaseCredential) {
         if(user.credentials.value?.let { creds -> creds.firstOrNull { it.equals(credential) } != null && creds.size > 1 } != true){
             onCredentialException.invoke(NoSuchElementException("Cannot remove method $credential"))
             return
