@@ -68,7 +68,7 @@ object Depends {
         const val runtime = "androidx.lifecycle:lifecycle-runtime:${Versions.lifecycle}"
         const val extensions = "androidx.lifecycle:lifecycle-extensions:${Versions.lifecycle}"
         const val viewModelExtensions = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}"
-        const val liveDataExtensions = "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.lifecycle}"
+        //const val liveDataExtensions = "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.lifecycle}"
     }
 
     object LifecyclePlugins {

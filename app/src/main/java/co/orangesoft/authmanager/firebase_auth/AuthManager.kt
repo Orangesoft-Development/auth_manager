@@ -1,32 +1,38 @@
 package co.orangesoft.authmanager.firebase_auth
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import by.orangesoft.auth.credentials.firebase.FirebaseAuthManager
 import by.orangesoft.auth.credentials.firebase.FirebaseCredentialsManager
 import co.orangesoft.authmanager.api.provideAuthService
 import co.orangesoft.authmanager.api.provideOkHttp
 import co.orangesoft.authmanager.api.provideProfileService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
-class AuthManager(credManager: FirebaseCredentialsManager) : FirebaseAuthManager(credManager) {
+class AuthManager(credManager: FirebaseCredentialsManager) : FirebaseAuthManager(credManager), CoroutineScope {
 
     enum class UserStatus {
         REGISTERED,
         UNREGISTERED
     }
 
-    val userStatus: LiveData<UserStatus> by lazy {
-        MutableLiveData<UserStatus>().apply { postValue(
-            UserStatus.UNREGISTERED
-        ) }
+    override val coroutineContext: CoroutineContext = Dispatchers.Main
+
+    val userStatus: MutableStateFlow<UserStatus> by lazy {
+        MutableStateFlow(UserStatus.UNREGISTERED)
     }
 
     init {
-        getCredentials().observeForever { creds ->
-            if (creds.isEmpty() || (creds.size == 1 && creds.first().providerId == "firebase")) {
-                (userStatus as MutableLiveData).postValue(UserStatus.UNREGISTERED)
-            } else {
-                (userStatus as MutableLiveData).postValue(UserStatus.REGISTERED)
+        launch {
+            getCredentials().collect { creds ->
+                if (creds.isEmpty()) {
+                    userStatus.value = UserStatus.UNREGISTERED
+                } else {
+                    userStatus.value = UserStatus.REGISTERED
+                }
             }
         }
     }

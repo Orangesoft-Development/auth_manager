@@ -22,7 +22,7 @@ abstract class BaseTokenManager (
         // Trying to make request with existing access token
         var response: Response?
         runBlocking {
-            val token = UserProvider.currentUser.value?.getAccessToken() ?: ""
+            val token = UserProvider.currentUser.value.getAccessToken()
             response = chain.proceed(overrideRequest(chain.request(), token))
 
             // If request is failed by auth error, trying to refresh tokens and make one more request attempt
@@ -47,7 +47,7 @@ abstract class BaseTokenManager (
     }
 
     private suspend fun refreshAccessToken(successListener: () -> Unit) {
-        val token = UserProvider.currentUser.value?.getAccessToken() ?: ""
+        val token = UserProvider.currentUser.value.getAccessToken()
         if (token.isNotEmpty()) {
             val responseModel = updateTokenApi(token)
             if (!responseModel.isSuccessful) {

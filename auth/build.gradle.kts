@@ -23,10 +23,6 @@ android {
         versionName = Config.Application.versionName
     }
 
-    dataBinding {
-        isEnabled = true
-    }
-
     androidExtensions {
         isExperimental = true
     }
@@ -50,7 +46,7 @@ dependencies {
 
     implementation(Depends.Lifecycle.runtime)
     implementation(Depends.Lifecycle.extensions)
-    implementation(Depends.Lifecycle.liveDataExtensions)
+    //implementation(Depends.Lifecycle.liveDataExtensions)
     kapt(Depends.LifecyclePlugins.plugin)
 
     implementation(Depends.Database.runtime)

@@ -1,12 +1,11 @@
 package by.orangesoft.auth.credentials.firebase
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import by.orangesoft.auth.credentials.BaseCredential
 import by.orangesoft.auth.user.BaseUserController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import java.io.File
 
@@ -23,8 +22,8 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
             it.email)
     }
 
-    override val credentials: LiveData<Set<BaseCredential>> by lazy {
-        MutableLiveData<Set<BaseCredential>>().apply { postValue(getCredentialsList()) }
+    override val credentials: MutableStateFlow<Set<BaseCredential>> by lazy {
+        MutableStateFlow<Set<BaseCredential>>(getCredentialsList())
     }
 
     override suspend fun update() {
@@ -48,14 +47,14 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
     }?.toSet() ?: HashSet()
 
     fun updateCredentials() {
-        (credentials as MutableLiveData).postValue(getCredentialsList())
+        credentials.value = getCredentialsList()
     }
 
     override suspend fun updateAvatar(file: File, listener: (Throwable?) -> Unit) {
         //do nothing
     }
 
-    override fun updateAccount(firebaseProfile: FirebaseProfile?) {
+    override fun updateAccount(profile: FirebaseProfile?) {
         //do nothing
     }
 

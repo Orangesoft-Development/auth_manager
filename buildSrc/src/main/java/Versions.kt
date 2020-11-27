@@ -10,12 +10,12 @@ object Versions {
         const val mavenGradlePlugin = "1.5"
     }
     
-    const val kotlin = "1.3.61"
+    const val kotlin = "1.4.20"
     const val googleServices = "4.3.3"
 
     const val ktxVersion = "1.2.+"
 
-    const val coroutines = "1.3.3"
+    const val coroutines = "1.4.0"
     const val material = "1.2.+"
     const val appcompat = "1.1.0"
     const val paging = "2.1.1"

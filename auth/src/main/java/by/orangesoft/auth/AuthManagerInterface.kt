@@ -1,13 +1,13 @@
 package by.orangesoft.auth
 
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.LiveData
 import by.orangesoft.auth.credentials.BaseCredential
 import by.orangesoft.auth.user.BaseUserController
+import kotlinx.coroutines.flow.MutableStateFlow
 
 interface AuthManagerInterface<T : BaseUserController<*>> {
 
-    fun getCurrentUser(): LiveData<T>
+    fun getCurrentUser(): MutableStateFlow<T>
 
     fun login(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>? = null)
     fun login(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>.() -> Unit) = login(activity, method, AuthListener<T>(activity).apply(listener))
@@ -16,7 +16,7 @@ interface AuthManagerInterface<T : BaseUserController<*>> {
 
     suspend fun deleteUser(listener: AuthListener<T>? = null)
 
-    fun getCredentials(): LiveData<Set<BaseCredential>>
+    fun getCredentials(): MutableStateFlow<Set<BaseCredential>>
 
     fun addCredential(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>? = null)
     fun addCredential(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>.() -> Unit) = addCredential(activity, method, AuthListener<T>(activity).apply(listener))
