@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import java.lang.Exception
 import java.lang.UnsupportedOperationException
 import kotlin.coroutines.CoroutineContext
+import kotlin.jvm.Throws
 
 abstract class BaseCredentialsManager<T: BaseUserController<*>> (override val coroutineContext: CoroutineContext = Dispatchers.IO): CoroutineScope {
 
@@ -58,7 +59,7 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (override val co
     abstract suspend fun deleteUser(user: T)
 
     open fun addCredential(activity: FragmentActivity, user: T, method: AuthMethod) {
-        if(user.credentials.value?.firstOrNull { it.equals(method) } != null){
+        if(user.credentials.value.firstOrNull { it.equals(method) } != null){
             listener?.invoke(user)
             return
         }
@@ -79,7 +80,7 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (override val co
     }
 
     open fun removeCredential(user: T, credential: BaseCredential) {
-        if(user.credentials.value?.let { creds -> creds.firstOrNull { it.equals(credential) } != null && creds.size > 1 } != true){
+        if(!user.credentials.value.let { creds -> creds.firstOrNull { it == credential } != null && creds.size > 1 }) {
             onCredentialException.invoke(NoSuchElementException("Cannot remove method $credential"))
             return
         }

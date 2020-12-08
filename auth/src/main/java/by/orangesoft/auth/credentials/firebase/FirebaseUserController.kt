@@ -6,6 +6,7 @@ import by.orangesoft.auth.user.BaseUserController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.runBlocking
 import java.io.File
 
@@ -22,7 +23,7 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
             it.email)
     }
 
-    override val credentials: MutableStateFlow<Set<BaseCredential>> by lazy {
+    override val credentials: StateFlow<Set<BaseCredential>> by lazy {
         MutableStateFlow<Set<BaseCredential>>(getCredentialsList())
     }
 
@@ -47,7 +48,7 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
     }?.toSet() ?: HashSet()
 
     fun updateCredentials() {
-        credentials.value = getCredentialsList()
+        (credentials as MutableStateFlow<Set<BaseCredential>>).value = getCredentialsList()
     }
 
     override suspend fun updateAvatar(file: File, listener: (Throwable?) -> Unit) {

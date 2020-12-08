@@ -7,18 +7,19 @@ import by.orangesoft.auth.user.BaseUserController
 import by.orangesoft.auth.user.UserProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 abstract class BaseAuthManager<T: BaseUserController<*>>(protected val credentialsManager: BaseCredentialsManager<T>): AuthManagerInterface<T> {
 
     private var authListener: AuthListener<T>? = null
 
     @Suppress("UNCHECKED_CAST")
-    final override fun getCurrentUser(): MutableStateFlow<T> {
+    final override fun getCurrentUser(): StateFlow<T> {
         return UserProvider.currentUser as MutableStateFlow<T>
     }
 
     protected open val onAuthSuccessListener: (T) -> Unit = {
-        getCurrentUser().value = it
+        (getCurrentUser() as MutableStateFlow<T>).value  = it
 
         synchronized(this@BaseAuthManager) {
             authListener?.invoke(it)
@@ -40,7 +41,7 @@ abstract class BaseAuthManager<T: BaseUserController<*>>(protected val credentia
 
     init {
         credentialsManager.setAuthListener(credentialListener)
-        credentialsManager.getLoggedUser()?.let { getCurrentUser().value = it }
+        credentialsManager.getLoggedUser()?.let { (getCurrentUser() as MutableStateFlow<T>).value = it }
     }
 
     override fun login(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>?) {
@@ -58,7 +59,7 @@ abstract class BaseAuthManager<T: BaseUserController<*>>(protected val credentia
         credentialsManager.deleteUser(getCurrentUser().value)
     }
 
-    override fun getCredentials(): MutableStateFlow<Set<BaseCredential>> {
+    override fun getCredentials(): StateFlow<Set<BaseCredential>> {
         return getCurrentUser().value.credentials
     }
 
