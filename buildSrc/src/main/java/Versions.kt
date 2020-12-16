@@ -38,8 +38,8 @@ object Versions {
 
     const val lifecycle = "2.2.0"
     const val constraintLayout = "2.0.+"
-    const val fragments = "1.3.0-alpha08"
-    const val activityKtx = "1.2.0-alpha08"
+    const val fragments = "1.3.0-beta02"
+    const val activityKtx = "1.2.0-beta02"
     const val annotations = "1.1.0"
     const val cardView = "1.0.0"
 

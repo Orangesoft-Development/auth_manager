@@ -19,6 +19,12 @@ abstract class BaseTokenManager<T: ITokenController> (
         protected open val tokenPrefix: String = DEFAULT_TOKEN_PREFIX
 ) : Interceptor, CoroutineScope {
 
+    companion object {
+        const val TAG = "TokenManager"
+        const val DEFAULT_AUTH_HEADER = "Authorization"
+        const val DEFAULT_TOKEN_PREFIX = "Bearer "
+    }
+
     override val coroutineContext: CoroutineContext = Dispatchers.IO
 
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -63,10 +69,4 @@ abstract class BaseTokenManager<T: ITokenController> (
 
     @Throws(Throwable::class)
     abstract suspend fun updateTokenApi(accessToken: String)
-
-    companion object {
-        const val TAG = "TokenManager"
-        const val DEFAULT_AUTH_HEADER = "Authorization"
-        const val DEFAULT_TOKEN_PREFIX = "Bearer "
-    }
 }

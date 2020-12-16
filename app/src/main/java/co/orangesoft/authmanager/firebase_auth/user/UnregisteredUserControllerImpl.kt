@@ -4,13 +4,11 @@ import android.annotation.SuppressLint
 import com.facebook.FacebookSdk.getApplicationContext
 import android.provider.Settings.Secure
 import by.orangesoft.auth.firebase.FirebaseProfile
-import by.orangesoft.auth.firebase.FirebaseUserController
 import com.google.firebase.auth.FirebaseAuth
 import java.io.File
 
-
 @SuppressLint("HardwareIds")
-class UnregisteredUserControllerImpl(firebaseInstance: FirebaseAuth): FirebaseUserController(firebaseInstance) {
+class UnregisteredUserControllerImpl(firebaseInstance: FirebaseAuth): by.orangesoft.auth.firebase.FirebaseUserController(firebaseInstance) {
 
     override var profile: FirebaseProfile =
         Profile(

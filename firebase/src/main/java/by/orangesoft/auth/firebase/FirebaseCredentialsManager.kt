@@ -38,7 +38,7 @@ open class FirebaseCredentialsManager: BaseCredentialsManager<FirebaseUserContro
     }
 
     override fun removeCredential(user: FirebaseUserController, credential: IBaseCredential) {
-        if(!user.credentials.value.let { creds -> creds.firstOrNull { it.equals(credential) } != null && creds.size > 1 }){
+        if(!user.credentials.value.let { creds -> creds.firstOrNull { it == credential } != null && creds.size > 1 }){
             onCredentialException.invoke(NoSuchElementException("Cannot remove method $credential"))
             return
         }

@@ -2,7 +2,6 @@ plugins {
     id("com.android.library")
     kotlin("android")
     kotlin("kapt")
-    kotlin("android.extensions")
 }
 
 android {
@@ -28,19 +27,17 @@ dependencies {
 
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
+    implementation(project(":auth"))
+
     implementation(Depends.Kotlin.stdlib)
     implementation(Depends.Kotlin.core)
-    implementation(Depends.Kotlin.extensions)
-
-    implementation(Depends.BaseAndroid.fragments)
-    implementation(Depends.BaseAndroid.activityKtx)
 
     implementation(Depends.Coroutines.core)
     implementation(Depends.Coroutines.android)
 
-    implementation(Depends.Lifecycle.runtime)
-
-    implementation(Depends.Api.core)
-    implementation(Depends.Api.okhttp)
-
+    implementation(Depends.PlayServices.base)
+    implementation(Depends.PlayServices.auth)
+    implementation(Depends.Facebook.auth)
+    implementation(Depends.Firebase.auth)
+    implementation(Depends.Firebase.messaging)
 }

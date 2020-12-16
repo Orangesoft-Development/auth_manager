@@ -13,7 +13,9 @@ import kotlin.jvm.Throws
 
 abstract class BaseCredentialsManager<T: IBaseUserController<*>> (override val coroutineContext: CoroutineContext = Dispatchers.IO): CoroutineScope, IBaseCredentialsManager<T> {
 
-    protected val TAG = "CredentialsController"
+    companion object {
+        const val TAG = "CredentialsController"
+    }
 
     protected val onCredentialException: (Throwable) -> Unit = {
         Log.e(TAG, "Credential exception: ", it)
@@ -34,7 +36,7 @@ abstract class BaseCredentialsManager<T: IBaseUserController<*>> (override val c
     protected abstract fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder
 
     override fun addCredential(activity: FragmentActivity, credential: IBaseCredential, user: T?) {
-        if(user?.credentials?.value?.firstOrNull { it.equals(credential) } != null){
+        if(user?.credentials?.value?.firstOrNull { it == credential } != null){
             listener?.invoke(user)
             return
         }

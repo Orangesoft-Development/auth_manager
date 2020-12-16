@@ -2,7 +2,6 @@ package co.orangesoft.authmanager.firebase_auth
 
 import android.util.Log
 import by.orangesoft.auth.BaseTokenManager
-import by.orangesoft.auth.firebase.FirebaseUserController
 import by.orangesoft.auth.user.ITokenController
 import co.orangesoft.authmanager.api.TokenService
 import kotlinx.coroutines.flow.StateFlow

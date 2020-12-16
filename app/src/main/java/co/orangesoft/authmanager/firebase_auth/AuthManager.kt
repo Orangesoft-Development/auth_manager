@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.*
 import okhttp3.Interceptor
 import kotlin.coroutines.CoroutineContext
 
-class AuthManager(credManager: FirebaseCredentialsManager,
+class AuthManager(credManager:FirebaseCredentialsManager,
                   parentJob: Job? = null) : FirebaseAuthManager(credManager), CoroutineScope {
 
     companion object {

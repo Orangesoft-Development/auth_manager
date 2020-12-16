@@ -59,6 +59,7 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
     implementation(project(":auth"))
+    implementation(project(":firebase"))
 
     implementation(Depends.Kotlin.stdlib)
     implementation(Depends.Kotlin.core)

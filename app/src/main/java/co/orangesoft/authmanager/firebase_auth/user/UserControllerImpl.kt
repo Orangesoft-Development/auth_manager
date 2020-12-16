@@ -1,6 +1,5 @@
 package co.orangesoft.authmanager.firebase_auth.user
 
-import android.util.Log
 import by.orangesoft.auth.firebase.FirebaseProfile
 import by.orangesoft.auth.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.ProfileService
@@ -10,11 +9,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
-import retrofit2.Response
 import java.io.File
-import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
-import kotlin.reflect.KCallable
 
 class UserControllerImpl(
     firebaseInstance: FirebaseAuth,
@@ -22,7 +18,7 @@ class UserControllerImpl(
 ) : FirebaseUserController(firebaseInstance), CoroutineScope {
 
     companion object {
-        private const val TAG = "UserControllerImpl"
+        const val TAG = "UserControllerImpl"
     }
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO
@@ -52,10 +48,10 @@ class UserControllerImpl(
         }
     }
 
-    override suspend fun updateAccount(firebaseProfile: FirebaseProfile, onError: ((Throwable) -> Unit)?) {
-        (firebaseProfile as? Profile)?.let { profile ->
-            profileService::patchProfile.parseResponse(accessToken, profile){
-                onSuccess { super.updateAccount(it, onError) }
+    override suspend fun updateAccount(profile: FirebaseProfile, onError: ((Throwable) -> Unit)?) {
+        (profile as? Profile)?.let {
+            profileService::patchProfile.parseResponse(accessToken, it){
+                onSuccess { result -> super.updateAccount(result, onError) }
                 onError(onError)
             }
         }

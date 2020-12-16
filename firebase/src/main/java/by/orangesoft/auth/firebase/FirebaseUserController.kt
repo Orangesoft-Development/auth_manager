@@ -10,14 +10,12 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import okhttp3.internal.notify
-import okhttp3.internal.wait
 import java.io.File
 
 open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) : IBaseUserController<FirebaseProfile>, ITokenController {
 
     companion object {
-        private const val TAG = "FirebaseUserController"
+        const val TAG = "FirebaseUserController"
     }
 
     override val profile: FirebaseProfile
@@ -45,10 +43,10 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
                         else
                             Log.e(TAG, "Cannot get access token", it.exception)
 
-                        notify()
+                        (this as Object).notify()
                     }
 
-            wait()
+            (this as Object).wait()
             return field
         }
         set(value) {
@@ -59,10 +57,10 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
                     else
                         Log.e(TAG, "Cannot get access token", it.exception)
 
-                    notify()
+                    (this as Object).notify()
                 }
             }
-            wait()
+            (this as Object).wait()
         }
 
 
@@ -76,9 +74,9 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
                 onError?.invoke(it.exception ?: Throwable("Error account save changes"))
             else
                 _credentials.value = firebaseInstance.getCredentials()
-            notify()
+            (this as Object).notify()
         }
-        wait()
+        (this as Object).wait()
     }
 
     override suspend fun updateAvatar(file: File, onError: ((Throwable) -> Unit)?) {
@@ -88,9 +86,9 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
                 .addOnCompleteListener {
                     if(!it.isSuccessful)
                         onError?.invoke(it.exception ?: Throwable("Error account update avatar"))
-                    notify()
+                    (this as Object).notify()
                 }
-        wait()
+        (this as Object).wait()
     }
 
     override suspend fun updateAccount(profile: FirebaseProfile, onError: ((Throwable) -> Unit)?) {
@@ -102,9 +100,9 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
                 .addOnCompleteListener {
                     if(!it.isSuccessful)
                         onError?.invoke(it.exception ?: Throwable("Error update account"))
-                    notify()
+                    (this as Object).notify()
                 }
-        wait()
+        (this as Object).wait()
     }
 
     override suspend fun reload(onError: ((Throwable) -> Unit)?) {
@@ -113,9 +111,9 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
                 onError?.invoke(it.exception ?: Throwable("Error reload account"))
             else
                 _credentials.value = firebaseInstance.getCredentials()
-            notify()
+            (this as Object).notify()
         }
-        wait()
+        (this as Object).wait()
     }
 
     private fun FirebaseAuth.getProfile(): FirebaseProfile =

@@ -3,7 +3,7 @@ package by.orangesoft.auth.firebase
 import by.orangesoft.auth.AuthListener
 import by.orangesoft.auth.BaseAuthManager
 
-open abstract class FirebaseAuthManager(credManager: FirebaseCredentialsManager) : BaseAuthManager<FirebaseUserController, FirebaseCredentialsManager>(credManager) {
+abstract class FirebaseAuthManager(credManager: FirebaseCredentialsManager) : BaseAuthManager<FirebaseUserController, FirebaseCredentialsManager>(credManager) {
 
     override suspend fun logout(listener: AuthListener<FirebaseUserController>?) {
         authListener = listener
