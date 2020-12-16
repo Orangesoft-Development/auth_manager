@@ -1,4 +1,4 @@
-package by.orangesoft.auth.credentials.firebase
+package by.orangesoft.auth.firebase
 
 open class FirebaseProfile(
     var uid: String,

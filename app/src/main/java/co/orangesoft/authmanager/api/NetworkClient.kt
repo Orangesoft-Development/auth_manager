@@ -8,11 +8,11 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 
-fun provideOkHttp(interceptors: List<Interceptor> = arrayListOf()): OkHttpClient {
+fun provideOkHttp(interceptors: List<Interceptor> = arrayListOf(), tokenManager: TokenManager): OkHttpClient {
     val builder = OkHttpClient.Builder()
     interceptors.forEach { builder.addInterceptor(it) }
 
-    builder.addInterceptor(provideTokenInterceptor(AuthManager.BASE_URL))
+    builder.addInterceptor(tokenManager)
     builder.addInterceptor(
             HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
                 override fun log(message: String) {
@@ -41,7 +41,3 @@ internal fun provideProfileService(baseUrl: String, okHttpClient: OkHttpClient):
         .create(ProfileService::class.java)
 }
 
-fun provideTokenInterceptor(tokenServiceBaseUrl: String,
-                            interceptors: List<Interceptor> = arrayListOf()): TokenManager {
-    return TokenManager(tokenServiceBaseUrl, interceptors)
-}

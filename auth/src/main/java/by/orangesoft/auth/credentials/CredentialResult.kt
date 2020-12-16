@@ -1,5 +1,3 @@
 package by.orangesoft.auth.credentials
 
-import by.orangesoft.auth.AuthMethod
-
-data class CredentialResult(val method: AuthMethod, val token: String)
+data class CredentialResult(val credential: AuthCredential, val token: String)

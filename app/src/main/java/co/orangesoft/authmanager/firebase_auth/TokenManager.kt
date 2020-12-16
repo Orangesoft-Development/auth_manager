@@ -2,15 +2,19 @@ package co.orangesoft.authmanager.firebase_auth
 
 import android.util.Log
 import by.orangesoft.auth.BaseTokenManager
+import by.orangesoft.auth.firebase.FirebaseUserController
+import by.orangesoft.auth.user.ITokenController
 import co.orangesoft.authmanager.api.TokenService
+import kotlinx.coroutines.flow.StateFlow
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 
 class TokenManager(
+    controller: StateFlow<ITokenController>,
     private val tokenServiceBaseUrl: String,
     private val interceptors: List<Interceptor>
-) : BaseTokenManager() {
+) : BaseTokenManager<ITokenController>(controller) {
 
     private val okHttp: OkHttpClient by lazy {
         val builder = OkHttpClient.Builder()
@@ -34,8 +38,9 @@ class TokenManager(
             .create(TokenService::class.java)
     }
 
-    override suspend fun updateTokenApi(accessToken: String): ResponseModel {
-        val newTokenResponse = tokenService.updateTokens(accessToken)
-        return ResponseModel(newTokenResponse.isSuccessful, newTokenResponse.message())
+    override suspend fun updateTokenApi(accessToken: String) {
+        tokenService.updateTokens(accessToken).body()?.let {
+            controller.value.accessToken = it
+        }
     }
 }

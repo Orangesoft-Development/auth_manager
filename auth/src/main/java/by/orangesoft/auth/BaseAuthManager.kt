@@ -1,25 +1,25 @@
 package by.orangesoft.auth
 
 import androidx.fragment.app.FragmentActivity
-import by.orangesoft.auth.credentials.BaseCredential
+import by.orangesoft.auth.credentials.AuthCredential
+import by.orangesoft.auth.credentials.IBaseCredential
 import by.orangesoft.auth.credentials.BaseCredentialsManager
-import by.orangesoft.auth.user.BaseUserController
-import by.orangesoft.auth.user.UserProvider
+import by.orangesoft.auth.user.IBaseUserController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
-abstract class BaseAuthManager<T: BaseUserController<*>>(protected val credentialsManager: BaseCredentialsManager<T>): AuthManagerInterface<T> {
+abstract class BaseAuthManager<T: IBaseUserController<*>, C: BaseCredentialsManager<T>>(protected val credentialsManager: C): IAuthManager<T> {
 
-    private var authListener: AuthListener<T>? = null
+    protected abstract val user: MutableStateFlow<T>
 
-    @Suppress("UNCHECKED_CAST")
-    final override fun getCurrentUser(): StateFlow<T> {
-        return UserProvider.currentUser as MutableStateFlow<T>
-    }
+    override val currentUser: StateFlow<T> by lazy { user.asStateFlow() }
+
+    protected var authListener: AuthListener<T>? = null
 
     protected open val onAuthSuccessListener: (T) -> Unit = {
-        (getCurrentUser() as MutableStateFlow<T>).value  = it
+        user.value = it
 
         synchronized(this@BaseAuthManager) {
             authListener?.invoke(it)
@@ -41,39 +41,24 @@ abstract class BaseAuthManager<T: BaseUserController<*>>(protected val credentia
 
     init {
         credentialsManager.setAuthListener(credentialListener)
-        credentialsManager.getLoggedUser()?.let { (getCurrentUser() as MutableStateFlow<T>).value = it }
     }
 
-    override fun login(activity: FragmentActivity, method: AuthMethod, listener: AuthListener<T>?) {
+    override fun login(activity: FragmentActivity, credential: AuthCredential, listener: AuthListener<T>?) {
         authListener = listener
-        credentialsManager.login(activity, method)
-    }
-
-    override suspend fun logout(listener: AuthListener<T>?) {
-        authListener = listener
-        credentialsManager.logout(getCurrentUser().value)
-    }
-
-    override suspend fun deleteUser(listener: AuthListener<T>?) {
-        authListener = listener
-        credentialsManager.deleteUser(getCurrentUser().value)
-    }
-
-    override fun getCredentials(): StateFlow<Set<BaseCredential>> {
-        return getCurrentUser().value.credentials
+        credentialsManager.addCredential(activity, credential, null)
     }
 
     override fun addCredential(
-        activity: FragmentActivity,
-        method: AuthMethod,
-        listener: AuthListener<T>?
+            activity: FragmentActivity,
+            credential: AuthCredential,
+            listener: AuthListener<T>?
     ) {
         authListener = listener
-        credentialsManager.addCredential(activity, getCurrentUser().value, method)
+        credentialsManager.addCredential(activity, credential, currentUser.value)
     }
 
-    override fun removeCredential(credential: BaseCredential, listener: AuthListener<T>?) {
+    override fun removeCredential(credential: IBaseCredential, listener: AuthListener<T>?) {
         authListener = listener
-        credentialsManager.removeCredential(getCurrentUser().value, credential)
+        credentialsManager.removeCredential(currentUser.value, credential)
     }
 }

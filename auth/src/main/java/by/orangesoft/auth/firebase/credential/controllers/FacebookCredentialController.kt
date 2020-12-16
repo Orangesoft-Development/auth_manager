@@ -1,12 +1,13 @@
-package by.orangesoft.auth.credentials.firebase.controllers
+package by.orangesoft.auth.firebase.credential.controllers
 
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.FragmentActivity
-import by.orangesoft.auth.credentials.BaseCredentialController
+import by.orangesoft.auth.credentials.AuthCredential
+import by.orangesoft.auth.credentials.IBaseCredentialController
 import by.orangesoft.auth.credentials.CredentialListener
 import by.orangesoft.auth.credentials.CredentialResult
-import by.orangesoft.auth.credentials.firebase.Firebase
+import by.orangesoft.auth.firebase.credential.Firebase
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
@@ -17,7 +18,9 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.*
 import java.lang.RuntimeException
 
-class FacebookCredentialController: BaseCredentialController(Firebase.Facebook) {
+class FacebookCredentialController: IBaseCredentialController {
+
+    override val credential: AuthCredential = Firebase.Facebook
 
     private val authInstance: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
@@ -41,7 +44,7 @@ class FacebookCredentialController: BaseCredentialController(Firebase.Facebook) 
                     addCredListener?.apply { addCredential(this) }
                 }
 
-                override fun onCancel() { addCredListener?.invoke(RuntimeException("Login by $method is cancelled")) }
+                override fun onCancel() { addCredListener?.invoke(RuntimeException("Login by $credential is cancelled")) }
 
                 override fun onError(error: FacebookException) { addCredListener?.invoke(error) }
             })
@@ -51,9 +54,9 @@ class FacebookCredentialController: BaseCredentialController(Firebase.Facebook) 
     override fun addCredential(listener: CredentialListener) {
 
         authInstance.currentUser?.let { user ->
-            user.providerData.firstOrNull { it.providerId == method.providerId }?.let {
+            user.providerData.firstOrNull { it.providerId == credential.providerId }?.let {
                 user.getIdToken(true)
-                    .addOnSuccessListener { listener(CredentialResult(method, it.token ?: "")) }
+                    .addOnSuccessListener { listener(CredentialResult(credential, it.token ?: "")) }
                     .addOnFailureListener {
                         authInstance.signOut()
                         addCredential(listener)
@@ -77,7 +80,7 @@ class FacebookCredentialController: BaseCredentialController(Firebase.Facebook) 
 
                 } else {
                     user.getIdToken(true)
-                        .addOnSuccessListener { listener(CredentialResult(method, it.token ?: "")) }
+                        .addOnSuccessListener { listener(CredentialResult(credential, it.token ?: "")) }
                         .addOnFailureListener { listener(it) }
                 }
             }
@@ -87,15 +90,15 @@ class FacebookCredentialController: BaseCredentialController(Firebase.Facebook) 
 
     override fun removeCredential(listener: CredentialListener) {
         authInstance.currentUser?.providerData?.firstOrNull {
-            it.providerId == method.providerId
+            it.providerId == credential.providerId
         }?.let { provider ->
             authInstance.currentUser?.unlink(provider.providerId)
-                ?.addOnSuccessListener { listener(method) }
+                ?.addOnSuccessListener { listener(credential) }
                 ?.addOnFailureListener { listener(it) }
-        } ?: listener(method)
+        } ?: listener(credential)
     }
 
-    override fun createProvider(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {
+    override fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {
         loginManager.logIn(activity, listOf("email", "public_profile"))
     }
 

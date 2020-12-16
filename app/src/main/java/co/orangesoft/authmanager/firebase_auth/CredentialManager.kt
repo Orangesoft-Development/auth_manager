@@ -1,12 +1,11 @@
 package co.orangesoft.authmanager.firebase_auth
 
-import android.util.Log
-import by.orangesoft.auth.AuthMethod
-import by.orangesoft.auth.credentials.BaseCredential
+import by.orangesoft.auth.credentials.IBaseCredential
 import by.orangesoft.auth.credentials.CredentialResult
-import by.orangesoft.auth.credentials.firebase.Firebase
-import by.orangesoft.auth.credentials.firebase.FirebaseCredentialsManager
-import by.orangesoft.auth.credentials.firebase.FirebaseUserController
+import by.orangesoft.auth.credentials.IBaseCredentialsManager
+import by.orangesoft.auth.firebase.credential.Firebase
+import by.orangesoft.auth.firebase.FirebaseCredentialsManager
+import by.orangesoft.auth.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.AuthService
 import co.orangesoft.authmanager.api.ProfileService
 import co.orangesoft.authmanager.firebase_auth.user.*
@@ -16,102 +15,50 @@ internal class CredentialManager(
     private val profileService: ProfileService
 ): FirebaseCredentialsManager() {
 
-    override fun getLoggedUser(): FirebaseUserController =
+    override fun getCurrentUser(): FirebaseUserController =
         firebaseInstance.currentUser?.let {
             UserControllerImpl(firebaseInstance, profileService)
         } ?: UnregisteredUserControllerImpl(firebaseInstance)
 
     override suspend fun onLogged(credentialResult: CredentialResult): FirebaseUserController {
-        try {
-            val profileResponse = authService.login(credentialResult)
-            if (profileResponse.isSuccessful) {
-
-                profileResponse.body()?.let { profile ->
-                    getLoggedUser().updateAccount(profile)
-                }
-
-                return getLoggedUser()
-
-            } else {
-                firebaseInstance.signOut()
-                throw Throwable(profileResponse.message())
-            }
-
-        } catch (e: Exception){
-            firebaseInstance.signOut()
-            throw e
+        lateinit var user: FirebaseUserController
+        authService::login.parseResponse(credentialResult){
+            onSuccess { user = super.onLogged(credentialResult).apply { updateAccount(profile) } }
+            onError { throw it }
         }
+
+        return user
     }
 
     override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: FirebaseUserController) {
-        try {
-            val profileResponse = authService.addCreds(user.getAccessToken(), credentialResult.method.providerId)
-            if (profileResponse.isSuccessful) {
-                user.updateCredentials()
-            } else {
-                Log.e(TAG, profileResponse.message())
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, e.message)
+        authService::addCreds.parseResponse(user.accessToken, credentialResult.credential.providerId){
+            onSuccess { user.updateCredentials() }
+            onError { listener?.invoke(it) }
         }
     }
 
-    override suspend fun onCredentialRemoved(credential: BaseCredential, user: FirebaseUserController) {
-        try {
-            val profileResponse = authService.removeCreds(user.getAccessToken(), credential.providerId.replace(".com", ""))
-            if (profileResponse.isSuccessful) {
-                user.updateCredentials()
-            } else {
-                Log.e(TAG, profileResponse.message())
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, e.message)
+    override suspend fun onCredentialRemoved(credential: IBaseCredential, user: FirebaseUserController) {
+        authService::removeCreds.parseResponse(user.accessToken, credential.providerId.replace(".com", "")){
+            onSuccess { user.updateCredentials() }
+            onError { listener?.invoke(it) }
         }
     }
 
     override suspend fun logout(user: FirebaseUserController) {
-        try {
-            val response = authService.logout(user.getAccessToken())
-
-            if (response.isSuccessful) {
-                firebaseInstance.signOut()
-            } else {
-                Log.e(TAG, response.errorBody().toString())
-            }
-
-        } catch (e: Exception) {
-            Log.e(TAG, e.message)
+        authService::logout.parseResponse(user.accessToken){
+            onSuccess { super.logout(user) }
+            onError { listener?.invoke(it) }
         }
-
-        listener?.invoke(getLoggedUser())
-        user.updateCredentials()
     }
 
     override suspend fun deleteUser(user: FirebaseUserController) {
-        try {
-            if (user is UserControllerImpl) {
-                val response = authService.delete(user.getAccessToken())
-                if (response.isSuccessful) {
-                    firebaseInstance.currentUser?.apply {
-                        firebaseInstance.signOut()
-                        delete()
-                    }
-                    user.updateCredentials()
-                    listener?.invoke(getLoggedUser())
-                } else {
-                    listener?.invoke(Throwable(response.message()))
-                }
-            }
-
-        } catch (e: Exception) {
-            listener?.invoke(e)
+        authService::delete.parseResponse(user.accessToken){
+            onSuccess { super.deleteUser(user) }
+            onError { listener?.invoke(it) }
         }
     }
 
-    override fun getBuilder(method: AuthMethod): Builder =
-        CredBuilder(method)
-
-    override fun getBuilder(credential: BaseCredential): Builder =
+    override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder =
         CredBuilder(
             when (credential.providerId) {
                 Firebase.Apple.providerId -> Firebase.Apple

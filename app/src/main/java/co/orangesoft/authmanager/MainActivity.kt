@@ -6,8 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import by.orangesoft.auth.credentials.firebase.Firebase
-import by.orangesoft.auth.credentials.firebase.FirebaseUserController
+import by.orangesoft.auth.firebase.credential.Firebase
+import by.orangesoft.auth.firebase.FirebaseUserController
 import co.orangesoft.authmanager.firebase_auth.AuthManager
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
     private fun initViews() {
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { view -> }
 
-        val authManager = AuthManager.getInstance()
+        val authManager = AuthManager.getInstance(AuthManager.BASE_URL)
 
         googleBtn.setOnClickListener {
             authManager.login(this, Firebase.Google(getString(R.string.server_client_id))) {

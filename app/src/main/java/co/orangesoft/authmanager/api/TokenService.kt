@@ -6,5 +6,5 @@ import retrofit2.http.Query
 
 interface TokenService {
     @POST("/auth/refresh-token")
-    suspend fun updateTokens(@Query("access_token") accessToken: String): Response<Unit>
+    suspend fun updateTokens(@Query("access_token") accessToken: String): Response<String>
 }

@@ -5,27 +5,26 @@ import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity
-import by.orangesoft.auth.AuthMethod
 
-abstract class BaseCredentialController(val method: AuthMethod) {
+interface IBaseCredentialController {
+
+    val credential: AuthCredential
 
     fun addCredential(listener: CredentialListener.() -> Unit) = addCredential(CredentialListener().apply(listener))
-    abstract fun addCredential(listener: CredentialListener)
+    fun addCredential(listener: CredentialListener)
 
     fun removeCredential(listener: CredentialListener.() -> Unit) = removeCredential(CredentialListener().apply(listener))
-    abstract fun removeCredential(listener: CredentialListener)
+    fun removeCredential(listener: CredentialListener)
 
-    abstract fun createProvider(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>)
+    fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>)
 
-    abstract fun onActivityResult(code: Int, data: Intent?)
+    fun onActivityResult(code: Int, data: Intent?)
 
     fun setActivity(activity: FragmentActivity) {
         if(activity is ComponentCallbackActivity)
-            activity.setActivityResultCallback(
-                ActivityResultCallback { onActivityResult(it.resultCode, it.data) }
-            )
+            activity.setActivityResultCallback(ActivityResultCallback { onActivityResult(it.resultCode, it.data) })
 
         val launcher = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result -> onActivityResult(result.resultCode, result.data) }
-        createProvider(activity, launcher)
+        onProviderCreated(activity, launcher)
     }
 }

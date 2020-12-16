@@ -1,19 +1,22 @@
 package by.orangesoft.auth
 
 import android.util.Log
-import by.orangesoft.auth.user.UserProvider
+import by.orangesoft.auth.user.ITokenController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
+import java.lang.Exception
 import java.net.HttpURLConnection
 import kotlin.coroutines.CoroutineContext
 
-abstract class BaseTokenManager (
-    protected open val authHeader: String = DEFAULT_AUTH_HEADER,
-    protected open val tokenPrefix: String = DEFAULT_TOKEN_PREFIX
+abstract class BaseTokenManager<T: ITokenController> (
+        protected val controller: StateFlow<T>,
+        protected open val authHeader: String = DEFAULT_AUTH_HEADER,
+        protected open val tokenPrefix: String = DEFAULT_TOKEN_PREFIX
 ) : Interceptor, CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO
@@ -22,7 +25,7 @@ abstract class BaseTokenManager (
         // Trying to make request with existing access token
         var response: Response?
         runBlocking {
-            val token = UserProvider.currentUser.value.getAccessToken()
+            val token = controller.value.accessToken
             response = chain.proceed(overrideRequest(chain.request(), token))
 
             // If request is failed by auth error, trying to refresh tokens and make one more request attempt
@@ -47,20 +50,19 @@ abstract class BaseTokenManager (
     }
 
     private suspend fun refreshAccessToken(successListener: () -> Unit) {
-        val token = UserProvider.currentUser.value.getAccessToken()
+        val token = controller.value.accessToken
         if (token.isNotEmpty()) {
-            val responseModel = updateTokenApi(token)
-            if (!responseModel.isSuccessful) {
-                Log.e(TAG, responseModel.errorMessage)
-            } else {
+            try {
+                updateTokenApi(token)
                 successListener.invoke()
+            } catch (e: Exception) {
+                Log.e(TAG, "Update token exception", e)
             }
         }
     }
 
-    abstract suspend fun updateTokenApi(accessToken: String) : ResponseModel
-
-    data class ResponseModel(val isSuccessful: Boolean, val errorMessage: String? = null)
+    @Throws(Throwable::class)
+    abstract suspend fun updateTokenApi(accessToken: String)
 
     companion object {
         const val TAG = "TokenManager"

@@ -1,6 +1,5 @@
 package by.orangesoft.auth.credentials
 
-import by.orangesoft.auth.AuthMethod
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -13,14 +12,14 @@ class CredentialListener constructor(override val coroutineContext: CoroutineCon
     }
 
     private var onAddSuccess: ((CredentialResult) -> Unit)? = null
-    private var onRemoveSuccess: ((AuthMethod) -> Unit)? = null
+    private var onRemoveSuccess: ((AuthCredential) -> Unit)? = null
     private var onException: ((Throwable) -> Unit)? = null
 
     fun onAddCredentialSuccess(listener: (CredentialResult) -> Unit) {
         onAddSuccess = listener
     }
 
-    fun onRemoveCredentialSuccess(listener: (AuthMethod) -> Unit) {
+    fun onRemoveCredentialSuccess(listener: (AuthCredential) -> Unit) {
         onRemoveSuccess = listener
     }
 
@@ -37,7 +36,7 @@ class CredentialListener constructor(override val coroutineContext: CoroutineCon
         }
     }
 
-    operator fun invoke(result: AuthMethod) {
+    operator fun invoke(result: AuthCredential) {
         launch {
             synchronized(this) {
                 onRemoveSuccess?.invoke(result)

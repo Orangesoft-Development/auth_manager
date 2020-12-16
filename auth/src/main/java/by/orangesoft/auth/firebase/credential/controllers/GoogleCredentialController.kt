@@ -1,21 +1,22 @@
-package by.orangesoft.auth.credentials.firebase.controllers
+package by.orangesoft.auth.firebase.credential.controllers
 
 import android.content.Intent
-import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.FragmentActivity
-import by.orangesoft.auth.credentials.BaseCredentialController
+import by.orangesoft.auth.credentials.AuthCredential
+import by.orangesoft.auth.credentials.IBaseCredentialController
 import by.orangesoft.auth.credentials.CredentialListener
 import by.orangesoft.auth.credentials.CredentialResult
-import by.orangesoft.auth.credentials.firebase.Firebase
+import by.orangesoft.auth.firebase.credential.Firebase
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.*
-import java.lang.RuntimeException
 
-class GoogleCredentialController(method: Firebase.Google): BaseCredentialController(method) {
+class GoogleCredentialController(method: Firebase.Google): IBaseCredentialController {
+
+    override val credential: AuthCredential = method
 
     private lateinit var activityCallback: Task<AuthResult>
 
@@ -23,7 +24,7 @@ class GoogleCredentialController(method: Firebase.Google): BaseCredentialControl
 
     private fun googleSingInClient(activity: FragmentActivity): GoogleSignInClient {
         val oprions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken((method as Firebase.Google).clientId)
+            .requestIdToken((credential as Firebase.Google).clientId)
             .requestProfile()
             .build()
 
@@ -35,9 +36,9 @@ class GoogleCredentialController(method: Firebase.Google): BaseCredentialControl
     override fun addCredential(listener: CredentialListener) {
 
         authInstance.currentUser?.let { user ->
-            user.providerData.firstOrNull { it.providerId == method.providerId }?.let {
+            user.providerData.firstOrNull { it.providerId == credential.providerId }?.let {
                 user.getIdToken(true)
-                    .addOnSuccessListener { listener(CredentialResult(method, it.token ?: "")) }
+                    .addOnSuccessListener { listener(CredentialResult(credential, it.token ?: "")) }
                     .addOnFailureListener {
                         authInstance.signOut()
                         addCredential(listener)
@@ -58,7 +59,7 @@ class GoogleCredentialController(method: Firebase.Google): BaseCredentialControl
             .addOnSuccessListener { result ->
                 result.user?.let { user ->
                     user.getIdToken(true)
-                        .addOnSuccessListener { listener(CredentialResult(method, it.token ?: "")) }
+                        .addOnSuccessListener { listener(CredentialResult(credential, it.token ?: "")) }
                         .addOnFailureListener { listener(it) }
                 } ?: listener(KotlinNullPointerException("Firebase user is NULL"))
             }
@@ -68,15 +69,15 @@ class GoogleCredentialController(method: Firebase.Google): BaseCredentialControl
 
     override fun removeCredential(listener: CredentialListener) {
         authInstance.currentUser?.providerData?.firstOrNull {
-            it.providerId == method.providerId
+            it.providerId == credential.providerId
         }?.let { provider ->
             authInstance.currentUser?.unlink(provider.providerId)
-                ?.addOnSuccessListener { listener(method) }
+                ?.addOnSuccessListener { listener(credential) }
                 ?.addOnFailureListener { listener(it) }
-        } ?: listener(method)
+        } ?: listener(credential)
     }
 
-    override fun createProvider(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {
+    override fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {
         activityLauncher.launch(googleSingInClient(activity).signInIntent)
     }
 

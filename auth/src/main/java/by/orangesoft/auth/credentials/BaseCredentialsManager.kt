@@ -3,17 +3,15 @@ package by.orangesoft.auth.credentials
 import android.util.Log
 import androidx.fragment.app.FragmentActivity
 import by.orangesoft.auth.AuthListener
-import by.orangesoft.auth.AuthMethod
-import by.orangesoft.auth.user.BaseUserController
+import by.orangesoft.auth.user.IBaseUserController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.Exception
-import java.lang.UnsupportedOperationException
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.Throws
 
-abstract class BaseCredentialsManager<T: BaseUserController<*>> (override val coroutineContext: CoroutineContext = Dispatchers.IO): CoroutineScope {
+abstract class BaseCredentialsManager<T: IBaseUserController<*>> (override val coroutineContext: CoroutineContext = Dispatchers.IO): CoroutineScope, IBaseCredentialsManager<T> {
 
     protected val TAG = "CredentialsController"
 
@@ -24,8 +22,6 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (override val co
 
     protected var listener: AuthListener<T>? = null
 
-    abstract fun getLoggedUser(): T?
-
     @Throws(Exception::class)
     protected abstract suspend fun onLogged(credentialResult: CredentialResult): T
 
@@ -33,43 +29,25 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (override val co
     protected abstract suspend fun onCredentialAdded(credentialResult: CredentialResult, user: T)
 
     @Throws(Exception::class)
-    protected abstract suspend fun onCredentialRemoved(credential: BaseCredential, user: T)
+    protected abstract suspend fun onCredentialRemoved(credential: IBaseCredential, user: T)
 
-    protected abstract fun getBuilder(method: AuthMethod): Builder
+    protected abstract fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder
 
-    protected abstract fun getBuilder(credential: BaseCredential): Builder
-
-    open fun login(activity: FragmentActivity, method: AuthMethod) {
-        getBuilder(method).build(activity).addCredential {
-            onAddCredentialSuccess {
-                launch {
-                    try {
-                        listener?.invoke(onLogged(it))
-                    } catch (e: Exception){
-                        onCredentialException.invoke(e)
-                    }
-                }
-            }
-            onCredentialException(onCredentialException)
-        }
-    }
-
-    abstract suspend fun logout(user: T)
-
-    abstract suspend fun deleteUser(user: T)
-
-    open fun addCredential(activity: FragmentActivity, user: T, method: AuthMethod) {
-        if(user.credentials.value.firstOrNull { it.equals(method) } != null){
+    override fun addCredential(activity: FragmentActivity, credential: IBaseCredential, user: T?) {
+        if(user?.credentials?.value?.firstOrNull { it.equals(credential) } != null){
             listener?.invoke(user)
             return
         }
 
-        getBuilder(method).build(activity).addCredential {
+        getBuilder(credential).build(activity).addCredential {
             onAddCredentialSuccess {
                 launch {
                     try {
-                        onCredentialAdded(it, user)
-                        listener?.invoke(user)
+                        if(user != null) {
+                            onCredentialAdded(it, user)
+                            listener?.invoke(user)
+                        } else
+                            listener?.invoke(onLogged(it))
                     } catch (e: Exception) {
                         onCredentialException.invoke(e)
                     }
@@ -79,7 +57,7 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (override val co
         }
     }
 
-    open fun removeCredential(user: T, credential: BaseCredential) {
+    override fun removeCredential(user: T, credential: IBaseCredential) {
         if(!user.credentials.value.let { creds -> creds.firstOrNull { it == credential } != null && creds.size > 1 }) {
             onCredentialException.invoke(NoSuchElementException("Cannot remove method $credential"))
             return
@@ -103,17 +81,4 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (override val co
     open fun setAuthListener(listener: AuthListener<T>){
         this.listener = listener
     }
-
-    open abstract class Builder(private val method: AuthMethod) {
-
-        @Throws(UnsupportedOperationException::class)
-        protected abstract fun createCredential(method: AuthMethod): BaseCredentialController
-
-        @Throws(UnsupportedOperationException::class)
-        fun build(activity: FragmentActivity? = null): BaseCredentialController {
-
-            return createCredential(method).apply { activity?.let { setActivity(it) } }
-        }
-    }
-
 }
