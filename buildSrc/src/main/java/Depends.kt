@@ -68,7 +68,6 @@ object Depends {
         const val runtime = "androidx.lifecycle:lifecycle-runtime:${Versions.lifecycle}"
         const val extensions = "androidx.lifecycle:lifecycle-extensions:${Versions.lifecycle}"
         const val viewModelExtensions = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}"
-        //const val liveDataExtensions = "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.lifecycle}"
     }
 
     object LifecyclePlugins {
@@ -93,5 +92,6 @@ object Depends {
     object Firebase {
         const val auth = "com.google.firebase:firebase-auth:${Versions.firebaseAuth}"
         const val messaging = "com.google.firebase:firebase-messaging:20.2.3"
+        const val coroutinesPlayServices = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.1.1"
     }
 }

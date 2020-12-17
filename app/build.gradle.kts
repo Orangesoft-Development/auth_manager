@@ -99,7 +99,6 @@ dependencies {
     implementation(Depends.Lifecycle.runtime)
     implementation(Depends.Lifecycle.extensions)
     implementation(Depends.Lifecycle.viewModelExtensions)
-    //implementation(Depends.Lifecycle.liveDataExtensions)
     kapt(Depends.LifecyclePlugins.plugin)
 
     implementation(Depends.Paging.searchable)
@@ -115,4 +114,5 @@ dependencies {
     implementation(Depends.Facebook.auth)
     implementation(Depends.Firebase.auth)
     implementation(Depends.Firebase.messaging)
+    implementation(Depends.Firebase.coroutinesPlayServices)
 }

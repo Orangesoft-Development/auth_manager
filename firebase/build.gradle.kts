@@ -40,4 +40,5 @@ dependencies {
     implementation(Depends.Facebook.auth)
     implementation(Depends.Firebase.auth)
     implementation(Depends.Firebase.messaging)
+    implementation(Depends.Firebase.coroutinesPlayServices)
 }

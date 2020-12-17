@@ -10,7 +10,10 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import java.io.File
+import java.lang.Exception
 
 open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) : IBaseUserController<FirebaseProfile>, ITokenController {
 
@@ -31,89 +34,65 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
 
     override var accessToken: String = ""
         get() {
-            val task = firebaseInstance.currentUser!!.getIdToken(false)
-            if(task.isComplete){
-                field = task.result?.token ?: ""
-                return field
-            }
-
-            task.addOnCompleteListener {
-                        if  (it.isSuccessful)
-                            field = it.result?.token ?: ""
-                        else
-                            Log.e(TAG, "Cannot get access token", it.exception)
-
-                        (this as Object).notify()
-                    }
-
-            (this as Object).wait()
-            return field
-        }
-        set(value) {
-            firebaseInstance.getAccessToken(true).addOnCompleteListener {
-                firebaseInstance.currentUser!!.getIdToken(true).addOnCompleteListener {
-                    if  (it.isSuccessful)
-                        field = it.result?.token ?: ""
-                    else
-                        Log.e(TAG, "Cannot get access token", it.exception)
-
-                    (this as Object).notify()
+            firebaseInstance.currentUser?.let {
+                runBlocking {
+                    field = it.getIdToken(false).await().token ?: ""
                 }
             }
-            (this as Object).wait()
+            return field
         }
-
 
     fun updateCredentials() {
         _credentials.value = firebaseInstance.getCredentials()
     }
 
     override suspend fun saveChanges(onError: ((Throwable) -> Unit)?) {
-        firebaseInstance.updateCurrentUser(firebaseInstance.currentUser!!).addOnCompleteListener {
-            if(!it.isSuccessful)
-                onError?.invoke(it.exception ?: Throwable("Error account save changes"))
-            else
+        firebaseInstance.currentUser?.let {
+            try {
+                firebaseInstance.updateCurrentUser(it).await()
                 _credentials.value = firebaseInstance.getCredentials()
-            (this as Object).notify()
+            } catch (e: Exception) {
+                onError?.invoke(e)
+            }
         }
-        (this as Object).wait()
     }
 
     override suspend fun updateAvatar(file: File, onError: ((Throwable) -> Unit)?) {
-        firebaseInstance.currentUser!!
-                .updateProfile(UserProfileChangeRequest.Builder()
-                        .setPhotoUri(Uri.fromFile(file)).build())
-                .addOnCompleteListener {
-                    if(!it.isSuccessful)
-                        onError?.invoke(it.exception ?: Throwable("Error account update avatar"))
-                    (this as Object).notify()
-                }
-        (this as Object).wait()
+        firebaseInstance.currentUser?.let {
+            try {
+                it.updateProfile(UserProfileChangeRequest.Builder()
+                    .setPhotoUri(Uri.fromFile(file))
+                    .build())
+                    .await()
+            } catch (e: Exception) {
+                onError?.invoke(e)
+            }
+        }
     }
 
     override suspend fun updateAccount(profile: FirebaseProfile, onError: ((Throwable) -> Unit)?) {
-        firebaseInstance.currentUser!!
-                .updateProfile(UserProfileChangeRequest.Builder()
-                        .setPhotoUri(profile.photoUrl?.let { Uri.parse(it) } ?: Uri.EMPTY)
-                        .setDisplayName(profile.displayName)
-                        .build())
-                .addOnCompleteListener {
-                    if(!it.isSuccessful)
-                        onError?.invoke(it.exception ?: Throwable("Error update account"))
-                    (this as Object).notify()
-                }
-        (this as Object).wait()
+        firebaseInstance.currentUser?.let {
+            try {
+                it.updateProfile(UserProfileChangeRequest.Builder()
+                    .setPhotoUri(profile.photoUrl?.let { photoUrl -> Uri.parse(photoUrl) } ?: Uri.EMPTY)
+                    .setDisplayName(profile.displayName)
+                    .build())
+                    .await()
+            } catch (e: Exception) {
+                onError?.invoke(e)
+            }
+        }
     }
 
     override suspend fun reload(onError: ((Throwable) -> Unit)?) {
-        firebaseInstance.currentUser!!.reload().addOnCompleteListener {
-            if(!it.isSuccessful)
-                onError?.invoke(it.exception ?: Throwable("Error reload account"))
-            else
+        firebaseInstance.currentUser?.let {
+            try {
+                it.reload().await()
                 _credentials.value = firebaseInstance.getCredentials()
-            (this as Object).notify()
+            } catch (e: Exception) {
+                onError?.invoke(e)
+            }
         }
-        (this as Object).wait()
     }
 
     private fun FirebaseAuth.getProfile(): FirebaseProfile =

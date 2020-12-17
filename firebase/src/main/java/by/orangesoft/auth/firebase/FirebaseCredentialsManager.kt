@@ -8,6 +8,7 @@ import by.orangesoft.auth.firebase.credential.Firebase
 import by.orangesoft.auth.firebase.credential.controllers.GoogleCredentialController
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlin.NoSuchElementException
 
 open class FirebaseCredentialsManager: BaseCredentialsManager<FirebaseUserController>() {
@@ -32,9 +33,8 @@ open class FirebaseCredentialsManager: BaseCredentialsManager<FirebaseUserContro
     }
 
     open suspend fun deleteUser(user: FirebaseUserController) {
-        firebaseInstance.currentUser?.delete()?.addOnCompleteListener {
-            listener?.invoke(getCurrentUser())
-        } ?: listener?.invoke(getCurrentUser())
+        firebaseInstance.currentUser?.delete()?.await()
+        listener?.invoke(getCurrentUser())
     }
 
     override fun removeCredential(user: FirebaseUserController, credential: IBaseCredential) {
