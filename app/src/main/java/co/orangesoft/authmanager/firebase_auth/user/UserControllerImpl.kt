@@ -25,7 +25,7 @@ class UserControllerImpl(
 
     override suspend fun saveChanges(onError: ((Throwable) -> Unit)?) {
         (profile as? Profile)?.let { profile ->
-            profileService::patchProfile.parseResponse(accessToken, profile){
+            profileService::patchProfile.parseResponse(accessToken, profile) {
                 onSuccess { super.updateAccount(it, onError) }
                 onError(onError)
             }
@@ -42,7 +42,7 @@ class UserControllerImpl(
     }
 
     override suspend fun reload(onError: ((Throwable) -> Unit)?) {
-        profileService::getProfile.parseResponse(accessToken){
+        profileService::getProfile.parseResponse(accessToken) {
             onSuccess { super.updateAccount(it, onError) }
             onError(onError)
         }

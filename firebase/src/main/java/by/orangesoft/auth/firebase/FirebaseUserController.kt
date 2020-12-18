@@ -1,7 +1,6 @@
 package by.orangesoft.auth.firebase
 
 import android.net.Uri
-import android.util.Log
 import by.orangesoft.auth.firebase.credential.FirebaseCredential
 import by.orangesoft.auth.user.IBaseUserController
 import by.orangesoft.auth.user.ITokenController
@@ -96,14 +95,14 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
     }
 
     private fun FirebaseAuth.getProfile(): FirebaseProfile =
-            currentUser!!.let {
+            currentUser?.let {
                 FirebaseProfile(it.uid,
                         it.providerId,
                         it.displayName,
                         it.phoneNumber,
                         it.photoUrl.toString(),
                         it.email)
-            }
+            } ?: profile
 
     private fun FirebaseAuth.getCredentials(): Set<FirebaseCredential> =
             currentUser?.providerData?.mapNotNull {

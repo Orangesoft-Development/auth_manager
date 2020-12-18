@@ -36,7 +36,7 @@ abstract class BaseCredentialsManager<T: IBaseUserController<*>> (override val c
     protected abstract fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder
 
     override fun addCredential(activity: FragmentActivity, credential: IBaseCredential, user: T?) {
-        if(user?.credentials?.value?.firstOrNull { it == credential } != null){
+        if (user?.credentials?.value?.firstOrNull { it == credential } != null) {
             listener?.invoke(user)
             return
         }

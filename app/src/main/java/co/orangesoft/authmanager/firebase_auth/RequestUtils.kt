@@ -32,10 +32,11 @@ suspend fun <T> KCallable<Response<T>>.parseResponse(vararg args: Any?, watcher:
     val watch = RequestWatcher<T>().apply(watcher)
     try {
         val result = this.call(args)
-        if (result.isSuccessful)
-            watch(result.body()!!)
-        else {
-            val exception = Throwable(result.errorBody()?.string() ?: "Error execute")
+        val resultBody = result.body()
+        if (result.isSuccessful && resultBody != null) {
+            watch(resultBody)
+        } else {
+            val exception = Throwable(result.errorBody()?.toString() ?: "Error execute")
             Log.e(this.name, "Error execute request", exception)
             watch(exception)
         }
