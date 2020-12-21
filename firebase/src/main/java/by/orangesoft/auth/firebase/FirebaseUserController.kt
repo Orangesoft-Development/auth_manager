@@ -2,17 +2,16 @@ package by.orangesoft.auth.firebase
 
 import android.net.Uri
 import by.orangesoft.auth.firebase.credential.FirebaseCredential
+import by.orangesoft.auth.firebase.credential.getCredentials
 import by.orangesoft.auth.user.IBaseUserController
 import by.orangesoft.auth.user.ITokenController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import java.io.File
-import java.lang.Exception
+import kotlin.jvm.Throws
 
 open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) : IBaseUserController<FirebaseProfile>, ITokenController {
 
@@ -23,11 +22,11 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
     override val profile: FirebaseProfile
         get() = firebaseInstance.getProfile()
 
-    private val _credentials: MutableStateFlow<Set<FirebaseCredential>> by lazy {
+    private val _credentials: MutableStateFlow<Collection<FirebaseCredential>> by lazy {
         MutableStateFlow(firebaseInstance.getCredentials())
     }
 
-    override val credentials: StateFlow<Set<FirebaseCredential>> by lazy {
+    override val credentials: StateFlow<Collection<FirebaseCredential>> by lazy {
         _credentials.asStateFlow()
     }
 
@@ -41,81 +40,56 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
             return field
         }
 
-    fun updateCredentials() {
+    fun reloadCredentials() {
         _credentials.value = firebaseInstance.getCredentials()
     }
 
-    override suspend fun saveChanges(onError: ((Throwable) -> Unit)?) {
+    @Throws(Throwable::class)
+    override suspend fun saveChanges() {
         firebaseInstance.currentUser?.let {
-            try {
-                firebaseInstance.updateCurrentUser(it).await()
-                _credentials.value = firebaseInstance.getCredentials()
-            } catch (e: Exception) {
-                onError?.invoke(e)
-            }
+            firebaseInstance.updateCurrentUser(it).await()
+            _credentials.value = firebaseInstance.getCredentials()
         }
     }
 
-    override suspend fun updateAvatar(file: File, onError: ((Throwable) -> Unit)?) {
-        firebaseInstance.currentUser?.let {
-            try {
-                it.updateProfile(UserProfileChangeRequest.Builder()
+    @Throws(Throwable::class)
+    override suspend fun updateAvatar(file: File) {
+        firebaseInstance.currentUser?.apply {
+            updateProfile(UserProfileChangeRequest.Builder()
                     .setPhotoUri(Uri.fromFile(file))
                     .build())
-                    .await()
-            } catch (e: Exception) {
-                onError?.invoke(e)
-            }
+                 .await()
         }
     }
 
-    override suspend fun updateAccount(profile: FirebaseProfile, onError: ((Throwable) -> Unit)?) {
-        firebaseInstance.currentUser?.let {
-            try {
-                it.updateProfile(UserProfileChangeRequest.Builder()
+    @Throws(Throwable::class)
+    override suspend fun updateAccount(profile: FirebaseProfile) {
+        firebaseInstance.currentUser?.apply {
+            updateProfile(UserProfileChangeRequest.Builder()
                     .setPhotoUri(profile.photoUrl?.let { photoUrl -> Uri.parse(photoUrl) } ?: Uri.EMPTY)
                     .setDisplayName(profile.displayName)
                     .build())
-                    .await()
-            } catch (e: Exception) {
-                onError?.invoke(e)
-            }
+                 .await()
+
         }
     }
 
-    override suspend fun reload(onError: ((Throwable) -> Unit)?) {
+    @Throws(Throwable::class)
+    override suspend fun reload() {
         firebaseInstance.currentUser?.let {
-            try {
-                it.reload().await()
-                _credentials.value = firebaseInstance.getCredentials()
-            } catch (e: Exception) {
-                onError?.invoke(e)
-            }
+            it.reload().await()
+            _credentials.value = firebaseInstance.getCredentials()
         }
     }
 
     private fun FirebaseAuth.getProfile(): FirebaseProfile =
-            currentUser?.let {
+            currentUser!!.let {
                 FirebaseProfile(it.uid,
                         it.providerId,
                         it.displayName,
                         it.phoneNumber,
                         it.photoUrl.toString(),
                         it.email)
-            } ?: profile
+            }
 
-    private fun FirebaseAuth.getCredentials(): Set<FirebaseCredential> =
-            currentUser?.providerData?.mapNotNull {
-                if (it.providerId != "firebase")
-                    FirebaseCredential(
-                            it.uid,
-                            it.providerId,
-                            it.displayName ?: "",
-                            it.photoUrl?.path ?: "",
-                            it.email ?: "",
-                            it.phoneNumber ?: ""
-                    )
-                else
-                    null
-            }?.toSet() ?: HashSet()
 }

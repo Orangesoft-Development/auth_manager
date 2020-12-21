@@ -12,6 +12,7 @@ import okhttp3.Response
 import java.lang.Exception
 import java.net.HttpURLConnection
 import kotlin.coroutines.CoroutineContext
+import kotlin.jvm.Throws
 
 abstract class BaseTokenManager<T: ITokenController> (
         protected val controller: StateFlow<T>,
@@ -55,6 +56,7 @@ abstract class BaseTokenManager<T: ITokenController> (
         return headerBuilder.build()
     }
 
+    @Throws(Throwable::class)
     private suspend fun refreshAccessToken(successListener: () -> Unit) {
         val token = controller.value.accessToken
         if (token.isNotEmpty()) {

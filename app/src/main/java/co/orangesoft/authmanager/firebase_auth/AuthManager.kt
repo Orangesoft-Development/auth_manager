@@ -11,10 +11,10 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import okhttp3.Interceptor
-import kotlin.coroutines.CoroutineContext
 
+@InternalCoroutinesApi
 class AuthManager(credManager:FirebaseCredentialsManager,
-                  parentJob: Job? = null) : FirebaseAuthManager(credManager), CoroutineScope {
+                  parentJob: Job? = null) : FirebaseAuthManager(credManager, parentJob) {
 
     companion object {
 
@@ -24,49 +24,30 @@ class AuthManager(credManager:FirebaseCredentialsManager,
             MutableStateFlow(UnregisteredUserControllerImpl(FirebaseAuth.getInstance()))
         }
 
-        fun getInstance(tokenServiceBaseUrl: String, interceptors: List<Interceptor> = arrayListOf()): AuthManager {
+        fun getInstance(tokenServiceBaseUrl: String, interceptors: List<Interceptor> = arrayListOf(), parentJob: Job? = null): AuthManager {
             val tokenManager = TokenManager(_user.asStateFlow(), tokenServiceBaseUrl, interceptors)
             val okHttp = provideOkHttp(interceptors, tokenManager)
-            return AuthManager(CredentialManager(provideAuthService(BASE_URL, okHttp), provideProfileService(BASE_URL, okHttp)))
+            return AuthManager(CredentialManager(provideAuthService(BASE_URL, okHttp), provideProfileService(BASE_URL, okHttp), parentJob), parentJob)
         }
 
     }
 
     enum class UserStatus {
-        REGISTERED,
-        UNREGISTERED
-    }
-
-    override val coroutineContext: CoroutineContext by lazy { Dispatchers.IO + SupervisorJob(parentJob) }
-
-    private val _status: MutableStateFlow<UserStatus> by lazy {
-        MutableStateFlow(UserStatus.UNREGISTERED)
-    }
-
-    val userStatus: StateFlow<UserStatus> by lazy {
-        _status.asStateFlow()
+        UNREGISTERED,
+        REGISTERED
     }
 
     override val user: MutableStateFlow<FirebaseUserController>
         get() = _user
 
+    private val _status: MutableStateFlow<UserStatus> by lazy { MutableStateFlow(UserStatus.UNREGISTERED) }
+    val userStatus: StateFlow<UserStatus> by lazy { _status.asStateFlow() }
+
     init {
-        currentUser
-            .onEach { user ->
-                if (user.credentials.value.isEmpty()) {
-                    _status.value = UserStatus.UNREGISTERED
-                } else {
-                    _status.value = UserStatus.REGISTERED
-                }
-            }.launchIn(this)
+        currentUser.onEach {
+            _status.value = if(it.credentials.value.isEmpty()) UserStatus.UNREGISTERED else UserStatus.REGISTERED
+        }
     }
 
-    override val onAuthSuccessListener: (FirebaseUserController) -> Unit by lazy { {
-        val newUser = if(it.credentials.value.isEmpty())
-            UnregisteredUserControllerImpl(FirebaseAuth.getInstance())
-        else
-            it
 
-        super.onAuthSuccessListener.invoke(newUser)
-    } }
 }

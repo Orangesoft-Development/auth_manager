@@ -6,12 +6,15 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.fragment.app.FragmentActivity
 import by.orangesoft.auth.firebase.credential.Firebase
 import by.orangesoft.auth.firebase.FirebaseUserController
 import co.orangesoft.authmanager.firebase_auth.AuthManager
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.*
 
-class MainActivity : AppCompatActivity() {
+@InternalCoroutinesApi
+class MainActivity : FragmentActivity() {
 
     private val loginSuccessListener: (FirebaseUserController) -> Unit  = {
         Toast.makeText(this, "SUCCESS", Toast.LENGTH_SHORT).show()
@@ -21,11 +24,11 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
     }
 
+    private val authManager: AuthManager by lazy { AuthManager.getInstance(AuthManager.BASE_URL) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setSupportActionBar(findViewById(R.id.toolbar))
-
         initViews()
     }
 
@@ -44,27 +47,23 @@ class MainActivity : AppCompatActivity() {
     private fun initViews() {
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { view -> }
 
-        val authManager = AuthManager.getInstance(AuthManager.BASE_URL)
+        googleBtn.setOnClickListener { launchCredential(Firebase.Google(getString(R.string.server_client_id))) }
 
-        googleBtn.setOnClickListener {
-            authManager.login(this, Firebase.Google(getString(R.string.server_client_id))) {
-                onAuthException(loginErrorListener)
-                onAuthSuccess(loginSuccessListener)
-            }
-        }
+        facebookBtn.setOnClickListener { launchCredential(Firebase.Facebook) }
 
-        facebookBtn.setOnClickListener {
-            authManager.login(this, Firebase.Facebook) {
-                onAuthException(loginErrorListener)
-                onAuthSuccess(loginSuccessListener)
-            }
-        }
+        appleBtn.setOnClickListener { launchCredential(Firebase.Apple) }
+    }
 
-        appleBtn.setOnClickListener {
-            authManager.login(this, Firebase.Apple) {
-                onAuthException(loginErrorListener)
-                onAuthSuccess(loginSuccessListener)
-            }
-        }
+    private fun launchCredential(credential: Firebase){
+        if(authManager.userStatus.value == AuthManager.UserStatus.REGISTERED && authManager.currentUser.value.credentials.value.contains(credential))
+            authManager.removeCredential(credential)
+                    .invokeOnCompletion { error ->
+                        error?.apply { loginErrorListener(error) } ?: loginSuccessListener(authManager.currentUser.value)
+                    }
+        else
+            authManager.login(this, credential)
+                    .invokeOnCompletion { error ->
+                        error?.apply { loginErrorListener(error) } ?: loginSuccessListener(authManager.currentUser.value)
+                    }
     }
 }

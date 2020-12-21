@@ -5,16 +5,18 @@ import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
 interface IBaseCredentialController {
 
     val credential: AuthCredential
 
-    fun addCredential(listener: CredentialListener.() -> Unit) = addCredential(CredentialListener().apply(listener))
-    fun addCredential(listener: CredentialListener)
+    fun addCredential(): Flow<CredentialResult>
 
-    fun removeCredential(listener: CredentialListener.() -> Unit) = removeCredential(CredentialListener().apply(listener))
-    fun removeCredential(listener: CredentialListener)
+    fun removeCredential(): Flow<Collection<IBaseCredential>>
 
     fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>)
 
@@ -24,7 +26,9 @@ interface IBaseCredentialController {
         if(activity is ComponentCallbackActivity)
             activity.setActivityResultCallback(ActivityResultCallback { onActivityResult(it.resultCode, it.data) })
 
-        val launcher = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result -> onActivityResult(result.resultCode, result.data) }
-        onProviderCreated(activity, launcher)
+        GlobalScope.launch(Dispatchers.Main) {
+            val launcher = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result -> onActivityResult(result.resultCode, result.data) }
+            onProviderCreated(activity, launcher)
+        }
     }
 }

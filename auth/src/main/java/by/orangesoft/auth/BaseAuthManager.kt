@@ -5,60 +5,36 @@ import by.orangesoft.auth.credentials.AuthCredential
 import by.orangesoft.auth.credentials.IBaseCredential
 import by.orangesoft.auth.credentials.BaseCredentialsManager
 import by.orangesoft.auth.user.IBaseUserController
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
+import kotlin.coroutines.CoroutineContext
 
-abstract class BaseAuthManager<T: IBaseUserController<*>, C: BaseCredentialsManager<T>>(protected val credentialsManager: C): IAuthManager<T> {
+@InternalCoroutinesApi
+abstract class BaseAuthManager<T: IBaseUserController<*>, C: BaseCredentialsManager<T>>(protected val credentialsManager: C, parentJob: Job? = null): IAuthManager<T>, CoroutineScope {
 
     protected abstract val user: MutableStateFlow<T>
 
+    override val coroutineContext: CoroutineContext by lazy { Dispatchers.IO + SupervisorJob(parentJob) }
+
     override val currentUser: StateFlow<T> by lazy { user.asStateFlow() }
 
-    protected var authListener: AuthListener<T>? = null
-
-    protected open val onAuthSuccessListener: (T) -> Unit = {
-        user.value = it
-
-        synchronized(this@BaseAuthManager) {
-            authListener?.invoke(it)
-            authListener = null
+    override fun login(activity: FragmentActivity, credential: AuthCredential): Job =
+        launch {
+            credentialsManager.addCredential(activity, credential, null)
+                    .collectLatest { user.value = it }
         }
-    }
 
-    protected open val onAuthErrorListener: (Throwable) -> Unit = {
-        synchronized(this@BaseAuthManager) {
-            authListener?.invoke(it)
-            authListener = null
+    override fun addCredential(activity: FragmentActivity, credential: AuthCredential): Job =
+        launch {
+            credentialsManager.addCredential(activity, credential, currentUser.value)
+                    .collectLatest { user.value = it }
         }
-    }
 
-    private val credentialListener: AuthListener<T> = AuthListener(Dispatchers.IO) {
-        onAuthSuccess(onAuthSuccessListener)
-        onAuthException(onAuthErrorListener)
-    }
 
-    init {
-        credentialsManager.setAuthListener(credentialListener)
-    }
+    override fun removeCredential(credential: IBaseCredential): Job =
+        launch {
+            credentialsManager.removeCredential(credential, currentUser.value)
+                    .collectLatest { user.value = it }
+        }
 
-    override fun login(activity: FragmentActivity, credential: AuthCredential, listener: AuthListener<T>?) {
-        authListener = listener
-        credentialsManager.addCredential(activity, credential, null)
-    }
-
-    override fun addCredential(
-            activity: FragmentActivity,
-            credential: AuthCredential,
-            listener: AuthListener<T>?
-    ) {
-        authListener = listener
-        credentialsManager.addCredential(activity, credential, currentUser.value)
-    }
-
-    override fun removeCredential(credential: IBaseCredential, listener: AuthListener<T>?) {
-        authListener = listener
-        credentialsManager.removeCredential(currentUser.value, credential)
-    }
 }

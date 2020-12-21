@@ -11,6 +11,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import kotlin.coroutines.CoroutineContext
+import kotlin.jvm.Throws
 
 class UserControllerImpl(
     firebaseInstance: FirebaseAuth,
@@ -23,36 +24,35 @@ class UserControllerImpl(
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO
 
-    override suspend fun saveChanges(onError: ((Throwable) -> Unit)?) {
+    @Throws(Throwable::class)
+    override suspend fun saveChanges() {
         (profile as? Profile)?.let { profile ->
-            profileService::patchProfile.parseResponse(accessToken, profile) {
-                onSuccess { super.updateAccount(it, onError) }
-                onError(onError)
+            profileService::patchProfile.parseResponse(accessToken, profile).apply {
+                super.updateAccount(this)
             }
         }
     }
 
-    override suspend fun updateAvatar(file: File, onError: ((Throwable) -> Unit)?) {
+    @Throws(Throwable::class)
+    override suspend fun updateAvatar(file: File) {
         (profile as? Profile)?.let { profile ->
-            profileService::postProfileAvatar.parseResponse(accessToken, file.asRequestBody("image/*".toMediaTypeOrNull())){
-                onSuccess { super.updateAvatar(file, onError) }
-                onError(onError)
-            }
+            profileService::postProfileAvatar.parseResponse(accessToken, file.asRequestBody("image/*".toMediaTypeOrNull()))
+            super.updateAvatar(file)
         }
     }
 
-    override suspend fun reload(onError: ((Throwable) -> Unit)?) {
-        profileService::getProfile.parseResponse(accessToken) {
-            onSuccess { super.updateAccount(it, onError) }
-            onError(onError)
+    @Throws(Throwable::class)
+    override suspend fun reload() {
+        profileService::getProfile.parseResponse(accessToken).apply {
+            super.updateAccount(this)
         }
     }
 
-    override suspend fun updateAccount(profile: FirebaseProfile, onError: ((Throwable) -> Unit)?) {
+    @Throws(Throwable::class)
+    override suspend fun updateAccount(profile: FirebaseProfile) {
         (profile as? Profile)?.let {
-            profileService::patchProfile.parseResponse(accessToken, it){
-                onSuccess { result -> super.updateAccount(result, onError) }
-                onError(onError)
+            profileService::patchProfile.parseResponse(accessToken, it).apply {
+                super.updateAccount(this)
             }
         }
     }

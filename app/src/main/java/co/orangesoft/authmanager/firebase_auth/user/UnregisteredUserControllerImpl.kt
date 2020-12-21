@@ -4,11 +4,14 @@ import android.annotation.SuppressLint
 import com.facebook.FacebookSdk.getApplicationContext
 import android.provider.Settings.Secure
 import by.orangesoft.auth.firebase.FirebaseProfile
+import by.orangesoft.auth.firebase.FirebaseUserController
+import by.orangesoft.auth.user.IBaseUserController
 import com.google.firebase.auth.FirebaseAuth
 import java.io.File
+import kotlin.jvm.Throws
 
 @SuppressLint("HardwareIds")
-class UnregisteredUserControllerImpl(firebaseInstance: FirebaseAuth): by.orangesoft.auth.firebase.FirebaseUserController(firebaseInstance) {
+class UnregisteredUserControllerImpl(firebaseInstance: FirebaseAuth): FirebaseUserController(firebaseInstance) {
 
     override var profile: FirebaseProfile =
         Profile(
@@ -20,15 +23,18 @@ class UnregisteredUserControllerImpl(firebaseInstance: FirebaseAuth): by.oranges
 
     override var accessToken: String = ""
 
-    override suspend fun saveChanges(onError: ((Throwable) -> Unit)?) {
+    @Throws(Throwable::class)
+    override suspend fun saveChanges() {
         //do nothing
     }
 
-    override suspend fun updateAvatar(file: File, onError: ((Throwable) -> Unit)?) {
+    @Throws(Throwable::class)
+    override suspend fun updateAvatar(file: File) {
         //do nothing
     }
 
-    override suspend fun reload(onError: ((Throwable) -> Unit)?) {
+    @Throws(Throwable::class)
+    override suspend fun reload() {
         //do nothing
     }
 

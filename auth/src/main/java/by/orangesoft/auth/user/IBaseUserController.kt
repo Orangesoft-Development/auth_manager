@@ -3,19 +3,26 @@ package by.orangesoft.auth.user
 import by.orangesoft.auth.credentials.IBaseCredential
 import kotlinx.coroutines.flow.StateFlow
 import java.io.File
+import kotlin.jvm.Throws
 
 interface IBaseUserController<P> {
 
     val profile: P
-    val credentials: StateFlow<Set<IBaseCredential>>
+    val credentials: StateFlow<Collection<IBaseCredential>>
 
-    suspend fun reload(onError: ((Throwable) -> Unit)? = null)
+    @Throws(Throwable::class)
+    suspend fun reload()
 
-    suspend fun updateAvatar(file: File, onError: ((Throwable) -> Unit)? = null)
+    @Throws(Throwable::class)
+    suspend fun updateAvatar(file: File)
 
-    suspend fun updateAccount(profile: P, onError: ((Throwable) -> Unit)? = null)
+    @Throws(Throwable::class)
+    suspend fun updateAccount(profile: P)
 
-    suspend fun saveChanges(onError: ((Throwable) -> Unit)? = null)
+    @Throws(Throwable::class)
+    suspend fun saveChanges()
+
+
 
 
 }

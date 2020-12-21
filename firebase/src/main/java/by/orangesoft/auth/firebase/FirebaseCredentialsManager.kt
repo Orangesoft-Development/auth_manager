@@ -7,51 +7,56 @@ import by.orangesoft.auth.firebase.credential.controllers.FacebookCredentialCont
 import by.orangesoft.auth.firebase.credential.Firebase
 import by.orangesoft.auth.firebase.credential.controllers.GoogleCredentialController
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import kotlin.NoSuchElementException
+import kotlin.jvm.Throws
 
-open class FirebaseCredentialsManager: BaseCredentialsManager<FirebaseUserController>() {
+@InternalCoroutinesApi
+open class FirebaseCredentialsManager(parentJob: Job? = null): BaseCredentialsManager<FirebaseUserController>(parentJob) {
 
     protected val firebaseInstance: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
+    @Throws(Throwable::class)
     override suspend fun onLogged(credentialResult: CredentialResult): FirebaseUserController = getCurrentUser()
 
     protected open fun getCurrentUser(): FirebaseUserController = FirebaseUserController(firebaseInstance)
 
+    @Throws(Throwable::class)
     override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: FirebaseUserController) {
-        user.updateCredentials()
+        user.reloadCredentials()
     }
 
+    @Throws(Throwable::class)
     override suspend fun onCredentialRemoved(credential: IBaseCredential, user: FirebaseUserController) {
-        user.updateCredentials()
+        user.reloadCredentials()
     }
 
+    @Throws(Throwable::class)
     open suspend fun logout(user: FirebaseUserController) {
         firebaseInstance.signOut()
-        listener?.invoke(getCurrentUser())
     }
 
+    @Throws(Throwable::class)
     open suspend fun deleteUser(user: FirebaseUserController) {
         firebaseInstance.currentUser?.delete()?.await()
-        listener?.invoke(getCurrentUser())
     }
 
-    override fun removeCredential(user: FirebaseUserController, credential: IBaseCredential) {
-        if(!user.credentials.value.let { creds -> creds.firstOrNull { it == credential } != null && creds.size > 1 }){
-            onCredentialException.invoke(NoSuchElementException("Cannot remove method $credential"))
-            return
-        }
-
-        getBuilder(credential).build().removeCredential {
-            onRemoveCredentialSuccess {
-                launch {
-                    onCredentialRemoved(credential, user)
-                    listener?.invoke(user)
-                }
+    override fun removeCredential(credential: IBaseCredential, user: FirebaseUserController): Flow<FirebaseUserController> =
+        flow {
+            if(!user.credentials.value.let { creds -> creds.firstOrNull { it == credential } != null && creds.size > 1 }){
+                throw NoSuchElementException("Cannot remove method $credential")
             }
-            onCredentialException(onCredentialException)
-        }
+
+            getBuilder(credential).build().removeCredential()
+              .collectLatest {
+                  user.reloadCredentials()
+                  emit(user)
+              }
     }
 
     override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CredBuilder(credential)
