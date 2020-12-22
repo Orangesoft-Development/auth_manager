@@ -27,18 +27,18 @@ open class FirebaseCredentialsManager: BaseCredentialsManager<FirebaseUserContro
         user.updateCredentials()
     }
 
-    open suspend fun logout(user: FirebaseUserController) {
+    override suspend fun logout(user: FirebaseUserController) {
         firebaseInstance.signOut()
         listener?.invoke(getCurrentUser())
     }
 
-    open suspend fun deleteUser(user: FirebaseUserController) {
+    override suspend fun deleteUser(user: FirebaseUserController) {
         firebaseInstance.currentUser?.delete()?.await()
         listener?.invoke(getCurrentUser())
     }
 
     override fun removeCredential(user: FirebaseUserController, credential: IBaseCredential) {
-        if(!user.credentials.value.let { creds -> creds.firstOrNull { it == credential } != null && creds.size > 1 }){
+        if(!user.credentials.value.let { creds -> creds.firstOrNull { it == credential } != null && creds.size > 1 }) {
             onCredentialException.invoke(NoSuchElementException("Cannot remove method $credential"))
             return
         }

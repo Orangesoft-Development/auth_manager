@@ -45,6 +45,7 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
         _credentials.value = firebaseInstance.getCredentials()
     }
 
+    //TODO check where it should be used
     override suspend fun saveChanges(onError: ((Throwable) -> Unit)?) {
         firebaseInstance.currentUser?.let {
             try {

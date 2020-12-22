@@ -9,6 +9,8 @@ import android.widget.Toast
 import by.orangesoft.auth.firebase.credential.Firebase
 import by.orangesoft.auth.firebase.FirebaseUserController
 import co.orangesoft.authmanager.firebase_auth.AuthManager
+import co.orangesoft.authmanager.phone_auth.PhoneAuthManager
+import co.orangesoft.authmanager.phone_auth.credentials.PhoneAuthCredential
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -64,6 +66,15 @@ class MainActivity : AppCompatActivity() {
             authManager.login(this, Firebase.Apple) {
                 onAuthException(loginErrorListener)
                 onAuthSuccess(loginSuccessListener)
+            }
+        }
+
+        phoneBtn.setOnClickListener {
+            PhoneAuthManager.getInstance(PhoneAuthManager.BASE_URL).login(this, PhoneAuthCredential()) {
+                onAuthException(loginErrorListener)
+                onAuthSuccess {
+                    Toast.makeText(this@MainActivity, "SUCCESS", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
