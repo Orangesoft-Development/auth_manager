@@ -34,7 +34,7 @@ abstract class BaseAuthManager<T: IBaseUserController<*>, C: BaseCredentialsMana
         }
     }
 
-    private val credentialListener: AuthListener<T> = AuthListener(Dispatchers.IO) {
+    private val credentialListener: AuthListener<T> = AuthListener(coroutineContext = Dispatchers.IO) {
         onAuthSuccess(onAuthSuccessListener)
         onAuthException(onAuthErrorListener)
     }

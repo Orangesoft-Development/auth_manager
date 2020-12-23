@@ -4,4 +4,4 @@ import android.annotation.SuppressLint
 import by.orangesoft.auth.credentials.AuthCredential
 
 @SuppressLint("ParcelCreator")
-class PhoneAuthCredential : AuthCredential("Phone")
+class PhoneAuthCredential(val phone: String, val code:String) : AuthCredential("Phone")

@@ -78,8 +78,7 @@ open class PhoneUserController(private val profileService: ProfileService? = nul
     }
 
     fun updateCredentials() {
+        //TODO what should do here
         //_credentials.value = firebaseInstance.getCredentials()
     }
-
-
 }

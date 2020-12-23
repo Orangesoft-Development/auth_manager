@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         phoneBtn.setOnClickListener {
-            PhoneAuthManager.getInstance(PhoneAuthManager.BASE_URL).login(this, PhoneAuthCredential()) {
+            PhoneAuthManager.getInstance(PhoneAuthManager.BASE_URL).login(this, PhoneAuthCredential("+375334445566", "1234")) {
                 onAuthException(loginErrorListener)
                 onAuthSuccess {
                     Toast.makeText(this@MainActivity, "SUCCESS", Toast.LENGTH_SHORT).show()

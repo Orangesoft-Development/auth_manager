@@ -7,4 +7,5 @@ data class PhoneProfile(val id: String,
                         var name: String? = null,
                         @SerializedName("avatar_url")
                         var avatarUrl: String? = null,
-                        var birthday: String? = null)
+                        var birthday: String? = null,
+                        var accessToken: String = "")

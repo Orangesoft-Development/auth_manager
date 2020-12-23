@@ -22,6 +22,7 @@ class AuthListener<T: IBaseUserController<*>>(private var lifecycleOwner: Lifecy
     }
 
     constructor(coroutineContext: CoroutineContext, unit: AuthListener<T>.()-> Unit):this(null, coroutineContext) {
+        //TODO Nullpointer here: Lazy.getValue() on null object
         apply(unit)
     }
 
