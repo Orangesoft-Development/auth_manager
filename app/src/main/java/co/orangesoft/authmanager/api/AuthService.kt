@@ -1,8 +1,7 @@
 package co.orangesoft.authmanager.api
 
 import by.orangesoft.auth.credentials.CredentialResult
-import co.orangesoft.authmanager.firebase_auth.user.Profile
-import co.orangesoft.authmanager.phone_auth.user.PhoneProfile
+import co.orangesoft.authmanager.auth.user.Profile
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -25,17 +24,4 @@ interface AuthService {
 
     @POST("/auth/custom-token")
     suspend fun createPhoneToken(@Query("phone") phone: String, @Query("code") code: String): Response<String>
-
-
-    //TODO Profile and PhoneProfile should extends the same class?
-
-    @POST("/auth/login")
-    suspend fun phoneLogin(@Query("phone") phone: String, @Query("password") password: String): Response<PhoneProfile>
-
-    @POST("/account/auth-credentials")
-    suspend fun addPhoneCreds(@Header("Authorization") accessToken: String, @Query("methodId") methodId: String?): Response<PhoneProfile>
-
-    @DELETE("/account/auth-credentials/{method}")
-    suspend fun removePhoneCreds(@Header("Authorization") accessToken: String, @Path(value = "methodId") methodId: String?): Response<PhoneProfile>
-
 }

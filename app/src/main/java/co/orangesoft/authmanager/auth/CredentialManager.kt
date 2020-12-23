@@ -1,14 +1,13 @@
-package co.orangesoft.authmanager.firebase_auth
+package co.orangesoft.authmanager.auth
 
-import by.orangesoft.auth.credentials.IBaseCredential
-import by.orangesoft.auth.credentials.CredentialResult
-import by.orangesoft.auth.credentials.IBaseCredentialsManager
-import by.orangesoft.auth.firebase.credential.Firebase
+import by.orangesoft.auth.credentials.*
 import by.orangesoft.auth.firebase.FirebaseCredentialsManager
 import by.orangesoft.auth.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.AuthService
 import co.orangesoft.authmanager.api.ProfileService
-import co.orangesoft.authmanager.firebase_auth.user.*
+import co.orangesoft.authmanager.auth.user.*
+import co.orangesoft.authmanager.auth.phone_auth.credentials.PhoneAuthCredential
+import co.orangesoft.authmanager.auth.phone_auth.credentials.PhoneCredentialController
 
 internal class CredentialManager(
     private val authService: AuthService,
@@ -58,13 +57,14 @@ internal class CredentialManager(
         }
     }
 
-    override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder =
-        CredBuilder(
-            when (credential.providerId) {
-                Firebase.Apple.providerId -> Firebase.Apple
-                Firebase.Facebook.providerId -> Firebase.Facebook
-                Firebase.Google("").providerId -> Firebase.Google("")
-                else -> throw UnsupportedOperationException("Method $credential is not supported")
+    override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CustomCredBuilder(AuthCredential(credential))
+
+    inner class CustomCredBuilder(credential: AuthCredential): CredBuilder(credential) {
+
+        override fun createCredential(): IBaseCredentialController =
+            when (credential) {
+                is PhoneAuthCredential  -> PhoneCredentialController(authService, credential)
+                else -> super.createCredential()
             }
-        )
+    }
 }

@@ -1,9 +1,9 @@
-package co.orangesoft.authmanager.firebase_auth.user
+package co.orangesoft.authmanager.auth.user
 
 import by.orangesoft.auth.firebase.FirebaseProfile
 import by.orangesoft.auth.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.ProfileService
-import co.orangesoft.authmanager.firebase_auth.parseResponse
+import co.orangesoft.authmanager.auth.parseResponse
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
