@@ -57,9 +57,9 @@ internal class CredentialManager(
         }
     }
 
-    override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CustomCredBuilder(AuthCredential(credential))
+    override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CustomCredBuilder(credential)
 
-    inner class CustomCredBuilder(credential: AuthCredential): CredBuilder(credential) {
+    inner class CustomCredBuilder(credential: IBaseCredential): CredBuilder(credential) {
 
         override fun createCredential(): IBaseCredentialController =
             when (credential) {

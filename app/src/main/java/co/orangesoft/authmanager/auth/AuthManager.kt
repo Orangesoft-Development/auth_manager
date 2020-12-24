@@ -60,12 +60,12 @@ class AuthManager(credManager:FirebaseCredentialsManager,
             }.launchIn(this)
     }
 
-    override val onAuthSuccessListener: (FirebaseUserController) -> Unit by lazy { {
-        val newUser = if(it.credentials.value.isEmpty())
-            UnregisteredUserControllerImpl(FirebaseAuth.getInstance())
-        else
-            it
-
-        super.onAuthSuccessListener.invoke(newUser)
-    } }
+    override val onAuthSuccessListener: (FirebaseUserController) -> Unit
+        get() = {
+            val newUser = if (it.credentials.value.isEmpty())
+                UnregisteredUserControllerImpl(FirebaseAuth.getInstance())
+            else
+                it
+            super.onAuthSuccessListener.invoke(newUser)
+        }
 }

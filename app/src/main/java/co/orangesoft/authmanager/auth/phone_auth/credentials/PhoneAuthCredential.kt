@@ -1,7 +1,7 @@
 package co.orangesoft.authmanager.auth.phone_auth.credentials
 
 import android.annotation.SuppressLint
-import by.orangesoft.auth.credentials.AuthCredential
+import by.orangesoft.auth.firebase.credential.Firebase
 
 @SuppressLint("ParcelCreator")
-class PhoneAuthCredential(val phone: String, val code:String) : AuthCredential("Phone")
+data class PhoneAuthCredential(val phone: String, val code:String) : Firebase("Phone")

@@ -56,8 +56,7 @@ open class FirebaseCredentialsManager: BaseCredentialsManager<FirebaseUserContro
 
     override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CredBuilder(credential)
 
-    open class CredBuilder(credential: AuthCredential): IBaseCredentialsManager.Builder(credential) {
-        constructor(credential: IBaseCredential): this(AuthCredential(credential))
+    open class CredBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder(credential) {
 
         override fun createCredential(): IBaseCredentialController =
             when (credential) {
