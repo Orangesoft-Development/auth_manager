@@ -53,6 +53,12 @@
             android:layout_height="50dp"
             android:text="Apple"/>
 
+        <Button
+            android:id="@+id/phoneBtn"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:text="Phone"/>
+
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

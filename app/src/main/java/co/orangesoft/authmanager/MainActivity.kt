@@ -9,7 +9,8 @@ import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import by.orangesoft.auth.firebase.credential.Firebase
 import by.orangesoft.auth.firebase.FirebaseUserController
-import co.orangesoft.authmanager.firebase_auth.AuthManager
+import co.orangesoft.authmanager.auth.AuthManager
+import co.orangesoft.authmanager.auth.phone_auth.credentials.PhoneAuthCredential
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 
@@ -52,6 +53,8 @@ class MainActivity : FragmentActivity() {
         facebookBtn.setOnClickListener { launchCredential(Firebase.Facebook) }
 
         appleBtn.setOnClickListener { launchCredential(Firebase.Apple) }
+
+        phoneBtn.setOnClickListener { launchCredential(PhoneAuthCredential("+375334445566", "1234")) }
     }
 
     private fun launchCredential(credential: Firebase){

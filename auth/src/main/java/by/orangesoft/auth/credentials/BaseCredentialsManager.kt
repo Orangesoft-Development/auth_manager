@@ -26,6 +26,12 @@ abstract class BaseCredentialsManager<T: IBaseUserController<*>> (parentJob: Job
     @Throws(Exception::class)
     protected abstract suspend fun onCredentialRemoved(credential: IBaseCredential, user: T)
 
+    @Throws(Exception::class)
+    open suspend fun logout(user: T) {}
+
+    @Throws(Exception::class)
+    open suspend fun deleteUser(user: T) {}
+
     protected abstract fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder
 
     override fun addCredential(activity: FragmentActivity, credential: IBaseCredential, user: T?): Flow<T> =

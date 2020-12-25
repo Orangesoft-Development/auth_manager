@@ -1,7 +1,7 @@
 package co.orangesoft.authmanager.api
 
 import by.orangesoft.auth.credentials.CredentialResult
-import co.orangesoft.authmanager.firebase_auth.user.Profile
+import co.orangesoft.authmanager.auth.user.Profile
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -21,4 +21,7 @@ interface AuthService {
 
     @DELETE("/account/auth-credentials/{method}")
     suspend fun removeCreds(@Header("Authorization") accessToken: String, @Path(value = "methodId") methodId: String?): Response<Profile>
+
+    @POST("/auth/custom-token")
+    suspend fun createPhoneToken(@Query("phone") phone: String, @Query("code") code: String): Response<String>
 }

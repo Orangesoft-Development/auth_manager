@@ -37,12 +37,12 @@ open class FirebaseCredentialsManager(parentJob: Job? = null): BaseCredentialsMa
     }
 
     @Throws(Throwable::class)
-    open suspend fun logout(user: FirebaseUserController) {
+    override suspend fun logout(user: FirebaseUserController) {
         firebaseInstance.signOut()
     }
 
     @Throws(Throwable::class)
-    open suspend fun deleteUser(user: FirebaseUserController) {
+    override suspend fun deleteUser(user: FirebaseUserController) {
         firebaseInstance.currentUser?.delete()?.await()
     }
 
@@ -61,8 +61,7 @@ open class FirebaseCredentialsManager(parentJob: Job? = null): BaseCredentialsMa
 
     override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CredBuilder(credential)
 
-    open class CredBuilder(credential: AuthCredential): IBaseCredentialsManager.Builder(credential) {
-        constructor(credential: IBaseCredential): this(AuthCredential(credential))
+    open class CredBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder(credential) {
 
         override fun createCredential(): IBaseCredentialController =
             when (credential) {

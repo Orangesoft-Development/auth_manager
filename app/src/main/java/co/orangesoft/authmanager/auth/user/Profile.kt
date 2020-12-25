@@ -1,5 +1,6 @@
-package co.orangesoft.authmanager.firebase_auth.user
+package co.orangesoft.authmanager.auth.user
 
+import by.orangesoft.auth.firebase.FirebaseProfile
 import com.google.gson.annotations.SerializedName
 
 class Profile(
@@ -11,7 +12,7 @@ class Profile(
     var avatarUrl: String? = null,
     var birthday: String? = null,
     var settings: Settings? = null
-) : by.orangesoft.auth.firebase.FirebaseProfile(uid = id, providerId = providerId, displayName = name, phoneNumber = phoneNumber, photoUrl = avatarUrl)
+) : FirebaseProfile(uid = id, providerId = providerId, displayName = name, phoneNumber = phoneNumber, photoUrl = avatarUrl)
 
 
 data class Settings(

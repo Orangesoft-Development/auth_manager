@@ -1,4 +1,4 @@
-package co.orangesoft.authmanager.firebase_auth
+package co.orangesoft.authmanager.auth
 
 import android.util.Log
 import by.orangesoft.auth.BaseTokenManager

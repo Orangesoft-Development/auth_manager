@@ -1,4 +1,4 @@
-package co.orangesoft.authmanager.firebase_auth
+package co.orangesoft.authmanager.auth
 
 import by.orangesoft.auth.firebase.FirebaseAuthManager
 import by.orangesoft.auth.firebase.FirebaseCredentialsManager
@@ -6,7 +6,7 @@ import by.orangesoft.auth.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.provideAuthService
 import co.orangesoft.authmanager.api.provideOkHttp
 import co.orangesoft.authmanager.api.provideProfileService
-import co.orangesoft.authmanager.firebase_auth.user.UnregisteredUserControllerImpl
+import co.orangesoft.authmanager.auth.user.UnregisteredUserControllerImpl
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -29,7 +29,6 @@ class AuthManager(credManager:FirebaseCredentialsManager,
             val okHttp = provideOkHttp(interceptors, tokenManager)
             return AuthManager(CredentialManager(provideAuthService(BASE_URL, okHttp), provideProfileService(BASE_URL, okHttp), parentJob), parentJob)
         }
-
     }
 
     enum class UserStatus {
@@ -49,5 +48,12 @@ class AuthManager(credManager:FirebaseCredentialsManager,
         }
     }
 
-
+    override val onAuthSuccessListener: (FirebaseUserController) -> Unit
+        get() = {
+            val newUser = if (it.credentials.value.isEmpty())
+                UnregisteredUserControllerImpl(FirebaseAuth.getInstance())
+            else
+                it
+            super.onAuthSuccessListener.invoke(newUser)
+        }
 }

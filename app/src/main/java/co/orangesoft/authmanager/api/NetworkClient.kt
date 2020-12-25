@@ -1,7 +1,7 @@
 package co.orangesoft.authmanager.api
 
 import android.util.Log
-import co.orangesoft.authmanager.firebase_auth.TokenManager
+import co.orangesoft.authmanager.auth.TokenManager
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

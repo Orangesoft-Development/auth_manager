@@ -1,4 +1,4 @@
-package co.orangesoft.authmanager.firebase_auth.user
+package co.orangesoft.authmanager.auth.user
 
 import android.annotation.SuppressLint
 import com.facebook.FacebookSdk.getApplicationContext
