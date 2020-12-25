@@ -40,9 +40,9 @@ abstract class BaseFirebaseCredentialController(override val credential: Firebas
                 authInstance.currentUser?.providerData?.firstOrNull {
                     it.providerId == credential.providerId
                 }?.let { provider ->
-                    authInstance.currentUser!!.unlink(provider.providerId)
-                            .addOnCompleteListener { (flow as MutableSharedFlow<Collection<IBaseCredential>>).tryEmit( authInstance.getCredentials()) }
-                            .addOnFailureListener { onError("Error remove credential ${credential.providerId}", it) }
+                    authInstance.currentUser?.unlink(provider.providerId)
+                            ?.addOnCompleteListener { (flow as MutableSharedFlow<Collection<IBaseCredential>>).tryEmit( authInstance.getCredentials()) }
+                            ?.addOnFailureListener { onError("Error remove credential ${credential.providerId}", it) }
 
                 } ?: (flow as MutableSharedFlow<Collection<IBaseCredential>>).tryEmit(authInstance.getCredentials())
             }.asSharedFlow()

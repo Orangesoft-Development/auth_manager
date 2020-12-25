@@ -1,4 +1,4 @@
-package co.orangesoft.authmanager.auth.phone_auth.credentials
+package co.orangesoft.authmanager.auth.phone_auth
 
 import android.annotation.SuppressLint
 import by.orangesoft.auth.firebase.credential.Firebase

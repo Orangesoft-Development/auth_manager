@@ -2,7 +2,6 @@ package co.orangesoft.authmanager
 
 import android.os.Bundle
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -10,7 +9,7 @@ import androidx.fragment.app.FragmentActivity
 import by.orangesoft.auth.firebase.credential.Firebase
 import by.orangesoft.auth.firebase.FirebaseUserController
 import co.orangesoft.authmanager.auth.AuthManager
-import co.orangesoft.authmanager.auth.phone_auth.credentials.PhoneAuthCredential
+import co.orangesoft.authmanager.auth.phone_auth.PhoneAuthCredential
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 

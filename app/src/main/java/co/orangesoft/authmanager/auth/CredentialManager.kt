@@ -6,8 +6,8 @@ import by.orangesoft.auth.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.AuthService
 import co.orangesoft.authmanager.api.ProfileService
 import co.orangesoft.authmanager.auth.user.*
-import co.orangesoft.authmanager.auth.phone_auth.credentials.PhoneAuthCredential
-import co.orangesoft.authmanager.auth.phone_auth.credentials.PhoneCredentialController
+import co.orangesoft.authmanager.auth.phone_auth.PhoneAuthCredential
+import co.orangesoft.authmanager.auth.phone_auth.PhoneCredentialController
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 
@@ -54,7 +54,7 @@ internal class CredentialManager(
 
         override fun createCredential(): IBaseCredentialController =
             when (credential) {
-                is PhoneAuthCredential  -> PhoneCredentialController(authService, credential)
+                is PhoneAuthCredential -> PhoneCredentialController(authService, credential)
                 else -> super.createCredential()
             }
     }

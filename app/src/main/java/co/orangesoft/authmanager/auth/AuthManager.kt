@@ -47,13 +47,4 @@ class AuthManager(credManager:FirebaseCredentialsManager,
             _status.value = if(it.credentials.value.isEmpty()) UserStatus.UNREGISTERED else UserStatus.REGISTERED
         }
     }
-
-    override val onAuthSuccessListener: (FirebaseUserController) -> Unit
-        get() = {
-            val newUser = if (it.credentials.value.isEmpty())
-                UnregisteredUserControllerImpl(FirebaseAuth.getInstance())
-            else
-                it
-            super.onAuthSuccessListener.invoke(newUser)
-        }
 }
