@@ -1,8 +1,10 @@
 package by.orangesoft.auth.credentials
 
+import android.util.Log
 import androidx.fragment.app.FragmentActivity
 import by.orangesoft.auth.user.IBaseUserController
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
@@ -16,6 +18,8 @@ abstract class BaseCredentialsManager<T: IBaseUserController<*>> (parentJob: Job
     }
 
     override val coroutineContext: CoroutineContext by lazy { Dispatchers.IO + SupervisorJob(parentJob) }
+
+    private val userSharedFlow = MutableSharedFlow<T>(1, 1)
 
     @Throws(Exception::class)
     protected abstract suspend fun onLogged(credentialResult: CredentialResult): T
@@ -34,36 +38,39 @@ abstract class BaseCredentialsManager<T: IBaseUserController<*>> (parentJob: Job
 
     protected abstract fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder
 
-    override fun addCredential(activity: FragmentActivity, credential: IBaseCredential, user: T?): Flow<T> =
-        flow {
+    override fun addCredential(activity: FragmentActivity, credential: IBaseCredential, user: T?): Flow<T> {
 
-            if (user?.credentials?.value?.firstOrNull { it == credential } != null) {
-                emit(user)
-                return@flow
-            }
+        if (user?.credentials?.value?.firstOrNull { it == credential } != null) {
+            userSharedFlow.tryEmit(user)
+        } else {
+            val credController = getBuilder(credential).build(activity)
 
-            getBuilder(credential).build(activity).addCredential()
-                    .collectLatest {
-                        if(user != null) {
-                            onCredentialAdded(it, user)
-                            emit(user)
-                        } else
-                            emit(onLogged(it))
+            credController.addCredential()
+                .onEach {
+                    Log.e("TAG","onEach thred:${Thread.currentThread()}")
+                    if(user != null) {
+                        onCredentialAdded(it, user)
+                        userSharedFlow.tryEmit(user)
+                    } else {
+                        userSharedFlow.tryEmit(onLogged(it))
                     }
-
+                }
+                .launchIn(this)
         }
+
+        return userSharedFlow.asSharedFlow()
+    }
 
 
     override fun removeCredential(credential: IBaseCredential, user: T): Flow<T> =
-            flow {
-                if(!user.credentials.value.let { creds -> creds.firstOrNull { it == credential } != null && creds.size > 1 }) {
-                    throw NoSuchElementException("Cannot remove method $credential")
-                }
-
-                getBuilder(credential).build().removeCredential()
-                        .collectLatest {
-                            onCredentialRemoved(credential, user)
-                            emit(user)
-                        }
+        flow {
+            if (!user.credentials.value.let { creds -> creds.firstOrNull { it == credential } != null && creds.size > 1 }) {
+                throw NoSuchElementException("Cannot remove method $credential")
             }
+
+            getBuilder(credential).build().removeCredential().apply {
+                onCredentialRemoved(credential, user)
+                emit(user)
+            }
+        }
 }

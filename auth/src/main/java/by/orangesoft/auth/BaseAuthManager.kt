@@ -21,13 +21,19 @@ abstract class BaseAuthManager<T: IBaseUserController<*>, C: BaseCredentialsMana
     override fun login(activity: FragmentActivity, credential: AuthCredential): Job =
         launch {
             credentialsManager.addCredential(activity, credential, null)
-                    .collectLatest { user.value = it }
+                .onEach {
+                    user.value = it
+                }
+                .launchIn(this)
         }
 
     override fun addCredential(activity: FragmentActivity, credential: AuthCredential): Job =
         launch {
             credentialsManager.addCredential(activity, credential, currentUser.value)
-                    .collectLatest { user.value = it }
+                .onEach {
+                    user.value = it
+                }
+                .launchIn(this)
         }
 
     override fun removeCredential(credential: IBaseCredential): Job =

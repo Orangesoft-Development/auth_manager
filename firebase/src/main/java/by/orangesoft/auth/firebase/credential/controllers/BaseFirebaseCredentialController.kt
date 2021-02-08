@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.tasks.await
 import java.lang.NullPointerException
 
 abstract class BaseFirebaseCredentialController(override val credential: Firebase): IBaseCredentialController {
@@ -25,27 +26,24 @@ abstract class BaseFirebaseCredentialController(override val credential: Firebas
     private lateinit var flow: MutableSharedFlow<*>
     private val flowJob: Job by lazy { flow.launchIn(CoroutineScope(Dispatchers.IO)) }
 
-    override fun addCredential() : Flow<CredentialResult> =
-            MutableSharedFlow<CredentialResult>().apply {
-                flow = this
-                getCredential()
-            }.asSharedFlow()
+    override fun addCredential() : Flow<CredentialResult> {
+        return MutableSharedFlow<CredentialResult>(1, 1).apply {
+            flow = this
+            getCredential()
+        }.asSharedFlow()
+    }
 
+    override fun removeCredential(): Collection<IBaseCredential> {
+        authInstance.currentUser?.providerData?.firstOrNull {
+            it.providerId == credential.providerId
+        }?.let { provider ->
+            runBlocking {
+                authInstance.currentUser?.unlink(provider.providerId)?.await()
+            }
+        }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun removeCredential(): Flow<Collection<IBaseCredential>> =
-            MutableSharedFlow<Collection<IBaseCredential>>().apply {
-                flow = this
-
-                authInstance.currentUser?.providerData?.firstOrNull {
-                    it.providerId == credential.providerId
-                }?.let { provider ->
-                    authInstance.currentUser?.unlink(provider.providerId)
-                            ?.addOnCompleteListener { (flow as MutableSharedFlow<Collection<IBaseCredential>>).tryEmit( authInstance.getCredentials()) }
-                            ?.addOnFailureListener { onError("Error remove credential ${credential.providerId}", it) }
-
-                } ?: (flow as MutableSharedFlow<Collection<IBaseCredential>>).tryEmit(authInstance.getCredentials())
-            }.asSharedFlow()
+        return authInstance.getCredentials()
+    }
 
 
     protected open fun onError(error: CancellationException) {
@@ -64,32 +62,31 @@ abstract class BaseFirebaseCredentialController(override val credential: Firebas
         } ?: authInstance.signInWithCredential(credential)
 
 
-
     @Suppress("UNCHECKED_CAST")
     protected fun getCredential() {
         authInstance.currentUser?.let { user ->
             user.providerData.firstOrNull { it.providerId == credential.providerId }?.let {
                 user.getIdToken(true)
-                        .addOnSuccessListener { (flow as MutableSharedFlow<CredentialResult>).tryEmit(CredentialResult(credential, it.token ?: "")) }
-                        .addOnFailureListener {
-                            authInstance.signOut()
-                            onError("Error add credential ${credential.providerId}", it)
-                        }
+                    .addOnSuccessListener { (flow as MutableSharedFlow<CredentialResult>).tryEmit(CredentialResult(credential, it.token ?: "")) }
+                    .addOnFailureListener {
+                        authInstance.signOut()
+                        onError("Error add credential ${credential.providerId}", it)
+                    }
                 return
             }
         }
 
         if(::activityCallback.isInitialized)
             activityCallback
-                    .addOnSuccessListener { result ->
-                        result.user?.getIdToken(true)
-                                ?.addOnSuccessListener { (flow as MutableSharedFlow<CredentialResult>).tryEmit(CredentialResult(credential, it.token ?: "")) }
-                                ?.addOnFailureListener {
-                                    authInstance.signOut()
-                                    onError("Error add credential ${credential.providerId}", it)
-                                } ?: onError("Error add credential ${credential.providerId}", NullPointerException("Firebase user is null"))
-                    }
-                    .addOnFailureListener { onError("Error add credential ${credential.providerId}", it) }
+                .addOnSuccessListener { result ->
+                    result.user?.getIdToken(true)
+                        ?.addOnSuccessListener { (flow as MutableSharedFlow<CredentialResult>).tryEmit(CredentialResult(credential, it.token ?: "")) }
+                        ?.addOnFailureListener {
+                            authInstance.signOut()
+                            onError("Error add credential ${credential.providerId}", it)
+                        } ?: onError("Error add credential ${credential.providerId}", NullPointerException("Firebase user is null"))
+                }
+                .addOnFailureListener { onError("Error add credential ${credential.providerId}", it) }
 
     }
 }

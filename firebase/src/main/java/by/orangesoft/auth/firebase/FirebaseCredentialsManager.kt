@@ -1,6 +1,5 @@
 package by.orangesoft.auth.firebase
 
-import by.orangesoft.auth.credentials.AuthCredential
 import by.orangesoft.auth.credentials.*
 import by.orangesoft.auth.firebase.credential.controllers.AppleCredentialController
 import by.orangesoft.auth.firebase.credential.controllers.FacebookCredentialController
@@ -10,7 +9,6 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import kotlin.NoSuchElementException
@@ -48,20 +46,19 @@ open class FirebaseCredentialsManager(parentJob: Job? = null): BaseCredentialsMa
 
     override fun removeCredential(credential: IBaseCredential, user: FirebaseUserController): Flow<FirebaseUserController> =
         flow {
-            if(!user.credentials.value.let { creds -> creds.firstOrNull { it == credential } != null && creds.size > 1 }){
+            if (!user.credentials.value.let { creds -> creds.firstOrNull { it == credential } != null && creds.size > 1 }) {
                 throw NoSuchElementException("Cannot remove method $credential")
             }
 
-            getBuilder(credential).build().removeCredential()
-              .collectLatest {
-                  user.reloadCredentials()
-                  emit(user)
-              }
-    }
+            getBuilder(credential).build().removeCredential().apply {
+                user.reloadCredentials()
+                emit(user)
+            }
+        }
 
     override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CredBuilder(credential)
 
-    open class CredBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder(credential) {
+    open inner class CredBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder(credential) {
 
         override fun createCredential(): IBaseCredentialController =
             when (credential) {

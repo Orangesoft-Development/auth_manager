@@ -1,9 +1,8 @@
-package co.orangesoft.authmanager.auth.user
+package co.orangesoft.authmanager.firebase_auth.user
 
 import by.orangesoft.auth.firebase.FirebaseProfile
 import by.orangesoft.auth.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.ProfileService
-import co.orangesoft.authmanager.auth.parseResponse
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,8 +26,11 @@ class UserControllerImpl(
     @Throws(Throwable::class)
     override suspend fun saveChanges() {
         (profile as? Profile)?.let { profile ->
-            profileService::patchProfile.parseResponse(accessToken, profile).apply {
-                super.updateAccount(this)
+            profileService.patchProfile(accessToken, profile).apply {
+                val newProfile = body()
+                if (isSuccessful && newProfile != null) {
+                    super.updateAccount(newProfile)
+                }
             }
         }
     }
@@ -36,23 +38,29 @@ class UserControllerImpl(
     @Throws(Throwable::class)
     override suspend fun updateAvatar(file: File) {
         (profile as? Profile)?.let { profile ->
-            profileService::postProfileAvatar.parseResponse(accessToken, file.asRequestBody("image/*".toMediaTypeOrNull()))
+            profileService.postProfileAvatar(accessToken, file.asRequestBody("image/*".toMediaTypeOrNull()))
             super.updateAvatar(file)
         }
     }
 
     @Throws(Throwable::class)
     override suspend fun reload() {
-        profileService::getProfile.parseResponse(accessToken).apply {
-            super.updateAccount(this)
+        profileService.getProfile(accessToken).apply {
+            val newProfile = body()
+            if (isSuccessful && newProfile != null) {
+                super.updateAccount(newProfile)
+            }
         }
     }
 
     @Throws(Throwable::class)
     override suspend fun updateAccount(profile: FirebaseProfile) {
         (profile as? Profile)?.let {
-            profileService::patchProfile.parseResponse(accessToken, it).apply {
-                super.updateAccount(this)
+            profileService.patchProfile(accessToken, it).apply {
+                val newProfile = body()
+                if (isSuccessful && newProfile != null) {
+                    super.updateAccount(newProfile)
+                }
             }
         }
     }

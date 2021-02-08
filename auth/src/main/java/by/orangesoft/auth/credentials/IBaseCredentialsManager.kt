@@ -2,10 +2,8 @@ package by.orangesoft.auth.credentials
 
 import androidx.fragment.app.FragmentActivity
 import by.orangesoft.auth.user.IBaseUserController
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
 import java.lang.UnsupportedOperationException
 import kotlin.jvm.Throws
 

@@ -1,4 +1,4 @@
-package co.orangesoft.authmanager.auth.user
+package co.orangesoft.authmanager.firebase_auth.user
 
 import by.orangesoft.auth.firebase.FirebaseProfile
 import com.google.gson.annotations.SerializedName

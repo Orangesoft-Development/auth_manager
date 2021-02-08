@@ -1,4 +1,4 @@
-package co.orangesoft.authmanager.auth.phone_auth
+package co.orangesoft.authmanager.firebase_auth.phone_auth
 
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentActivity
 import by.orangesoft.auth.credentials.CredentialResult
 import by.orangesoft.auth.firebase.credential.controllers.BaseFirebaseCredentialController
 import co.orangesoft.authmanager.api.AuthService
-import co.orangesoft.authmanager.auth.parseResponse
+import co.orangesoft.authmanager.api.request_body.PhoneCredentialRequestBody
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
@@ -24,8 +24,8 @@ class PhoneCredentialController(private val authService: AuthService,
     override fun addCredential(): Flow<CredentialResult> {
         runBlocking {
             val prevUser: FirebaseUser? = authInstance.currentUser?.let { if(it.providerData.size > 1) it else null }
-            authService::createPhoneToken.parseResponse(PhoneCredentialRequestBody(prevUser?.uid, credential.phone, credential.code)).apply {
-                authInstance.signInWithCustomToken(this).await()
+            authService.createPhoneToken(PhoneCredentialRequestBody(credential.phone, credential.code, prevUser?.uid)).apply {
+                authInstance.signInWithCustomToken(body() ?: "").await()
             }
         }
 

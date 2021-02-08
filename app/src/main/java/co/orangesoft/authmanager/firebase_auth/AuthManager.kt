@@ -1,12 +1,13 @@
-package co.orangesoft.authmanager.auth
+package co.orangesoft.authmanager.firebase_auth
 
+import android.content.Context
 import by.orangesoft.auth.firebase.FirebaseAuthManager
 import by.orangesoft.auth.firebase.FirebaseCredentialsManager
 import by.orangesoft.auth.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.provideAuthService
 import co.orangesoft.authmanager.api.provideOkHttp
 import co.orangesoft.authmanager.api.provideProfileService
-import co.orangesoft.authmanager.auth.user.UnregisteredUserControllerImpl
+import co.orangesoft.authmanager.firebase_auth.user.UnregisteredUserControllerImpl
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -18,7 +19,7 @@ class AuthManager(credManager:FirebaseCredentialsManager,
 
     companion object {
 
-        const val BASE_URL = "http://github.com"
+        const val BASE_URL = "http://api.github.com/"
 
         private val _user: MutableStateFlow<FirebaseUserController> by lazy {
             MutableStateFlow(UnregisteredUserControllerImpl(FirebaseAuth.getInstance()))

@@ -1,11 +1,12 @@
 package co.orangesoft.authmanager.api
 
 import android.util.Log
-import co.orangesoft.authmanager.auth.TokenManager
+import co.orangesoft.authmanager.firebase_auth.TokenManager
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 fun provideOkHttp(interceptors: List<Interceptor> = arrayListOf(), tokenManager: TokenManager): OkHttpClient {
     val builder = OkHttpClient.Builder()
@@ -28,6 +29,7 @@ internal fun provideAuthService(baseUrl: String, okHttpClient: OkHttpClient): Au
     return Retrofit.Builder()
         .baseUrl(baseUrl)
         .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(AuthService::class.java)
 }
@@ -36,6 +38,7 @@ internal fun provideProfileService(baseUrl: String, okHttpClient: OkHttpClient):
     return Retrofit.Builder()
         .baseUrl(baseUrl)
         .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(ProfileService::class.java)
 }

@@ -5,6 +5,7 @@ import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
@@ -16,7 +17,7 @@ interface IBaseCredentialController {
 
     fun addCredential(): Flow<CredentialResult>
 
-    fun removeCredential(): Flow<Collection<IBaseCredential>>
+    fun removeCredential(): Collection<IBaseCredential>
 
     fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>)
 

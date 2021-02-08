@@ -1,11 +1,10 @@
-package co.orangesoft.authmanager.auth.user
+package co.orangesoft.authmanager.firebase_auth.user
 
 import android.annotation.SuppressLint
 import com.facebook.FacebookSdk.getApplicationContext
 import android.provider.Settings.Secure
 import by.orangesoft.auth.firebase.FirebaseProfile
 import by.orangesoft.auth.firebase.FirebaseUserController
-import by.orangesoft.auth.user.IBaseUserController
 import com.google.firebase.auth.FirebaseAuth
 import java.io.File
 import kotlin.jvm.Throws

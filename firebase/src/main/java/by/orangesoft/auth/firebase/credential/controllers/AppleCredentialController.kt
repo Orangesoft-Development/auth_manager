@@ -18,7 +18,7 @@ class AppleCredentialController: BaseFirebaseCredentialController(Firebase.Apple
 
     override fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {
         activityCallback = authInstance.currentUser?.let { currentUser ->
-            if(!currentUser.isAnonymous && currentUser.providerData.size > 1)
+            if (!currentUser.isAnonymous && currentUser.providerData.size > 1)
                 currentUser.startActivityForLinkWithProvider(activity, appleSingInClient)
             else null
         } ?: authInstance.startActivityForSignInWithProvider(activity, appleSingInClient)
