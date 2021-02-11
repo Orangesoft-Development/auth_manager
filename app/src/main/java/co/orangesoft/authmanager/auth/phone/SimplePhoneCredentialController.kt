@@ -11,13 +11,10 @@ import by.orangesoft.auth.credentials.IBaseCredentialController
 import co.orangesoft.authmanager.api.AuthService
 import co.orangesoft.authmanager.api.request_body.PhoneCredentialRequestBody
 import co.orangesoft.authmanager.auth.PrefsHelper
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.CoroutineContext
 
 class SimplePhoneCredentialController(private val appContext: Context,
@@ -25,7 +22,7 @@ class SimplePhoneCredentialController(private val appContext: Context,
                                       simplePhoneAuthCredential: SimplePhoneAuthCredential
 ) : IBaseCredentialController, CoroutineScope {
 
-    private lateinit var flow: MutableSharedFlow<*>
+    private var flow: MutableSharedFlow<CredentialResult> = MutableSharedFlow(1, 1)
 
     private val prefsHelper by lazy { PrefsHelper(appContext) }
 
@@ -33,9 +30,7 @@ class SimplePhoneCredentialController(private val appContext: Context,
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO
 
-    @Suppress("UNCHECKED_CAST")
     override fun addCredential(): Flow<CredentialResult> {
-        flow = MutableSharedFlow<CredentialResult>(1, 1)
         if (credential is SimplePhoneAuthCredential) {
             launch {
                 //authService.createEmailToken(EmailCredentialRequestBody(credential.email, credential.password, prefsHelper.getProfile()?.id)
@@ -43,17 +38,18 @@ class SimplePhoneCredentialController(private val appContext: Context,
                     val resultToken = if (isSuccessful) body() ?: "" else ""
                     prefsHelper.saveToken("FAKE_TOKEN ${body()?.javaClass}")
                     prefsHelper.addCredential(credential)
-                    (flow as MutableSharedFlow<CredentialResult>).tryEmit(CredentialResult(credential, prefsHelper.getToken()))
+                    flow.tryEmit(CredentialResult(credential, prefsHelper.getToken()))
                 }
             }
         }
 
-        return (flow as MutableSharedFlow<CredentialResult>).asSharedFlow()
+        return flow.asSharedFlow()
     }
 
-    override fun removeCredential(): Collection<IBaseCredential> {
-        prefsHelper.removeCredential(credential)
-        return prefsHelper.getCredentials()
+    override fun removeCredential(): Job {
+        return launch {
+            prefsHelper.removeCredential(credential)
+        }
     }
 
     override fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {}

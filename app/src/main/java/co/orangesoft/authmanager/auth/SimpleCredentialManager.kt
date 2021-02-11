@@ -1,7 +1,9 @@
 package co.orangesoft.authmanager.auth
 
 import android.content.Context
+import android.util.Log
 import by.orangesoft.auth.credentials.*
+import by.orangesoft.auth.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.AuthService
 import co.orangesoft.authmanager.api.ProfileService
 import co.orangesoft.authmanager.auth.email.EmailAuthCredential
@@ -12,6 +14,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
 import kotlin.jvm.Throws
 
 @InternalCoroutinesApi
@@ -52,16 +55,11 @@ class SimpleCredentialManager(private val appContext: Context,
         }
     }
 
-    override fun removeCredential(credential: IBaseCredential, user: SimpleUserController): Flow<SimpleUserController> =
-        flow {
-            if (!user.credentials.value.let { creds -> creds.firstOrNull { it == credential } != null && creds.size > 1 }) {
-                throw NoSuchElementException("Cannot remove method $credential")
-            }
-
-            getBuilder(credential).build().removeCredential().apply {
-                emit(user)
-            }
+    override fun removeCredential(credential: IBaseCredential, user: SimpleUserController): Flow<SimpleUserController> {
+        return super.removeCredential(credential, user).onEach {
+            Log.e("TAG", "RELOAD CREDS")
         }
+    }
 
     open inner class CredBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder(credential) {
 

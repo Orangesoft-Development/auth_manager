@@ -22,7 +22,7 @@ class SimpleEmailCredentialController(private val appContext: Context,
                                       emailAuthCredential: EmailAuthCredential
 ) : IBaseCredentialController, CoroutineScope {
 
-    private lateinit var flow: MutableSharedFlow<*>
+    private var flow: MutableSharedFlow<CredentialResult> = MutableSharedFlow(1, 1)
 
     private val prefsHelper by lazy { PrefsHelper(appContext) }
 
@@ -32,7 +32,6 @@ class SimpleEmailCredentialController(private val appContext: Context,
 
     @Suppress("UNCHECKED_CAST")
     override fun addCredential(): Flow<CredentialResult> {
-        flow = MutableSharedFlow<CredentialResult>(1, 1)
         if (credential is EmailAuthCredential) {
             launch {
                 Log.e("TAG","Controller thred:${Thread.currentThread()}")
@@ -41,17 +40,18 @@ class SimpleEmailCredentialController(private val appContext: Context,
                     val resultToken = if (isSuccessful) body() ?: "" else ""
                     prefsHelper.saveToken("FAKE_TOKEN ${body()?.javaClass}")
                     prefsHelper.addCredential(credential)
-                    (flow as MutableSharedFlow<CredentialResult>).tryEmit(CredentialResult(credential, prefsHelper.getToken()))
+                    flow.tryEmit(CredentialResult(credential, prefsHelper.getToken()))
                 }
             }
         }
 
-        return (flow as MutableSharedFlow<CredentialResult>).asSharedFlow()
+        return flow.asSharedFlow()
     }
 
-    override fun removeCredential(): Collection<IBaseCredential> {
-        prefsHelper.removeCredential(credential)
-        return prefsHelper.getCredentials()
+    override fun removeCredential(): Job {
+        return launch {
+            prefsHelper.removeCredential(credential)
+        }
     }
 
     override fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {}

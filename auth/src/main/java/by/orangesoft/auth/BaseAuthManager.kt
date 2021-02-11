@@ -39,7 +39,9 @@ abstract class BaseAuthManager<T: IBaseUserController<*>, C: BaseCredentialsMana
     override fun removeCredential(credential: IBaseCredential): Job =
         launch {
             credentialsManager.removeCredential(credential, currentUser.value)
-                    .collectLatest { user.value = it }
+                .onEach {
+                    user.value = it
+                }
+                .launchIn(this)
         }
-
 }

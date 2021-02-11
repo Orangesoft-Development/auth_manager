@@ -62,15 +62,18 @@ abstract class BaseCredentialsManager<T: IBaseUserController<*>> (parentJob: Job
     }
 
 
-    override fun removeCredential(credential: IBaseCredential, user: T): Flow<T> =
-        flow {
-            if (!user.credentials.value.let { creds -> creds.firstOrNull { it == credential } != null && creds.size > 1 }) {
-                throw NoSuchElementException("Cannot remove method $credential")
-            }
-
-            getBuilder(credential).build().removeCredential().apply {
-                onCredentialRemoved(credential, user)
-                emit(user)
-            }
+    override fun removeCredential(credential: IBaseCredential, user: T): Flow<T> {
+        if (!user.credentials.value.let { creds -> creds.firstOrNull { it == credential } != null && creds.size > 1 }) {
+            throw NoSuchElementException("Cannot remove method $credential")
         }
+
+        getBuilder(credential).build().removeCredential().invokeOnCompletion {
+            runBlocking {
+                onCredentialRemoved(credential, user)
+            }
+            userSharedFlow.tryEmit(user)
+        }
+
+        return userSharedFlow.asSharedFlow()
+    }
 }

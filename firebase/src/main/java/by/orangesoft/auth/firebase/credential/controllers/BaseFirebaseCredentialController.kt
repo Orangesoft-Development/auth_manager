@@ -16,42 +16,42 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.tasks.await
 import java.lang.NullPointerException
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 
-abstract class BaseFirebaseCredentialController(override val credential: Firebase): IBaseCredentialController {
+abstract class BaseFirebaseCredentialController(override val credential: Firebase): IBaseCredentialController, CoroutineScope {
 
     protected val authInstance: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
     protected lateinit var activityCallback: Task<AuthResult>
 
-    private lateinit var flow: MutableSharedFlow<*>
-    private val flowJob: Job by lazy { flow.launchIn(CoroutineScope(Dispatchers.IO)) }
+    private var flow: MutableSharedFlow<CredentialResult> = MutableSharedFlow(1, 1)
+
+    override val coroutineContext: CoroutineContext = Dispatchers.IO + Job()
 
     override fun addCredential() : Flow<CredentialResult> {
-        return MutableSharedFlow<CredentialResult>(1, 1).apply {
-            flow = this
-            getCredential()
-        }.asSharedFlow()
+        getCredential()
+        return flow.asSharedFlow()
     }
 
-    override fun removeCredential(): Collection<IBaseCredential> {
+    override fun removeCredential(): Job {
         authInstance.currentUser?.providerData?.firstOrNull {
             it.providerId == credential.providerId
         }?.let { provider ->
-            runBlocking {
+            return launch {
                 authInstance.currentUser?.unlink(provider.providerId)?.await()
             }
         }
 
-        return authInstance.getCredentials()
+        return coroutineContext.job
     }
 
-
     protected open fun onError(error: CancellationException) {
-        flowJob.cancel(error)
+        coroutineContext.cancel(error)
     }
 
     protected open fun onError(message: String, cause: Throwable) {
-        flowJob.cancel(message, cause)
+        coroutineContext.job.cancel(message, cause)
     }
 
     protected fun getAuthTask(credential: AuthCredential): Task<AuthResult> =
@@ -62,12 +62,11 @@ abstract class BaseFirebaseCredentialController(override val credential: Firebas
         } ?: authInstance.signInWithCredential(credential)
 
 
-    @Suppress("UNCHECKED_CAST")
     protected fun getCredential() {
         authInstance.currentUser?.let { user ->
             user.providerData.firstOrNull { it.providerId == credential.providerId }?.let {
                 user.getIdToken(true)
-                    .addOnSuccessListener { (flow as MutableSharedFlow<CredentialResult>).tryEmit(CredentialResult(credential, it.token ?: "")) }
+                    .addOnSuccessListener { flow.tryEmit(CredentialResult(credential, it.token ?: "")) }
                     .addOnFailureListener {
                         authInstance.signOut()
                         onError("Error add credential ${credential.providerId}", it)
@@ -80,7 +79,7 @@ abstract class BaseFirebaseCredentialController(override val credential: Firebas
             activityCallback
                 .addOnSuccessListener { result ->
                     result.user?.getIdToken(true)
-                        ?.addOnSuccessListener { (flow as MutableSharedFlow<CredentialResult>).tryEmit(CredentialResult(credential, it.token ?: "")) }
+                        ?.addOnSuccessListener { flow.tryEmit(CredentialResult(credential, it.token ?: "")) }
                         ?.addOnFailureListener {
                             authInstance.signOut()
                             onError("Error add credential ${credential.providerId}", it)

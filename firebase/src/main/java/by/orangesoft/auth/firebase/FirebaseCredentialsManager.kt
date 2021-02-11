@@ -10,6 +10,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.tasks.await
 import kotlin.NoSuchElementException
 import kotlin.jvm.Throws
@@ -44,17 +45,11 @@ open class FirebaseCredentialsManager(parentJob: Job? = null): BaseCredentialsMa
         firebaseInstance.currentUser?.delete()?.await()
     }
 
-    override fun removeCredential(credential: IBaseCredential, user: FirebaseUserController): Flow<FirebaseUserController> =
-        flow {
-            if (!user.credentials.value.let { creds -> creds.firstOrNull { it == credential } != null && creds.size > 1 }) {
-                throw NoSuchElementException("Cannot remove method $credential")
-            }
-
-            getBuilder(credential).build().removeCredential().apply {
-                user.reloadCredentials()
-                emit(user)
-            }
+    override fun removeCredential(credential: IBaseCredential, user: FirebaseUserController): Flow<FirebaseUserController> {
+        return super.removeCredential(credential, user).onEach {
+            user.reloadCredentials()
         }
+    }
 
     override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CredBuilder(credential)
 
