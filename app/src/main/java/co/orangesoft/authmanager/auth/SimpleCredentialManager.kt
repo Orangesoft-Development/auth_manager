@@ -27,7 +27,7 @@ class SimpleCredentialManager(private val appContext: Context,
 
     @Throws(Throwable::class)
     override suspend fun onLogged(credentialResult: CredentialResult): SimpleUserController {
-        //authService::login.parseResponse(credentialResult)
+        authService.login(credentialResult)
         return getCurrentUser().apply { updateAccount(profile) }
     }
 
@@ -43,22 +43,12 @@ class SimpleCredentialManager(private val appContext: Context,
 
     @Throws(Throwable::class)
     override suspend fun logout(user: SimpleUserController) {
-        authService.logout(user.accessToken).apply {
-            //TODO maybe should clear prefs
-        }
+        authService.logout(user.accessToken)
     }
 
     @Throws(Throwable::class)
     override suspend fun deleteUser(user: SimpleUserController) {
-        authService.delete(user.accessToken).apply {
-            //TODO maybe should clear prefs
-        }
-    }
-
-    override fun removeCredential(credential: IBaseCredential, user: SimpleUserController): Flow<SimpleUserController> {
-        return super.removeCredential(credential, user).onEach {
-            Log.e("TAG", "RELOAD CREDS")
-        }
+        authService.delete(user.accessToken)
     }
 
     open inner class CredBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder(credential) {

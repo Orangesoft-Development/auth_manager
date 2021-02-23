@@ -58,6 +58,10 @@ class MainActivity : FragmentActivity() {
         simplePhoneBtn.setOnClickListener { launchSimpleCredential(SimplePhoneAuthCredential("+375334445566", "1234")) }
 
         simpleEmailBtn.setOnClickListener { launchSimpleCredential(EmailAuthCredential("email@gmail.com", "password111")) }
+
+        simpleRemoveEmailBtn.setOnClickListener { launchSimpleCredential(EmailAuthCredential("email@gmail.com", "password111"), true) }
+
+        simpleRemovePhoneBtn.setOnClickListener { launchSimpleCredential(SimplePhoneAuthCredential("+375334445566", "1234"), true) }
     }
 
     private fun launchCredential(credential: Firebase) {
@@ -71,11 +75,11 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    private fun launchSimpleCredential(credential: AuthCredential) {
+    private fun launchSimpleCredential(credential: AuthCredential, isRemove: Boolean = false) {
 
         initCallbacks(simpleAuthManager)
 
-        if (simpleAuthManager.userStatus.value == SimpleAuthManager.UserStatus.REGISTERED && simpleAuthManager.currentUser.value.credentials.value.contains(credential)) {
+        if (isRemove || simpleAuthManager.userStatus.value == SimpleAuthManager.UserStatus.REGISTERED && simpleAuthManager.currentUser.value.credentials.value.contains(credential)) {
             simpleAuthManager.removeCredential(credential)
         } else {
             simpleAuthManager.login(this, credential)
@@ -85,13 +89,18 @@ class MainActivity : FragmentActivity() {
     private fun initCallbacks(authManager: BaseAuthManager<*,*>) {
 
         val loginSuccessListener: (IBaseUserController<*>) -> Unit  = {
-            Toast.makeText(this, "SUCCESS", Toast.LENGTH_SHORT).show()
-            resultCredentials.text = simpleAuthManager.currentUser.value.credentials.value.toString()
+            val resultCreds = simpleAuthManager.currentUser.value.credentials.value.toString()
+            if (resultCreds.isNotEmpty()) {
+                resultCredentials.text = resultCreds
+            }
         }
 
         val loginErrorListener: (Throwable) -> Unit = {
             Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
-            resultCredentials.text = simpleAuthManager.currentUser.value.credentials.value.toString()
+            val resultCreds = simpleAuthManager.currentUser.value.credentials.value.toString()
+            if (resultCreds.isNotEmpty()) {
+                resultCredentials.text = resultCreds
+            }
         }
 
         authManager.currentUser.onEach {

@@ -34,8 +34,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_gravity="top|center_horizontal"
-                android:layout_marginTop="65dp">
+                android:layout_gravity="top"
+                android:layout_marginTop="65dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginStart="10dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -50,24 +52,32 @@
                     android:id="@+id/googleBtn"
                     android:layout_width="200dp"
                     android:layout_height="50dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@android:color/darker_gray"
                     android:text="Google"/>
 
                 <Button
                     android:id="@+id/facebookBtn"
                     android:layout_width="200dp"
                     android:layout_height="50dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@android:color/darker_gray"
                     android:text="Facebook"/>
 
                 <Button
                     android:id="@+id/appleBtn"
                     android:layout_width="200dp"
                     android:layout_height="50dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@android:color/darker_gray"
                     android:text="Apple"/>
 
                 <Button
                     android:id="@+id/phoneBtn"
                     android:layout_width="200dp"
                     android:layout_height="50dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@android:color/darker_gray"
                     android:text="Phone"/>
 
             </LinearLayout>
@@ -77,7 +87,9 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_gravity="top|center_horizontal"
-                android:layout_marginTop="65dp">
+                android:layout_marginTop="65dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="10dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -92,13 +104,33 @@
                     android:id="@+id/simpleEmailBtn"
                     android:layout_width="200dp"
                     android:layout_height="50dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@android:color/darker_gray"
                     android:text="EMAIL"/>
 
                 <Button
                     android:id="@+id/simplePhoneBtn"
                     android:layout_width="200dp"
                     android:layout_height="50dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@android:color/darker_gray"
                     android:text="Phone"/>
+
+                <Button
+                    android:id="@+id/simpleRemoveEmailBtn"
+                    android:layout_width="200dp"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@android:color/holo_red_light"
+                    android:text="REMOVE EMAIL"/>
+
+                <Button
+                    android:id="@+id/simpleRemovePhoneBtn"
+                    android:layout_width="200dp"
+                    android:layout_height="50dp"
+                    android:background="@android:color/holo_red_light"
+                    android:layout_marginTop="5dp"
+                    android:text="REMOVE PHONE"/>
 
             </LinearLayout>
 

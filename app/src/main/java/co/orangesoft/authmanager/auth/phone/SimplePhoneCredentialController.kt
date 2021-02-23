@@ -33,13 +33,12 @@ class SimplePhoneCredentialController(private val appContext: Context,
     override fun addCredential(): Flow<CredentialResult> {
         if (credential is SimplePhoneAuthCredential) {
             launch {
-                //authService.createEmailToken(EmailCredentialRequestBody(credential.email, credential.password, prefsHelper.getProfile()?.id)
-                authService.fakeRequest().apply {
-                    val resultToken = if (isSuccessful) body() ?: "" else ""
-                    prefsHelper.saveToken("FAKE_TOKEN ${body()?.javaClass}")
-                    prefsHelper.addCredential(credential)
-                    flow.tryEmit(CredentialResult(credential, prefsHelper.getToken()))
-                }
+                authService.createPhoneToken(PhoneCredentialRequestBody(credential.phone, credential.code, prefsHelper.getProfile()?.id))
+                    .apply {
+                        prefsHelper.saveToken(if (isSuccessful) body() ?: "" else "")
+                        prefsHelper.addCredential(credential)
+                        flow.tryEmit(CredentialResult(credential, prefsHelper.getToken()))
+                    }
             }
         }
 
