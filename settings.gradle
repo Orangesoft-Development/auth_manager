@@ -1,2 +1,4 @@
-include ':app'
+include(":auth", ":firebase")
+rootProject.buildFileName = "build.gradle.kts"
 rootProject.name = "Auth Manager"
+include("app")
