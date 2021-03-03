@@ -1,16 +1,15 @@
 object Versions {
 
-
     object Android {
         const val buildTools        = "28.0.3"
         const val minSdk            = 21
         const val targetSdk         = 28
         const val compileSdk        = 28
         const val gradlePlugin      = "4.1.1"
-        const val mavenGradlePlugin = "1.5"
+        const val mavenGradlePlugin = "2.0"
     }
     
-    const val kotlin = "1.4.20"
+    const val kotlin = "1.4.30"
     const val googleServices = "4.3.3"
 
     const val ktxVersion = "1.2.+"

@@ -1,9 +1,12 @@
 plugins {
     id("com.android.library")
+    id("com.github.dcendents.android-maven")
     kotlin("android")
     kotlin("kapt")
-    kotlin("android.extensions")
+    id("kotlin-parcelize")
 }
+
+group = "com.github.orangesoft-co.auth_manager"
 
 android {
     buildToolsVersion = Versions.Android.buildTools

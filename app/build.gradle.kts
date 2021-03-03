@@ -6,7 +6,7 @@ plugins {
 
     kotlin("android")
     kotlin("kapt")
-
+    id("kotlin-parcelize")
 }
 
 kapt {

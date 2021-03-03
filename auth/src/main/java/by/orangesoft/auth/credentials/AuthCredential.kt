@@ -1,7 +1,7 @@
 package by.orangesoft.auth.credentials
 
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 open class AuthCredential(override val providerId: String) : IBaseCredential, Parcelable {
