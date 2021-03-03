@@ -6,16 +6,11 @@ plugins {
 
     kotlin("android")
     kotlin("kapt")
-    kotlin("android.extensions")
 
 }
 
 kapt {
     correctErrorTypes = true
-}
-
-androidExtensions {
-    isExperimental = true
 }
 
 android {
@@ -39,8 +34,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    androidExtensions {
-        isExperimental = true
+    buildFeatures {
+        viewBinding = true
     }
 
     buildTypes {
