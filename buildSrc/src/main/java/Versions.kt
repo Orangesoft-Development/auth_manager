@@ -7,7 +7,7 @@ object Versions {
         const val targetSdk         = 28
         const val compileSdk        = 28
         const val gradlePlugin      = "4.1.1"
-        const val mavenGradlePlugin = "1.5"
+        const val mavenGradlePlugin = "2.0"
     }
     
     const val kotlin = "1.4.20"
