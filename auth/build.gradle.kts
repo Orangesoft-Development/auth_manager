@@ -3,6 +3,7 @@ plugins {
     id("com.github.dcendents.android-maven")
     kotlin("android")
     kotlin("kapt")
+    id("kotlin-parcelize")
 }
 
 group = "com.github.orangesoft-co.auth_manager"
