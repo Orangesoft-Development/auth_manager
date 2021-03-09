@@ -99,8 +99,6 @@ dependencies {
     implementation(Depends.Lifecycle.viewModelExtensions)
     kapt(Depends.LifecyclePlugins.plugin)
 
-    implementation(Depends.Paging.searchable)
-
     implementation(Depends.Api.core)
     implementation(Depends.Api.converter)
     implementation(Depends.Api.kotlin)

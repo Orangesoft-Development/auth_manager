@@ -6,6 +6,7 @@ plugins {
 }
 
 group = "com.github.orangesoft-co.auth_manager"
+version = "1.0.0"
 
 android {
     buildToolsVersion = Versions.Android.buildTools
@@ -44,4 +45,15 @@ dependencies {
     implementation(Depends.Firebase.auth)
     implementation(Depends.Firebase.messaging)
     implementation(Depends.Firebase.coroutinesPlayServices)
+}
+
+tasks {
+    val sourcesJar by creating(Jar::class) {
+        archiveClassifier.set("sources")
+        from(android.sourceSets["main"].java.srcDirs)
+    }
+
+    artifacts {
+        archives(sourcesJar)
+    }
 }
