@@ -20,6 +20,14 @@ dependencies {
 	implementation 'com.github.orangesoft-co:auth_manager:1.x.y'
 }
 ```
+or separately
+
+```groovy
+dependencies {
+	implementation 'com.github.orangesoft-co.auth_manager:auth:1.x.y'
+	implementation 'com.github.orangesoft-co.auth_manager:firebase:1.x.y'
+}
+```
 
 ## Working scheme
 ![AuthManager Diagram](https://lh3.googleusercontent.com/3aRDiD8fGGDgNFEeOp0RsuBpn1QO7TtCy_3ZWhRMhaMuNTP2KrYkDrlKUYgR_odVOAnR3IusfNNg9zxcS1G1kiusHFtYgrS1YR0e0qafChjVjkVOtIgtGe4Q894Um18yWCPDiBL6PM_fpGO97ai3Bn2ogLJtkdFzu70ctho5OxVwGiclXTcrTXTCwgvzdGaVBwzZPAFABua3NWl5a9VeIavV8wQ8CA387h2ze0q0-9CcjA_gqA85xps6R-G7ksAnI0xiMISgMmsg-Ut6llQHlcf8YihoMQT4Y5uwFIdvdyUCP-4vxxyKr0d5M1cfhPX46AmE-NdriBXwi9xuPWxcppZQ9iOADXijJEFmeitNkRrgpbN569ZsZFIiMjDmzz_udzqBuBWaKfB701gTvkJcxKFx3U0t5bSD2BdkA5gGxCZEl5vY6k7HdLOs1wnIsPJb4SaL3DW0bGPyki7a1khg1rglPMz4E6JT_yQZC5AFYZAWSTT2oavW1KCRm0SWEotTKsZ-8xyCi2GS6NK5ckJf3exeCaoJHfQsWPs9Rnd2wImlnwHgTnDtNANHXDlnWUeXsBqgH2zPn08fyBn_F2ILIEwGZZy1_FeJpQKhWwksJZVw7lqoJl1O0mBXf_0nQ1NFj_WYS6E406R4C14kIwvSZ_-tofaxHtyyvI-Jtd2jNxPSQYdyv7ttMujOjImr=w789-h408-no?authuser=1)
