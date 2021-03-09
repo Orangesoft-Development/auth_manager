@@ -7,6 +7,7 @@ plugins {
 }
 
 group = "com.github.orangesoft-co.auth_manager"
+version = "1.0.0"
 
 android {
     buildToolsVersion = Versions.Android.buildTools
@@ -46,4 +47,15 @@ dependencies {
     implementation(Depends.Api.core)
     implementation(Depends.Api.okhttp)
 
+}
+
+tasks {
+    val sourcesJar by creating(Jar::class) {
+        archiveClassifier.set("sources")
+        from(android.sourceSets["main"].java.srcDirs)
+    }
+
+    artifacts {
+        archives(sourcesJar)
+    }
 }
