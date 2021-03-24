@@ -74,41 +74,15 @@ dependencies {
     implementation(Depends.Api.logging)
     implementation(Depends.Api.gson)
 
-    implementation(Depends.Paging.core)
-
-    api(Depends.Database.runtime)
-    implementation(Depends.Database.ktx)
-    kapt(Depends.DatabasePlugin.plugin)
-
-    androidTestImplementation(Depends.Test.runner)
-    androidTestImplementation(Depends.Test.rules)
-    androidTestImplementation(Depends.Test.junit)
-    androidTestImplementation(Depends.Test.core_testing)
-    androidTestImplementation(Depends.Test.arch_core_testing)
-    androidTestImplementation(Depends.Test.espresso)
-
-    implementation(Depends.BaseAndroid.constraint)
-    implementation(Depends.BaseAndroid.cardview)
-    implementation(Depends.BaseAndroid.annotations)
-
-    implementation(Depends.BindingCollections.core)
-    implementation(Depends.BindingCollections.plugin)
-
     implementation(Depends.Lifecycle.runtime)
-    implementation(Depends.Lifecycle.extensions)
-    implementation(Depends.Lifecycle.viewModelExtensions)
-    kapt(Depends.LifecyclePlugins.plugin)
-
-    implementation(Depends.Api.core)
-    implementation(Depends.Api.converter)
-    implementation(Depends.Api.kotlin)
-    implementation(Depends.Api.adapters)
-    kapt(Depends.Api.codegen)
+    kapt(Depends.Lifecycle.plugin)
 
     implementation(Depends.PlayServices.base)
     implementation(Depends.PlayServices.auth)
+    implementation(Depends.PlayServices.coroutinesPlayServices)
     implementation(Depends.Facebook.auth)
+
+    implementation(platform(Depends.Firebase.firebasePlatform))
     implementation(Depends.Firebase.auth)
     implementation(Depends.Firebase.messaging)
-    implementation(Depends.Firebase.coroutinesPlayServices)
 }

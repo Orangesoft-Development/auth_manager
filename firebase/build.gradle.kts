@@ -41,10 +41,12 @@ dependencies {
 
     implementation(Depends.PlayServices.base)
     implementation(Depends.PlayServices.auth)
+    implementation(Depends.PlayServices.coroutinesPlayServices)
     implementation(Depends.Facebook.auth)
+
+    implementation(platform(Depends.Firebase.firebasePlatform))
     implementation(Depends.Firebase.auth)
     implementation(Depends.Firebase.messaging)
-    implementation(Depends.Firebase.coroutinesPlayServices)
 }
 
 tasks {
