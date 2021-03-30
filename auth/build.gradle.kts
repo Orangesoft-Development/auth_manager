@@ -44,7 +44,6 @@ dependencies {
 
     implementation(Depends.Lifecycle.runtime)
 
-    implementation(Depends.Api.core)
     implementation(Depends.Api.okhttp)
 
 }
