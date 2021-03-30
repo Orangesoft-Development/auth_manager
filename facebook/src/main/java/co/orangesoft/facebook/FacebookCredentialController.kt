@@ -1,9 +1,10 @@
-package by.orangesoft.auth.firebase.credential.controllers
+package co.orangesoft.facebook
 
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.FragmentActivity
 import by.orangesoft.auth.firebase.credential.Firebase
+import by.orangesoft.auth.firebase.credential.controllers.BaseFirebaseCredentialController
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException

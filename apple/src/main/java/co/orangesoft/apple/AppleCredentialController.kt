@@ -1,9 +1,10 @@
-package by.orangesoft.auth.firebase.credential.controllers
+package co.orangesoft.apple
 
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.FragmentActivity
 import by.orangesoft.auth.firebase.credential.Firebase
+import by.orangesoft.auth.firebase.credential.controllers.BaseFirebaseCredentialController
 import com.google.firebase.auth.OAuthProvider
 import java.util.*
 

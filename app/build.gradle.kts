@@ -58,6 +58,9 @@ dependencies {
 
     implementation(project(":auth"))
     implementation(project(":firebase"))
+    implementation(project(":apple"))
+    implementation(project(":google"))
+    implementation(project(":facebook"))
 
     implementation(Depends.Kotlin.stdlib)
     implementation(Depends.Kotlin.core)

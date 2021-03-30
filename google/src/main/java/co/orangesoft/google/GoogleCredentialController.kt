@@ -1,11 +1,11 @@
-package by.orangesoft.auth.firebase.credential.controllers
+package co.orangesoft.google
 
-import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.FragmentActivity
 import by.orangesoft.auth.firebase.credential.Firebase
+import by.orangesoft.auth.firebase.credential.controllers.BaseFirebaseCredentialController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
