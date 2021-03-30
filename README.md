@@ -26,6 +26,9 @@ or separately
 dependencies {
 	implementation 'com.github.orangesoft-co.auth_manager:auth:1.x.y'
 	implementation 'com.github.orangesoft-co.auth_manager:firebase:1.x.y'
+	implementation 'com.github.orangesoft-co.auth_manager:google:1.x.y'
+	implementation 'com.github.orangesoft-co.auth_manager:facebook:1.x.y'
+	implementation 'com.github.orangesoft-co.auth_manager:apple:1.x.y'
 }
 ```
 
