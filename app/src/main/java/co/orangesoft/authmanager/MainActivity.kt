@@ -23,14 +23,14 @@ import kotlinx.coroutines.flow.onEach
 @InternalCoroutinesApi
 class MainActivity : FragmentActivity() {
 
-    private val authManager: AuthManager by lazy { AuthManager.getInstance(AuthManager.BASE_URL) }
+    private val authManager: AuthManager by lazy { AuthManager.getInstance(applicationContext, AuthManager.BASE_URL) }
     private val simpleAuthManager: SimpleAuthManager by lazy { SimpleAuthManager.getInstance(SimpleAuthManager.BASE_URL, applicationContext) }
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(R.layout.activity_main)
+        setContentView(binding.root)
         initViews()
     }
 
@@ -48,21 +48,23 @@ class MainActivity : FragmentActivity() {
 
     private fun initViews() {
 
-        binding.googleBtn.setOnClickListener { launchCredential(Firebase.Google(getString(R.string.server_client_id))) }
+        binding.apply {
+            googleBtn.setOnClickListener { launchCredential(Firebase.Google(getString(R.string.server_client_id))) }
 
-        binding.facebookBtn.setOnClickListener { launchCredential(Firebase.Facebook) }
+            facebookBtn.setOnClickListener { launchCredential(Firebase.Facebook) }
 
-        binding.appleBtn.setOnClickListener { launchCredential(Firebase.Apple) }
+            appleBtn.setOnClickListener { launchCredential(Firebase.Apple) }
 
-        binding.phoneBtn.setOnClickListener { launchCredential(PhoneAuthCredential("+375334445566", "1234")) }
+            phoneBtn.setOnClickListener { launchCredential(PhoneAuthCredential("+375334445566", "1234")) }
 
-        binding.simplePhoneBtn.setOnClickListener { launchSimpleCredential(SimplePhoneAuthCredential("+375334445566", "1234")) }
+            simplePhoneBtn.setOnClickListener { launchSimpleCredential(SimplePhoneAuthCredential("+375334445566", "1234")) }
 
-        binding.simpleEmailBtn.setOnClickListener { launchSimpleCredential(EmailAuthCredential("email@gmail.com", "password111")) }
+            simpleEmailBtn.setOnClickListener { launchSimpleCredential(EmailAuthCredential("email@gmail.com", "password111")) }
 
-        binding.simpleRemoveEmailBtn.setOnClickListener { launchSimpleCredential(EmailAuthCredential("email@gmail.com", "password111"), true) }
+            simpleRemoveEmailBtn.setOnClickListener { launchSimpleCredential(EmailAuthCredential("email@gmail.com", "password111"), true) }
 
-        binding.simpleRemovePhoneBtn.setOnClickListener { launchSimpleCredential(SimplePhoneAuthCredential("+375334445566", "1234"), true) }
+            simpleRemovePhoneBtn.setOnClickListener { launchSimpleCredential(SimplePhoneAuthCredential("+375334445566", "1234"), true) }
+        }
     }
 
     private fun launchCredential(credential: Firebase) {

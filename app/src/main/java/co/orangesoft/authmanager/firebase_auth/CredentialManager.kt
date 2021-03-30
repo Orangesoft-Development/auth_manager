@@ -1,5 +1,6 @@
 package co.orangesoft.authmanager.firebase_auth
 
+import android.content.Context
 import by.orangesoft.auth.credentials.*
 import by.orangesoft.auth.firebase.FirebaseCredentialsManager
 import by.orangesoft.auth.firebase.FirebaseUserController
@@ -15,8 +16,9 @@ import kotlinx.coroutines.Job
 internal class CredentialManager(
     private val authService: AuthService,
     private val profileService: ProfileService,
+    appContext: Context,
     parentJob: Job? = null
-): FirebaseCredentialsManager(parentJob) {
+): FirebaseCredentialsManager(appContext, parentJob) {
 
     override fun getCurrentUser(): FirebaseUserController =
         firebaseInstance.currentUser?.let {

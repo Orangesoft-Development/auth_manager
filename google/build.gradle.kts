@@ -32,7 +32,7 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
     implementation(project(":auth"))
-
+    implementation(project(":firebase"))
     implementation(Depends.Kotlin.stdlib)
     implementation(Depends.Kotlin.core)
 
@@ -41,12 +41,7 @@ dependencies {
 
     implementation(Depends.PlayServices.base)
     implementation(Depends.PlayServices.auth)
-    implementation(Depends.PlayServices.coroutinesPlayServices)
-    implementation(Depends.Facebook.auth)
-
-    implementation(platform(Depends.Firebase.firebasePlatform))
     implementation(Depends.Firebase.auth)
-    implementation(Depends.Firebase.messaging)
 }
 
 tasks {

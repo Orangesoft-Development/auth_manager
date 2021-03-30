@@ -25,10 +25,10 @@ class AuthManager(credManager:FirebaseCredentialsManager,
             MutableStateFlow(UnregisteredUserControllerImpl(FirebaseAuth.getInstance()))
         }
 
-        fun getInstance(tokenServiceBaseUrl: String, interceptors: List<Interceptor> = arrayListOf(), parentJob: Job? = null): AuthManager {
+        fun getInstance(appContext: Context, tokenServiceBaseUrl: String, interceptors: List<Interceptor> = arrayListOf(), parentJob: Job? = null): AuthManager {
             val tokenManager = TokenManager(_user.asStateFlow(), tokenServiceBaseUrl, interceptors)
             val okHttp = provideOkHttp(interceptors, tokenManager)
-            return AuthManager(CredentialManager(provideAuthService(BASE_URL, okHttp), provideProfileService(BASE_URL, okHttp), parentJob), parentJob)
+            return AuthManager(CredentialManager(provideAuthService(BASE_URL, okHttp), provideProfileService(BASE_URL, okHttp), appContext, parentJob), parentJob)
         }
     }
 
