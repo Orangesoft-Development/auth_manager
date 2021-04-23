@@ -20,7 +20,7 @@ class UnregisteredUserControllerImpl(firebaseInstance: FirebaseAuth): FirebaseUs
             ) ?: "unknown"
         )
 
-    override var accessToken: String = ""
+    override suspend fun getAccessToken() = ""
 
     @Throws(Throwable::class)
     override suspend fun saveChanges() {

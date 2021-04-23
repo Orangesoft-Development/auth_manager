@@ -26,7 +26,7 @@ class UserControllerImpl(
     @Throws(Throwable::class)
     override suspend fun saveChanges() {
         (profile as? Profile)?.let { profile ->
-            profileService.patchProfile(accessToken, profile).apply {
+            profileService.patchProfile(getAccessToken(), profile).apply {
                 val newProfile = body()
                 if (isSuccessful && newProfile != null) {
                     super.updateAccount(newProfile)
@@ -38,14 +38,14 @@ class UserControllerImpl(
     @Throws(Throwable::class)
     override suspend fun updateAvatar(file: File) {
         (profile as? Profile)?.let { profile ->
-            profileService.postProfileAvatar(accessToken, file.asRequestBody("image/*".toMediaTypeOrNull()))
+            profileService.postProfileAvatar(getAccessToken(), file.asRequestBody("image/*".toMediaTypeOrNull()))
             super.updateAvatar(file)
         }
     }
 
     @Throws(Throwable::class)
     override suspend fun reload() {
-        profileService.getProfile(accessToken).apply {
+        profileService.getProfile(getAccessToken()).apply {
             val newProfile = body()
             if (isSuccessful && newProfile != null) {
                 super.updateAccount(newProfile)
@@ -56,7 +56,7 @@ class UserControllerImpl(
     @Throws(Throwable::class)
     override suspend fun updateAccount(profile: FirebaseProfile) {
         (profile as? Profile)?.let {
-            profileService.patchProfile(accessToken, it).apply {
+            profileService.patchProfile(getAccessToken(), it).apply {
                 val newProfile = body()
                 if (isSuccessful && newProfile != null) {
                     super.updateAccount(newProfile)

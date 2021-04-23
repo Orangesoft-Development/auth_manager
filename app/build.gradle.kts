@@ -88,4 +88,5 @@ dependencies {
     implementation(platform(Depends.Firebase.firebasePlatform))
     implementation(Depends.Firebase.auth)
     implementation(Depends.Firebase.messaging)
+    implementation("androidx.preference:preference:1.1.1")
 }

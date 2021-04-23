@@ -96,6 +96,7 @@ open class FirebaseCredentialsManager(appContext: Context, parentJob: Job? = nul
                 is Firebase.Apple -> newInstanceOfCredController(CredentialsEnum.APPLE)
                 is Firebase.Google -> newInstanceOfCredController(CredentialsEnum.GOOGLE, credential)
                 is Firebase.Facebook -> newInstanceOfCredController(CredentialsEnum.FACEBOOK)
+                is Firebase.Phone -> newInstanceOfCredController(CredentialsEnum.PHONE)
                 else -> throw UnsupportedOperationException("Method $credential is not supported")
             }
         }

@@ -3,7 +3,6 @@ plugins {
     id("com.github.dcendents.android-maven")
     kotlin("android")
     kotlin("kapt")
-    id("kotlin-parcelize")
 }
 
 group = "com.github.orangesoft-co.auth_manager"
@@ -32,19 +31,15 @@ dependencies {
 
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
+    implementation(project(":auth"))
+    implementation(project(":firebase"))
     implementation(Depends.Kotlin.stdlib)
     implementation(Depends.Kotlin.core)
-    implementation(Depends.Kotlin.extensions)
-
-    implementation(Depends.BaseAndroid.fragments)
-    implementation(Depends.BaseAndroid.activityKtx)
 
     implementation(Depends.Coroutines.core)
     implementation(Depends.Coroutines.android)
 
-    implementation(Depends.Lifecycle.runtime)
-
-    implementation(Depends.Api.okhttp)
+    implementation(Depends.Firebase.auth)
 }
 
 tasks {

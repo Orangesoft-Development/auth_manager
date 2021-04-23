@@ -31,22 +31,22 @@ internal class CredentialManager(
     }
 
     override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: FirebaseUserController) {
-        authService.addCreds(user.accessToken, credentialResult.credential.providerId)
+        authService.addCreds(user.getAccessToken(), credentialResult.credential.providerId)
         user.reloadCredentials()
     }
 
     override suspend fun onCredentialRemoved(credential: IBaseCredential, user: FirebaseUserController) {
-        authService.removeCreds(user.accessToken, credential.providerId.replace(".com", ""))
+        authService.removeCreds(user.getAccessToken(), credential.providerId.replace(".com", ""))
         user.reloadCredentials()
     }
 
     override suspend fun logout(user: FirebaseUserController) {
-        authService.logout(user.accessToken)
+        authService.logout(user.getAccessToken())
         super.logout(user)
     }
 
     override suspend fun deleteUser(user: FirebaseUserController) {
-        authService.delete(user.accessToken)
+        authService.delete(user.getAccessToken())
         super.deleteUser(user)
     }
 

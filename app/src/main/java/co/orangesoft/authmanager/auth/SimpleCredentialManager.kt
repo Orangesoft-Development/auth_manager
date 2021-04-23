@@ -32,23 +32,23 @@ class SimpleCredentialManager(private val appContext: Context,
     }
 
     override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: SimpleUserController) {
-        authService.addCreds(user.accessToken, credentialResult.credential.providerId)
+        authService.addCreds(user.getAccessToken(), credentialResult.credential.providerId)
     }
 
     override suspend fun onCredentialRemoved(credential: IBaseCredential, user: SimpleUserController) {
-        authService.removeCreds(user.accessToken, credential.providerId.replace(".com", ""))
+        authService.removeCreds(user.getAccessToken(), credential.providerId.replace(".com", ""))
     }
 
     override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CredBuilder(credential)
 
     @Throws(Throwable::class)
     override suspend fun logout(user: SimpleUserController) {
-        authService.logout(user.accessToken)
+        authService.logout(user.getAccessToken())
     }
 
     @Throws(Throwable::class)
     override suspend fun deleteUser(user: SimpleUserController) {
-        authService.delete(user.accessToken)
+        authService.delete(user.getAccessToken())
     }
 
     open inner class CredBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder(credential) {

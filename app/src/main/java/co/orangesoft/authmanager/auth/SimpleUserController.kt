@@ -25,12 +25,18 @@ class SimpleUserController(private val appContext: Context? = null,
 
     private val prefsHelper by lazy { PrefsHelper(appContext) }
 
-    override var accessToken: String = prefsHelper.getToken()
-
     override val coroutineContext: CoroutineContext = Dispatchers.IO
 
     private val _credentials: MutableStateFlow<Collection<IBaseCredential>> by lazy {
         MutableStateFlow(prefsHelper.getCredentials())
+    }
+
+    override suspend fun getAccessToken(): String {
+        return prefsHelper.getToken()
+    }
+
+    override suspend fun setAccessToken(accessToken: String) {
+        prefsHelper.saveToken(accessToken)
     }
 
     override val credentials: StateFlow<Collection<IBaseCredential>> by lazy {
@@ -41,7 +47,7 @@ class SimpleUserController(private val appContext: Context? = null,
 
     override suspend fun reload() {
         profileService?.let {
-            it.getSimpleProfile(accessToken).apply {
+            it.getSimpleProfile(getAccessToken()).apply {
                 val profile = body()
                 if (isSuccessful && profile != null) {
                     prefsHelper.saveProfile(profile)
@@ -52,7 +58,7 @@ class SimpleUserController(private val appContext: Context? = null,
 
     override suspend fun updateAvatar(file: File) {
         (profile as? SimpleProfile)?.let { profile ->
-            profileService?.postSimpleProfileAvatar(accessToken, file.asRequestBody("image/*".toMediaTypeOrNull()))
+            profileService?.postSimpleProfileAvatar(getAccessToken(), file.asRequestBody("image/*".toMediaTypeOrNull()))
                 ?.apply {
                     val simpleProfile = body()
                     if (isSuccessful && simpleProfile != null) {
@@ -64,17 +70,15 @@ class SimpleUserController(private val appContext: Context? = null,
 
     override suspend fun updateAccount(profile: SimpleProfile) {
         (profile as? SimpleProfile)?.let {
-            if (profileService != null) {
-                //profileService::patchSimpleProfile.parseResponse(accessToken, it).apply {
-                    prefsHelper.saveProfile(SimpleProfile(""))
-                //}
+            profileService?.patchSimpleProfile(getAccessToken(), it).apply {
+                prefsHelper.saveProfile(SimpleProfile(""))
             }
         }
     }
 
     override suspend fun saveChanges() {
         (profile as? SimpleProfile)?.let { profile ->
-            profileService?.patchSimpleProfile(accessToken, profile)?.apply {
+            profileService?.patchSimpleProfile(getAccessToken(), profile)?.apply {
                 val simpleProfile = body()
                 if (isSuccessful && simpleProfile != null) {
                     prefsHelper.saveProfile(simpleProfile)

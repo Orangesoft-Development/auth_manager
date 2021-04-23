@@ -30,15 +30,21 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
         _credentials.asStateFlow()
     }
 
-    override var accessToken: String = ""
-        get() {
-            firebaseInstance.currentUser?.let {
-                runBlocking {
-                    field = it.getIdToken(false).await().token ?: ""
-                }
+    @Suppress("BlockingMethodInNonBlockingContext")
+    override suspend fun getAccessToken(): String {
+        var token = ""
+        firebaseInstance.currentUser?.let {
+            runBlocking {
+                token = it.getIdToken(false).await().token ?: ""
             }
-            return field
         }
+
+        return token
+    }
+
+    override suspend fun setAccessToken(accessToken: String) {
+        //do nothing for firebase credentials
+    }
 
     fun reloadCredentials() {
         _credentials.value = firebaseInstance.getCredentials()
@@ -70,7 +76,6 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
                     .setDisplayName(profile.displayName)
                     .build())
                  .await()
-
         }
     }
 

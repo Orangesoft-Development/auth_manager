@@ -2,11 +2,11 @@ package co.orangesoft.authmanager.auth
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.preference.PreferenceManager
 import by.orangesoft.auth.credentials.AuthCredential
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
+import androidx.preference.PreferenceManager;
 
 
 class PrefsHelper(private val appContext: Context?) {
@@ -51,11 +51,11 @@ class PrefsHelper(private val appContext: Context?) {
     }
 
     fun removeCredential(credential: AuthCredential) {
-        appContext?.let {
-            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(it)
+        appContext?.let { context ->
+            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
             val credentials = getCredentials().toMutableList()
 
-            credentials.firstOrNull() { it.providerId == credential.providerId }?.let {
+            credentials.firstOrNull { it.providerId == credential.providerId }?.let {
                 credentials.remove(it)
                 val edit: SharedPreferences.Editor = sharedPreferences.edit()
                 val jsonCredentials = gson.toJson(credentials)

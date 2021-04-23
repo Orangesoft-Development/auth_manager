@@ -1,5 +1,7 @@
 package by.orangesoft.auth.user
 
 interface ITokenController {
-    var accessToken: String
+    suspend fun getAccessToken(): String
+
+    suspend fun setAccessToken(accessToken: String)
 }
