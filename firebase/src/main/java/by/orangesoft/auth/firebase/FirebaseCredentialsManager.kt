@@ -45,14 +45,23 @@ open class FirebaseCredentialsManager(appContext: Context, parentJob: Job? = nul
         }
     }
 
-    private fun newInstanceOfCredController(credentialsEnum: CredentialsEnum, credential: Firebase.Google? = null): IBaseCredentialController {
+    private fun newInstanceOfCredController(credentialsEnum: CredentialsEnum,
+                                            googleCredential: Firebase.Google? = null,
+                                            phoneCredential: Firebase.Phone? = null): IBaseCredentialController {
         val className = credPaths.firstOrNull { it == credentialsEnum.className } ?: throw UnsupportedOperationException("Method is not supported")
         val clazz: Class<*> = Class.forName(className)
-        val o = if (className == CredentialsEnum.GOOGLE.className) {
-            clazz.getConstructor(Firebase.Google::class.java)
-                .newInstance(credential)
-        } else {
-            clazz.newInstance()
+        val o = when (className) {
+            CredentialsEnum.GOOGLE.className -> {
+                clazz.getConstructor(Firebase.Google::class.java)
+                    .newInstance(googleCredential)
+            }
+            CredentialsEnum.PHONE.className -> {
+                clazz.getConstructor(Firebase.Phone::class.java)
+                    .newInstance(phoneCredential)
+            }
+            else -> {
+                clazz.newInstance()
+            }
         }
 
         return o as IBaseCredentialController
@@ -94,9 +103,9 @@ open class FirebaseCredentialsManager(appContext: Context, parentJob: Job? = nul
 
             return when (credential) {
                 is Firebase.Apple -> newInstanceOfCredController(CredentialsEnum.APPLE)
-                is Firebase.Google -> newInstanceOfCredController(CredentialsEnum.GOOGLE, credential)
+                is Firebase.Google -> newInstanceOfCredController(CredentialsEnum.GOOGLE, googleCredential = credential)
                 is Firebase.Facebook -> newInstanceOfCredController(CredentialsEnum.FACEBOOK)
-                is Firebase.Phone -> newInstanceOfCredController(CredentialsEnum.PHONE)
+                is Firebase.Phone -> newInstanceOfCredController(CredentialsEnum.PHONE, phoneCredential = credential)
                 else -> throw UnsupportedOperationException("Method $credential is not supported")
             }
         }

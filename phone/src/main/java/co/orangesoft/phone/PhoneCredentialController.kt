@@ -8,13 +8,12 @@ import by.orangesoft.auth.firebase.credential.Firebase
 import by.orangesoft.auth.firebase.credential.controllers.BaseFirebaseCredentialController
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.*
-import java.util.concurrent.TimeUnit
 
-class PhoneCredentialController(private val phoneNumber: String, private val onCodeSentListener: (verificationId: String) -> Unit): BaseFirebaseCredentialController(Firebase.Phone(phoneNumber)) {
+class PhoneCredentialController(method: Firebase.Phone): BaseFirebaseCredentialController(method) {
 
     private fun phoneSingInClient(activity: FragmentActivity) {
         val options = PhoneAuthOptions.newBuilder(authInstance)
-            .setPhoneNumber(phoneNumber)
+            .setPhoneNumber((credential as Firebase.Phone).phoneNumber)
             .setActivity(activity)
             .setCallbacks(object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
@@ -22,7 +21,7 @@ class PhoneCredentialController(private val phoneNumber: String, private val onC
                     verificationId: String,
                     forceResendingToken: PhoneAuthProvider.ForceResendingToken
                 ) {
-                    onCodeSentListener.invoke(verificationId)
+                    credential.onCodeSentListener?.invoke(verificationId)
                 }
 
                 override fun onVerificationCompleted(credential: PhoneAuthCredential) {

@@ -55,7 +55,9 @@ class MainActivity : FragmentActivity() {
 
             appleBtn.setOnClickListener { launchCredential(Firebase.Apple) }
 
-            phoneBtn.setOnClickListener { launchCredential(PhoneAuthCredential("+375334445566", "1234")) }
+            phoneBtn.setOnClickListener { launchCredential(Firebase.Phone("+375334445566") { verificationId ->
+                //TODO manually send code + verificationId
+            }) }
 
             simplePhoneBtn.setOnClickListener { launchSimpleCredential(SimplePhoneAuthCredential("+375334445566", "1234")) }
 
