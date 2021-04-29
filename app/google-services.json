@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1024632463970",
+    "project_id": "test-4490a-312222",
+    "storage_bucket": "test-4490a-312222.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1024632463970:android:58acb642259b71d158673b",
+        "android_client_info": {
+          "package_name": "co.orangesoft.authmanager"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1024632463970-sqvpt26c4bmqgrdf0tukbg9himqilan8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxBWYY0hVzWFm2rSTqp98y90lwNYMEAZk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1024632463970-sqvpt26c4bmqgrdf0tukbg9himqilan8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
