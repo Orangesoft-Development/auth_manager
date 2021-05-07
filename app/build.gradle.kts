@@ -2,7 +2,7 @@ plugins {
     id("com.android.application")
 
     /**Uncomment this line and add your own google-services json to the 'app' folder**/
-    //id("com.google.gms.google-services")
+    id("com.google.gms.google-services")
 
     kotlin("android")
     kotlin("kapt")
@@ -76,6 +76,7 @@ dependencies {
     implementation(project(":apple"))
     implementation(project(":google"))
     implementation(project(":facebook"))
+    implementation(project(":phone"))
 
     implementation(Depends.Kotlin.stdlib)
     implementation(Depends.Kotlin.core)
