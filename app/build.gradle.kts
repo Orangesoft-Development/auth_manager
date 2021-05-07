@@ -38,6 +38,21 @@ android {
         viewBinding = true
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = rootProject.file("app/streamvision.jks")
+            storePassword = "orangesoft"
+            keyAlias = "streamvision"
+            keyPassword = "orangesoftstreamvision"
+        }
+        getByName("debug").apply {
+            storeFile = rootProject.file("app/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
 
         getByName("debug") {
