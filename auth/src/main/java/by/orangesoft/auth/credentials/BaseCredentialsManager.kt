@@ -19,7 +19,7 @@ abstract class BaseCredentialsManager<T: IBaseUserController<*>> (parentJob: Job
 
     override val coroutineContext: CoroutineContext by lazy { Dispatchers.IO + SupervisorJob(parentJob) }
 
-    private val userSharedFlow = MutableSharedFlow<T>(1, 1)
+    protected val userSharedFlow = MutableSharedFlow<T>(1, 1)
 
     @Throws(Exception::class)
     protected abstract suspend fun onLogged(credentialResult: CredentialResult): T

@@ -32,6 +32,7 @@ class MainActivity : FragmentActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initViews()
+        signInAnonymously()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -89,10 +90,15 @@ class MainActivity : FragmentActivity() {
         }
     }
 
+    private fun signInAnonymously() {
+        initCallbacks(authManager)
+        authManager.signInAnonymously()
+    }
+
     private fun initCallbacks(authManager: BaseAuthManager<*,*>) {
 
         val loginSuccessListener: (IBaseUserController<*>) -> Unit  = {
-            val resultCreds = simpleAuthManager.currentUser.value.credentials.value.toString()
+            val resultCreds = authManager.currentUser.value.credentials.value.toString()
             if (resultCreds.isNotEmpty()) {
                 binding.resultCredentials.text = resultCreds
             }
@@ -100,7 +106,7 @@ class MainActivity : FragmentActivity() {
 
         val loginErrorListener: (Throwable) -> Unit = {
             Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
-            val resultCreds = simpleAuthManager.currentUser.value.credentials.value.toString()
+            val resultCreds = authManager.currentUser.value.credentials.value.toString()
             if (resultCreds.isNotEmpty()) {
                 binding.resultCredentials.text = resultCreds
             }
