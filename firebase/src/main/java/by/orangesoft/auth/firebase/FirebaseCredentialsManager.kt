@@ -9,7 +9,9 @@ import dalvik.system.DexClassLoader
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.*
 
@@ -75,6 +77,15 @@ open class FirebaseCredentialsManager(appContext: Context, parentJob: Job? = nul
     @Throws(Throwable::class)
     override suspend fun onCredentialRemoved(credential: IBaseCredential, user: FirebaseUserController) {
         user.reloadCredentials()
+    }
+
+    fun signInAnonymously(): Flow<FirebaseUserController> {
+        launch {
+            firebaseInstance.signInAnonymously().await()
+            userSharedFlow.tryEmit(getCurrentUser())
+        }
+
+        return userSharedFlow.asSharedFlow()
     }
 
     @Throws(Throwable::class)
