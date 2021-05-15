@@ -2,7 +2,7 @@ plugins {
     id("com.android.application")
 
     /**Uncomment this line and add your own google-services json to the 'app' folder**/
-    id("com.google.gms.google-services")
+    //id("com.google.gms.google-services")
 
     kotlin("android")
     kotlin("kapt")
@@ -36,21 +36,6 @@ android {
 
     buildFeatures {
         viewBinding = true
-    }
-
-    signingConfigs {
-        create("release") {
-            storeFile = rootProject.file("app/streamvision.jks")
-            storePassword = "orangesoft"
-            keyAlias = "streamvision"
-            keyPassword = "orangesoftstreamvision"
-        }
-        getByName("debug").apply {
-            storeFile = rootProject.file("app/debug.keystore")
-            storePassword = "android"
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
-        }
     }
 
     buildTypes {
