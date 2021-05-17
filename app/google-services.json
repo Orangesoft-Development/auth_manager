@@ -14,13 +14,29 @@
       },
       "oauth_client": [
         {
+          "client_id": "1024632463970-6q49u3h79eugru5t2ght49sf2r0ge1br.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "co.orangesoft.authmanager",
+            "certificate_hash": "63cc7d0b2dffe82e1f310becd1b0348ef6052b68"
+          }
+        },
+        {
+          "client_id": "1024632463970-u0rqvj4odm0243ap4ee8f9lpil2ps0n8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "co.orangesoft.authmanager",
+            "certificate_hash": "9a52f61e6dacaa37d3bb01ab1748d01556b54158"
+          }
+        },
+        {
           "client_id": "1024632463970-sqvpt26c4bmqgrdf0tukbg9himqilan8.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAxBWYY0hVzWFm2rSTqp98y90lwNYMEAZk"
+          "current_key": "AIzaSyD214rrS0gZwW6a7SK4mAK6EQFFx2w_Njo"
         }
       ],
       "services": {

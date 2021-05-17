@@ -32,13 +32,13 @@ internal class CredentialManager(
         }?.let {
             UserControllerImpl(firebaseInstance, accountManager, it, profileService)
         } ?: firebaseInstance.currentUser?.let { user ->
-            val name = user.displayName ?: "*"
+            val name = if (user.displayName.isNullOrEmpty()) "*" else user.displayName
 
             val account = Account(name, accountType).also {
                 accountManager.addAccountExplicitly(it, accountPassword, Bundle().apply {
                     putString("firebaseUid", user.uid)
                     putString("id", user.uid)
-                    putString("avatarUrl", user.photoUrl.toString())
+                    putString("avatarUrl", user.photoUrl?.toString() ?: "")
                 })
             }
             UserControllerImpl(firebaseInstance, accountManager, account, profileService)

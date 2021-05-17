@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import by.orangesoft.auth.BaseAuthManager
 import by.orangesoft.auth.credentials.AuthCredential
+import by.orangesoft.auth.firebase.FirebaseUserController
 import by.orangesoft.auth.firebase.credential.Firebase
 import by.orangesoft.auth.user.IBaseUserController
 import co.orangesoft.authmanager.auth.SimpleAuthManager
@@ -100,10 +101,10 @@ class MainActivity : FragmentActivity() {
     private fun initCallbacks(authManager: BaseAuthManager<*,*>) {
 
         val loginSuccessListener: (IBaseUserController<*>) -> Unit  = {
-            val resultCreds = authManager.currentUser.value.credentials.value.toString()
-            if (resultCreds.isNotEmpty()) {
-                binding.resultCredentials.text = resultCreds
-            }
+            val resultCreds = authManager.currentUser.value.credentials.value
+            binding.resultCredentials.text = if (resultCreds.isNotEmpty())
+                resultCreds.toString()
+            else "GUEST USER ID: ${(it as FirebaseUserController).profile.uid}"
         }
 
         val loginErrorListener: (Throwable) -> Unit = {
