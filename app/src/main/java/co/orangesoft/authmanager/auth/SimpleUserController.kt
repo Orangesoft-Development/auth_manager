@@ -1,6 +1,7 @@
 package co.orangesoft.authmanager.auth
 
 import android.content.Context
+import by.orangesoft.auth.credentials.CredentialResult
 import by.orangesoft.auth.credentials.IBaseCredential
 import by.orangesoft.auth.user.IBaseUserController
 import by.orangesoft.auth.user.ITokenController
@@ -27,7 +28,7 @@ class SimpleUserController(private val appContext: Context? = null,
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO
 
-    private val _credentials: MutableStateFlow<Collection<IBaseCredential>> by lazy {
+    private val _credentials: MutableStateFlow<Collection<CredentialResult>> by lazy {
         MutableStateFlow(prefsHelper.getCredentials())
     }
 
@@ -39,7 +40,7 @@ class SimpleUserController(private val appContext: Context? = null,
         prefsHelper.saveToken(accessToken)
     }
 
-    override val credentials: StateFlow<Collection<IBaseCredential>> by lazy {
+    override val credentials: StateFlow<Collection<CredentialResult>> by lazy {
         _credentials.asStateFlow()
     }
 

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface IBaseCredentialController {
 
-    val credential: AuthCredential
+    val authCredential: BaseAuthCredential
 
     fun addCredential(): Flow<CredentialResult>
 

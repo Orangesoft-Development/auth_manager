@@ -4,17 +4,17 @@ import android.content.Intent
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.FragmentActivity
-import by.orangesoft.auth.firebase.credential.Firebase
+import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
 import by.orangesoft.auth.firebase.credential.controllers.BaseFirebaseCredentialController
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.*
 import java.util.concurrent.TimeUnit
 
-class PhoneCredentialController(method: Firebase.Phone): BaseFirebaseCredentialController(method) {
+class PhoneCredentialController(phoneAuthCredential: FirebaseAuthCredential.Phone): BaseFirebaseCredentialController(phoneAuthCredential) {
 
     private fun phoneSingInClient(activity: FragmentActivity) {
         val options = PhoneAuthOptions.newBuilder(authInstance)
-            .setPhoneNumber((credential as Firebase.Phone).phoneNumber)
+            .setPhoneNumber((authCredential as FirebaseAuthCredential.Phone).phoneNumber)
             .setTimeout(60, TimeUnit.SECONDS)
             .setActivity(activity)
             .setCallbacks(object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
@@ -24,7 +24,7 @@ class PhoneCredentialController(method: Firebase.Phone): BaseFirebaseCredentialC
                     forceResendingToken: PhoneAuthProvider.ForceResendingToken
                 ) {
                     Log.e("!!!", "onCodeSent $verificationId")
-                    credential.onCodeSentListener?.invoke(verificationId)
+                    authCredential.onCodeSentListener?.invoke(verificationId)
                 }
 
                 override fun onVerificationCompleted(credential: PhoneAuthCredential) {
@@ -47,7 +47,7 @@ class PhoneCredentialController(method: Firebase.Phone): BaseFirebaseCredentialC
     }
 
     override fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {
-        Log.e("!!!", "clientId: ${(credential as Firebase.Phone).phoneNumber}")
+        Log.e("!!!", "clientId: ${(authCredential as FirebaseAuthCredential.Phone).phoneNumber}")
         phoneSingInClient(activity)
     }
 

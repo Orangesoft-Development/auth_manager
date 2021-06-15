@@ -1,7 +1,7 @@
 package by.orangesoft.auth
 
 import androidx.fragment.app.FragmentActivity
-import by.orangesoft.auth.credentials.AuthCredential
+import by.orangesoft.auth.credentials.BaseAuthCredential
 import by.orangesoft.auth.credentials.IBaseCredential
 import by.orangesoft.auth.credentials.BaseCredentialsManager
 import by.orangesoft.auth.user.IBaseUserController
@@ -18,7 +18,7 @@ abstract class BaseAuthManager<T: IBaseUserController<*>, C: BaseCredentialsMana
 
     override val currentUser: StateFlow<T> by lazy { user.asStateFlow() }
 
-    override fun login(activity: FragmentActivity, credential: AuthCredential): Job =
+    override fun login(activity: FragmentActivity, credential: BaseAuthCredential): Job =
         launch {
             credentialsManager.addCredential(activity, credential, null)
                 .onEach {
@@ -27,7 +27,7 @@ abstract class BaseAuthManager<T: IBaseUserController<*>, C: BaseCredentialsMana
                 .launchIn(this)
         }
 
-    override fun addCredential(activity: FragmentActivity, credential: AuthCredential): Job =
+    override fun addCredential(activity: FragmentActivity, credential: BaseAuthCredential): Job =
         launch {
             credentialsManager.addCredential(activity, credential, currentUser.value)
                 .onEach {

@@ -62,7 +62,7 @@ internal class CredentialManager(
     }
 
     override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: FirebaseUserController) {
-        authService.addCreds(user.getAccessToken(), credentialResult.credential.providerId)
+        authService.addCreds(user.getAccessToken(), credentialResult.providerId)
         user.reloadCredentials()
     }
 

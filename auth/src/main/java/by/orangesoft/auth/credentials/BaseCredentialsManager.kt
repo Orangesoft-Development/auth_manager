@@ -40,7 +40,7 @@ abstract class BaseCredentialsManager<T: IBaseUserController<*>> (parentJob: Job
 
     override fun addCredential(activity: FragmentActivity, credential: IBaseCredential, user: T?): Flow<T> {
 
-        if (user?.credentials?.value?.firstOrNull { it == credential } != null) {
+        if (user?.credentials?.value?.firstOrNull { it.providerId == credential.providerId } != null) {
             userSharedFlow.tryEmit(user)
         } else {
             val credController = getBuilder(credential).build(activity)
@@ -63,7 +63,7 @@ abstract class BaseCredentialsManager<T: IBaseUserController<*>> (parentJob: Job
 
 
     override fun removeCredential(credential: IBaseCredential, user: T): Flow<T> {
-        if (!user.credentials.value.let { creds -> creds.firstOrNull { it == credential } != null && creds.size > 1 }) {
+        if (!user.credentials.value.let { creds -> creds.firstOrNull { it.providerId == credential.providerId } != null && creds.size > 1 }) {
             throw NoSuchElementException("Cannot remove method $credential")
         }
 

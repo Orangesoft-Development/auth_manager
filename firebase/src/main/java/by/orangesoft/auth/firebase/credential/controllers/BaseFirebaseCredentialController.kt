@@ -1,10 +1,8 @@
 package by.orangesoft.auth.firebase.credential.controllers
 
 import by.orangesoft.auth.credentials.CredentialResult
-import by.orangesoft.auth.credentials.IBaseCredential
 import by.orangesoft.auth.credentials.IBaseCredentialController
-import by.orangesoft.auth.firebase.credential.Firebase
-import by.orangesoft.auth.firebase.credential.getCredentials
+import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.AuthResult
@@ -13,13 +11,11 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.tasks.await
 import java.lang.NullPointerException
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.coroutineContext
 
-abstract class BaseFirebaseCredentialController(override val credential: Firebase): IBaseCredentialController, CoroutineScope {
+abstract class BaseFirebaseCredentialController(override val authCredential: FirebaseAuthCredential): IBaseCredentialController, CoroutineScope {
 
     protected val authInstance: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
@@ -36,7 +32,7 @@ abstract class BaseFirebaseCredentialController(override val credential: Firebas
 
     override fun removeCredential(): Job {
         authInstance.currentUser?.providerData?.firstOrNull {
-            it.providerId == credential.providerId
+            it.providerId == authCredential.providerId
         }?.let { provider ->
             return launch {
                 authInstance.currentUser?.unlink(provider.providerId)?.await()
@@ -64,12 +60,12 @@ abstract class BaseFirebaseCredentialController(override val credential: Firebas
 
     protected fun getCredential() {
         authInstance.currentUser?.let { user ->
-            user.providerData.firstOrNull { it.providerId == credential.providerId }?.let {
+            user.providerData.firstOrNull { it.providerId == authCredential.providerId }?.let {
                 user.getIdToken(true)
-                    .addOnSuccessListener { flow.tryEmit(CredentialResult(credential, it.token ?: "")) }
+                    .addOnSuccessListener { flow.tryEmit(CredentialResult(authCredential.providerId)) }
                     .addOnFailureListener {
                         authInstance.signOut()
-                        onError("Error add credential ${credential.providerId}", it)
+                        onError("Error add credential ${authCredential.providerId}", it)
                     }
                 return
             }
@@ -79,13 +75,13 @@ abstract class BaseFirebaseCredentialController(override val credential: Firebas
             activityCallback
                 .addOnSuccessListener { result ->
                     result.user?.getIdToken(true)
-                        ?.addOnSuccessListener { flow.tryEmit(CredentialResult(credential, it.token ?: "")) }
+                        ?.addOnSuccessListener { flow.tryEmit(CredentialResult(authCredential.providerId)) }
                         ?.addOnFailureListener {
                             authInstance.signOut()
-                            onError("Error add credential ${credential.providerId}", it)
-                        } ?: onError("Error add credential ${credential.providerId}", NullPointerException("Firebase user is null"))
+                            onError("Error add credential ${authCredential.providerId}", it)
+                        } ?: onError("Error add credential ${authCredential.providerId}", NullPointerException("Firebase user is null"))
                 }
-                .addOnFailureListener { onError("Error add credential ${credential.providerId}", it) }
+                .addOnFailureListener { onError("Error add credential ${authCredential.providerId}", it) }
 
     }
 }

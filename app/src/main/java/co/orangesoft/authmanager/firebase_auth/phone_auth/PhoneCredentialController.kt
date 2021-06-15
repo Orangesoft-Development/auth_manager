@@ -17,14 +17,14 @@ class PhoneCredentialController(private val authService: AuthService,
                                 phoneAuthCredential: PhoneAuthCredential
 ) : BaseFirebaseCredentialController(phoneAuthCredential), CoroutineScope {
 
-    override val credential: PhoneAuthCredential = phoneAuthCredential
+    override val authCredential: PhoneAuthCredential = phoneAuthCredential
 
     override val coroutineContext: CoroutineContext by lazy { Dispatchers.IO }
 
     override fun addCredential(): Flow<CredentialResult> {
         runBlocking {
             val prevUser: FirebaseUser? = authInstance.currentUser?.let { if(it.providerData.size > 1) it else null }
-            authService.createPhoneToken(PhoneCredentialRequestBody(credential.phone, credential.code, prevUser?.uid)).apply {
+            authService.createPhoneToken(PhoneCredentialRequestBody(authCredential.phone, authCredential.code, prevUser?.uid)).apply {
                 authInstance.signInWithCustomToken(body() ?: "").await()
             }
         }

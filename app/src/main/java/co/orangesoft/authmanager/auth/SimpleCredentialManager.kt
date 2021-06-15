@@ -32,7 +32,7 @@ class SimpleCredentialManager(private val appContext: Context,
     }
 
     override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: SimpleUserController) {
-        authService.addCreds(user.getAccessToken(), credentialResult.credential.providerId)
+        authService.addCreds(user.getAccessToken(), credentialResult.providerId)
     }
 
     override suspend fun onCredentialRemoved(credential: IBaseCredential, user: SimpleUserController) {
