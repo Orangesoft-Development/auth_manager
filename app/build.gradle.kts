@@ -61,6 +61,7 @@ dependencies {
     implementation(project(":apple"))
     implementation(project(":google"))
     implementation(project(":facebook"))
+    implementation(project(":phone"))
 
     implementation(Depends.Kotlin.stdlib)
     implementation(Depends.Kotlin.core)
@@ -88,4 +89,5 @@ dependencies {
     implementation(platform(Depends.Firebase.firebasePlatform))
     implementation(Depends.Firebase.auth)
     implementation(Depends.Firebase.messaging)
+    implementation("androidx.preference:preference:1.1.1")
 }

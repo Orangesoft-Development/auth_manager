@@ -12,14 +12,14 @@ class CredentialListener constructor(override val coroutineContext: CoroutineCon
     }
 
     private var onAddSuccess: ((CredentialResult) -> Unit)? = null
-    private var onRemoveSuccess: ((AuthCredential) -> Unit)? = null
+    private var onRemoveSuccess: ((BaseAuthCredential) -> Unit)? = null
     private var onException: ((Throwable) -> Unit)? = null
 
     fun onAddCredentialSuccess(listener: (CredentialResult) -> Unit) {
         onAddSuccess = listener
     }
 
-    fun onRemoveCredentialSuccess(listener: (AuthCredential) -> Unit) {
+    fun onRemoveCredentialSuccess(listener: (BaseAuthCredential) -> Unit) {
         onRemoveSuccess = listener
     }
 
@@ -36,7 +36,7 @@ class CredentialListener constructor(override val coroutineContext: CoroutineCon
         }
     }
 
-    operator fun invoke(result: AuthCredential) {
+    operator fun invoke(result: BaseAuthCredential) {
         launch {
             synchronized(this) {
                 onRemoveSuccess?.invoke(result)

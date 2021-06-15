@@ -45,7 +45,6 @@ dependencies {
     implementation(Depends.Lifecycle.runtime)
 
     implementation(Depends.Api.okhttp)
-
 }
 
 tasks {

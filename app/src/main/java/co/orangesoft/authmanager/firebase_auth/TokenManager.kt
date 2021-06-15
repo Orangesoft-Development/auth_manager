@@ -39,7 +39,7 @@ class TokenManager(
 
     override suspend fun updateTokenApi(accessToken: String) {
         tokenService.updateTokens(accessToken).body()?.let {
-            controller.value.accessToken = it
+            controller.value.setAccessToken(it)
         }
     }
 }

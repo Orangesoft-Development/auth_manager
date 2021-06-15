@@ -1,3 +1,4 @@
+include ':phone'
 rootProject.name = "Auth Manager"
 rootProject.buildFileName = "build.gradle.kts"
 include("app")

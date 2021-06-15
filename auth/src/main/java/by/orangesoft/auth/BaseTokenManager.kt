@@ -32,7 +32,7 @@ abstract class BaseTokenManager<T: ITokenController> (
         // Trying to make request with existing access token
         var response: Response?
         runBlocking {
-            val token = controller.value.accessToken
+            val token = controller.value.getAccessToken()
             response = chain.proceed(overrideRequest(chain.request(), token))
 
             // If request is failed by auth error, trying to refresh tokens and make one more request attempt
@@ -58,7 +58,7 @@ abstract class BaseTokenManager<T: ITokenController> (
 
     @Throws(Throwable::class)
     private suspend fun refreshAccessToken(successListener: () -> Unit) {
-        val token = controller.value.accessToken
+        val token = controller.value.getAccessToken()
         if (token.isNotEmpty()) {
             try {
                 updateTokenApi(token)

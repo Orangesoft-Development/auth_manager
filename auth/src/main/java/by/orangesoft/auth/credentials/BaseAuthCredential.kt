@@ -4,13 +4,13 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-open class AuthCredential(override val providerId: String) : IBaseCredential, Parcelable {
+open class BaseAuthCredential(override val providerId: String) : IBaseCredential, Parcelable {
 
     constructor(credential: IBaseCredential):this(credential.providerId)
 
     override fun equals(other: Any?): Boolean =
         when(other) {
-            is AuthCredential -> providerId == other.providerId
+            is BaseAuthCredential -> providerId == other.providerId
             is IBaseCredential  -> providerId == other.providerId
             is String           -> providerId == other
             else                -> super.equals(other)

@@ -3,6 +3,7 @@ package co.orangesoft.authmanager.api
 import by.orangesoft.auth.credentials.CredentialResult
 import co.orangesoft.authmanager.api.request_body.EmailCredentialRequestBody
 import co.orangesoft.authmanager.api.request_body.PhoneCredentialRequestBody
+import co.orangesoft.authmanager.api.responses.LoginResponse
 import co.orangesoft.authmanager.firebase_auth.user.Profile
 import retrofit2.Response
 import retrofit2.http.*
@@ -10,7 +11,7 @@ import retrofit2.http.*
 interface AuthService {
 
     @POST("auth/login")
-    suspend fun login(@Body credentialResult: CredentialResult): Response<Profile>
+    suspend fun login(@Body credentialResult: CredentialResult): Response<LoginResponse>
 
     @POST("auth/logout")
     suspend fun logout(@Header("Authorization") accessToken: String): Response<Unit>

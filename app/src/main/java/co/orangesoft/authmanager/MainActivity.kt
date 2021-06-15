@@ -6,15 +6,15 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import by.orangesoft.auth.BaseAuthManager
-import by.orangesoft.auth.credentials.AuthCredential
-import by.orangesoft.auth.firebase.credential.Firebase
+import by.orangesoft.auth.credentials.BaseAuthCredential
+import by.orangesoft.auth.firebase.FirebaseUserController
+import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
 import by.orangesoft.auth.user.IBaseUserController
 import co.orangesoft.authmanager.auth.SimpleAuthManager
 import co.orangesoft.authmanager.auth.email.EmailAuthCredential
 import co.orangesoft.authmanager.auth.phone.SimplePhoneAuthCredential
 import co.orangesoft.authmanager.databinding.ActivityMainBinding
 import co.orangesoft.authmanager.firebase_auth.AuthManager
-import co.orangesoft.authmanager.firebase_auth.phone_auth.PhoneAuthCredential
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
@@ -32,6 +32,7 @@ class MainActivity : FragmentActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initViews()
+        signInAnonymously()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -49,13 +50,15 @@ class MainActivity : FragmentActivity() {
     private fun initViews() {
 
         binding.apply {
-            googleBtn.setOnClickListener { launchCredential(Firebase.Google(getString(R.string.server_client_id))) }
+            googleBtn.setOnClickListener { launchCredential(FirebaseAuthCredential.Google(getString(R.string.server_client_id))) }
 
-            facebookBtn.setOnClickListener { launchCredential(Firebase.Facebook) }
+            facebookBtn.setOnClickListener { launchCredential(FirebaseAuthCredential.Facebook) }
 
-            appleBtn.setOnClickListener { launchCredential(Firebase.Apple) }
+            appleBtn.setOnClickListener { launchCredential(FirebaseAuthCredential.Apple) }
 
-            phoneBtn.setOnClickListener { launchCredential(PhoneAuthCredential("+375334445566", "1234")) }
+            phoneBtn.setOnClickListener { launchCredential(FirebaseAuthCredential.Phone("+16505551234") { verificationId ->
+                //TODO manually send code + verificationId
+            }) }
 
             simplePhoneBtn.setOnClickListener { launchSimpleCredential(SimplePhoneAuthCredential("+375334445566", "1234")) }
 
@@ -67,7 +70,7 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    private fun launchCredential(credential: Firebase) {
+    private fun launchCredential(credential: FirebaseAuthCredential) {
 
         initCallbacks(authManager)
 
@@ -78,7 +81,7 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    private fun launchSimpleCredential(credential: AuthCredential, isRemove: Boolean = false) {
+    private fun launchSimpleCredential(credential: BaseAuthCredential, isRemove: Boolean = false) {
 
         initCallbacks(simpleAuthManager)
 
@@ -89,18 +92,23 @@ class MainActivity : FragmentActivity() {
         }
     }
 
+    private fun signInAnonymously() {
+        initCallbacks(authManager)
+        authManager.signInAnonymously()
+    }
+
     private fun initCallbacks(authManager: BaseAuthManager<*,*>) {
 
         val loginSuccessListener: (IBaseUserController<*>) -> Unit  = {
-            val resultCreds = simpleAuthManager.currentUser.value.credentials.value.toString()
-            if (resultCreds.isNotEmpty()) {
-                binding.resultCredentials.text = resultCreds
-            }
+            val resultCreds = authManager.currentUser.value.credentials.value
+            binding.resultCredentials.text = if (resultCreds.isNotEmpty())
+                resultCreds.toString()
+            else "GUEST USER ID: ${(it as FirebaseUserController).profile.uid}"
         }
 
         val loginErrorListener: (Throwable) -> Unit = {
             Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
-            val resultCreds = simpleAuthManager.currentUser.value.credentials.value.toString()
+            val resultCreds = authManager.currentUser.value.credentials.value.toString()
             if (resultCreds.isNotEmpty()) {
                 binding.resultCredentials.text = resultCreds
             }

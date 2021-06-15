@@ -1,7 +1,7 @@
 package by.orangesoft.auth.firebase
 
 import android.net.Uri
-import by.orangesoft.auth.firebase.credential.FirebaseCredential
+import by.orangesoft.auth.firebase.credential.FirebaseCredentialResult
 import by.orangesoft.auth.firebase.credential.getCredentials
 import by.orangesoft.auth.user.IBaseUserController
 import by.orangesoft.auth.user.ITokenController
@@ -22,23 +22,29 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
     override val profile: FirebaseProfile
         get() = firebaseInstance.getProfile()
 
-    private val _credentials: MutableStateFlow<Collection<FirebaseCredential>> by lazy {
+    private val _credentials: MutableStateFlow<Collection<FirebaseCredentialResult>> by lazy {
         MutableStateFlow(firebaseInstance.getCredentials())
     }
 
-    override val credentials: StateFlow<Collection<FirebaseCredential>> by lazy {
+    override val credentials: StateFlow<Collection<FirebaseCredentialResult>> by lazy {
         _credentials.asStateFlow()
     }
 
-    override var accessToken: String = ""
-        get() {
-            firebaseInstance.currentUser?.let {
-                runBlocking {
-                    field = it.getIdToken(false).await().token ?: ""
-                }
+    @Suppress("BlockingMethodInNonBlockingContext")
+    override suspend fun getAccessToken(): String {
+        var token = ""
+        firebaseInstance.currentUser?.let {
+            runBlocking {
+                token = it.getIdToken(false).await().token ?: ""
             }
-            return field
         }
+
+        return token
+    }
+
+    override suspend fun setAccessToken(accessToken: String) {
+        //do nothing for firebase credentials
+    }
 
     fun reloadCredentials() {
         _credentials.value = firebaseInstance.getCredentials()
@@ -70,7 +76,6 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
                     .setDisplayName(profile.displayName)
                     .build())
                  .await()
-
         }
     }
 

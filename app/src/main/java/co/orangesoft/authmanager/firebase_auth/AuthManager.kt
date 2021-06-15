@@ -1,5 +1,6 @@
 package co.orangesoft.authmanager.firebase_auth
 
+import android.accounts.AccountManager
 import android.content.Context
 import by.orangesoft.auth.firebase.FirebaseAuthManager
 import by.orangesoft.auth.firebase.FirebaseCredentialsManager
@@ -28,7 +29,7 @@ class AuthManager(credManager:FirebaseCredentialsManager,
         fun getInstance(appContext: Context, tokenServiceBaseUrl: String, interceptors: List<Interceptor> = arrayListOf(), parentJob: Job? = null): AuthManager {
             val tokenManager = TokenManager(_user.asStateFlow(), tokenServiceBaseUrl, interceptors)
             val okHttp = provideOkHttp(interceptors, tokenManager)
-            return AuthManager(CredentialManager(provideAuthService(BASE_URL, okHttp), provideProfileService(BASE_URL, okHttp), appContext, parentJob), parentJob)
+            return AuthManager(CredentialManager(AccountManager.get(appContext), appContext.packageName, "", provideAuthService(BASE_URL, okHttp), provideProfileService(BASE_URL, okHttp), appContext, parentJob), parentJob)
         }
     }
 
