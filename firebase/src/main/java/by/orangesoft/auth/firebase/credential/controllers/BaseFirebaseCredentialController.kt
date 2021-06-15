@@ -9,6 +9,8 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.PhoneAuthCredential
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -24,8 +26,9 @@ abstract class BaseFirebaseCredentialController(override val credential: Firebas
     protected val authInstance: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
     protected lateinit var activityCallback: Task<AuthResult>
+    protected fun isActivityCallbackInitialised() = ::activityCallback.isInitialized
 
-    private var flow: MutableSharedFlow<CredentialResult> = MutableSharedFlow(1, 1)
+    protected var flow: MutableSharedFlow<CredentialResult> = MutableSharedFlow(1, 1)
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO + Job()
 
@@ -54,15 +57,9 @@ abstract class BaseFirebaseCredentialController(override val credential: Firebas
         coroutineContext.job.cancel(message, cause)
     }
 
-    protected fun getAuthTask(credential: AuthCredential): Task<AuthResult> =
-        authInstance.currentUser?.let { currentUser ->
-            if(!currentUser.isAnonymous)
-                currentUser.linkWithCredential(credential)
-            else null
-        } ?: authInstance.signInWithCredential(credential)
+    protected fun emitAuthTask(credential: AuthCredential) = getAuthTask(credential)?.let { getCredential() }
 
-
-    protected fun getCredential() {
+    protected open fun getCredential() {
         authInstance.currentUser?.let { user ->
             user.providerData.firstOrNull { it.providerId == credential.providerId }?.let {
                 user.getIdToken(true)
@@ -75,7 +72,7 @@ abstract class BaseFirebaseCredentialController(override val credential: Firebas
             }
         }
 
-        if(::activityCallback.isInitialized)
+        if (::activityCallback.isInitialized)
             activityCallback
                 .addOnSuccessListener { result ->
                     result.user?.getIdToken(true)
@@ -86,6 +83,18 @@ abstract class BaseFirebaseCredentialController(override val credential: Firebas
                         } ?: onError("Error add credential ${credential.providerId}", NullPointerException("Firebase user is null"))
                 }
                 .addOnFailureListener { onError("Error add credential ${credential.providerId}", it) }
-
     }
+
+    protected open fun updateCurrentCredential(user: FirebaseUser, authCredential: AuthCredential) {}
+
+    private fun getAuthTask(credential: AuthCredential): Task<AuthResult>? =
+        authInstance.currentUser?.let { currentUser ->
+            if (!currentUser.isAnonymous) {
+                currentUser.providerData.firstOrNull { it.providerId == this.credential.providerId }?.let {
+                    updateCurrentCredential(currentUser, credential)
+                    return null
+                } ?: currentUser.linkWithCredential(credential)
+            } else null
+        } ?: authInstance.signInWithCredential(credential)
+
 }

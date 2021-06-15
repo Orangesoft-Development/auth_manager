@@ -30,8 +30,7 @@ class GoogleCredentialController(method: Firebase.Google): BaseFirebaseCredentia
     override fun onActivityResult(code: Int, data: Intent?) {
         GoogleSignIn.getSignedInAccountFromIntent(data).apply {
             addOnSuccessListener { account ->
-                activityCallback = getAuthTask(GoogleAuthProvider.getCredential(account.idToken, null))
-                getCredential()
+                emitAuthTask(GoogleAuthProvider.getCredential(account.idToken, null))
             }
             addOnFailureListener { onError("Error add credential ${credential.providerId}", it) }
         }

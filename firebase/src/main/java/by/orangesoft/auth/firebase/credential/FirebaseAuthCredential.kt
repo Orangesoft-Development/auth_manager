@@ -1,13 +1,21 @@
 package by.orangesoft.auth.firebase.credential
 
 import android.annotation.SuppressLint
+import android.os.Parcelable
 import by.orangesoft.auth.credentials.AuthCredential
 
 @SuppressLint("ParcelCreator")
-open class Firebase(providerId: String): AuthCredential(providerId) {
-    object Apple: Firebase(Providers.APPLE)
-    object Facebook: Firebase(Providers.FACEBOOK)
-    data class Phone(val phoneNumber: String, val onCodeSentListener: ((verificationId: String) -> Unit)? = null): Firebase(Providers.PHONE)
+open class Firebase(providerId: String) : AuthCredential(providerId) {
+    object Apple : Firebase(Providers.APPLE)
+    object Facebook : Firebase(Providers.FACEBOOK)
+    data class Phone(
+        val phoneNumber: String,
+        val code: String? = null,
+        val verificationId: String? = null,
+        val forceResendingToken: Parcelable? = null,
+        val onCodeSentListener: ((verificationId: String, forceResendingToken: Parcelable) -> Unit)? = null
+    ) : Firebase(Providers.PHONE)
+
     data class Google(val clientId: String) : Firebase(Providers.GOOGLE)
 }
 

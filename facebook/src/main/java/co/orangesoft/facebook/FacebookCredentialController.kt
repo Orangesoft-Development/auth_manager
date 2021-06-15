@@ -12,7 +12,7 @@ import com.facebook.internal.CallbackManagerImpl
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.google.firebase.auth.*
-import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.CancellationException
 
 class FacebookCredentialController: BaseFirebaseCredentialController(Firebase.Facebook) {
 
@@ -22,8 +22,7 @@ class FacebookCredentialController: BaseFirebaseCredentialController(Firebase.Fa
         LoginManager.getInstance().apply {
             registerCallback(callbackFactory, object : FacebookCallback<LoginResult> {
                 override fun onSuccess(result: LoginResult) {
-                    activityCallback = getAuthTask(FacebookAuthProvider.getCredential(result.accessToken.token))
-                    getCredential()
+                    emitAuthTask(FacebookAuthProvider.getCredential(result.accessToken.token))
                 }
 
                 override fun onCancel() { onError(CancellationException("Error add credential ${credential.providerId} cancelled by user")) }
