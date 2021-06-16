@@ -3,7 +3,7 @@ package co.orangesoft.facebook
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.FragmentActivity
-import by.orangesoft.auth.firebase.credential.Firebase
+import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
 import by.orangesoft.auth.firebase.credential.controllers.BaseFirebaseCredentialController
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
@@ -14,7 +14,7 @@ import com.facebook.login.LoginResult
 import com.google.firebase.auth.*
 import kotlinx.coroutines.CancellationException
 
-class FacebookCredentialController: BaseFirebaseCredentialController(Firebase.Facebook) {
+class FacebookCredentialController: BaseFirebaseCredentialController(FirebaseAuthCredential.Facebook) {
 
     private val callbackFactory: CallbackManager by lazy { CallbackManager.Factory.create() }
 
@@ -25,9 +25,9 @@ class FacebookCredentialController: BaseFirebaseCredentialController(Firebase.Fa
                     emitAuthTask(FacebookAuthProvider.getCredential(result.accessToken.token))
                 }
 
-                override fun onCancel() { onError(CancellationException("Error add credential ${credential.providerId} cancelled by user")) }
+                override fun onCancel() { onError(CancellationException("Error add credential ${authCredential.providerId} cancelled by user")) }
 
-                override fun onError(error: FacebookException) { onError("Error add credential ${credential.providerId}", error) }
+                override fun onError(error: FacebookException) { onError("Error add credential ${authCredential.providerId}", error) }
             })
         }
     }

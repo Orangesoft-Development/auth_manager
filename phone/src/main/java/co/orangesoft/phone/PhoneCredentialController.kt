@@ -5,18 +5,17 @@ import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.FragmentActivity
 import by.orangesoft.auth.credentials.CredentialResult
-import by.orangesoft.auth.firebase.credential.Firebase
+import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
 import by.orangesoft.auth.firebase.credential.controllers.BaseFirebaseCredentialController
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.*
 import java.util.concurrent.TimeUnit
 
-class PhoneCredentialController(private val method: Firebase.Phone) :
-    BaseFirebaseCredentialController(method) {
+class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCredential.Phone): BaseFirebaseCredentialController(phoneAuthCredential) {
 
     private fun phoneSingInClient(activity: FragmentActivity) {
         val options = PhoneAuthOptions.newBuilder(authInstance)
-            .setPhoneNumber((credential as Firebase.Phone).phoneNumber)
+            .setPhoneNumber(phoneAuthCredential.phoneNumber)
             .setTimeout(60, TimeUnit.SECONDS)
             .setActivity(activity)
             .setCallbacks(object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
@@ -26,7 +25,7 @@ class PhoneCredentialController(private val method: Firebase.Phone) :
                     forceResendingToken: PhoneAuthProvider.ForceResendingToken
                 ) {
                     Log.i("!!!", "Code sent $verificationId")
-                    credential.onCodeSentListener?.invoke(verificationId, forceResendingToken)
+                    phoneAuthCredential.onCodeSentListener?.invoke(verificationId, forceResendingToken)
                 }
 
                 override fun onVerificationCompleted(credential: PhoneAuthCredential) {
@@ -44,7 +43,7 @@ class PhoneCredentialController(private val method: Firebase.Phone) :
                     super.onCodeAutoRetrievalTimeOut(p0)
                 }
             })
-        (method.forceResendingToken as? PhoneAuthProvider.ForceResendingToken)?.let {
+        (phoneAuthCredential.forceResendingToken as? PhoneAuthProvider.ForceResendingToken)?.let {
             options.setForceResendingToken(it)
         }
         PhoneAuthProvider.verifyPhoneNumber(options.build())
@@ -54,8 +53,8 @@ class PhoneCredentialController(private val method: Firebase.Phone) :
         activity: FragmentActivity,
         activityLauncher: ActivityResultLauncher<Intent>
     ) {
-        Log.i("!!!", "ClientId: ${(credential as Firebase.Phone).phoneNumber}")
-        if (method.verificationId == null) {
+        Log.i("!!!", "ClientId: ${phoneAuthCredential.phoneNumber}")
+        if (phoneAuthCredential.verificationId == null) {
             Log.i("!!!", "Create phone provider")
             phoneSingInClient(activity)
         }
@@ -66,7 +65,7 @@ class PhoneCredentialController(private val method: Firebase.Phone) :
             .addOnFailureListener { onError("Error update current credential", it) }
             .addOnSuccessListener {
                 user.getIdToken(false)
-                    .addOnSuccessListener { flow.tryEmit(CredentialResult(credential, it.token!!)) }
+                    .addOnSuccessListener { flow.tryEmit(CredentialResult(authCredential.provider)) }
                     .addOnFailureListener { onError("Error update current credential", it) }
             }
     }
@@ -75,8 +74,8 @@ class PhoneCredentialController(private val method: Firebase.Phone) :
 
     override fun getCredential() {
         if (!isActivityCallbackInitialised()) {
-            if (method.verificationId != null && method.code != null) {
-                val credential = PhoneAuthProvider.getCredential(method.verificationId!!, method.code!!)
+            if (phoneAuthCredential.verificationId != null && phoneAuthCredential.code != null) {
+                val credential = PhoneAuthProvider.getCredential(phoneAuthCredential.verificationId!!, phoneAuthCredential.code!!)
                 onAuthCompleted(credential)
             }
             return

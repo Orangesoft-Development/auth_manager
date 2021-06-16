@@ -3,7 +3,7 @@ package by.orangesoft.auth.firebase
 import android.content.Context
 import by.orangesoft.auth.credentials.*
 import by.orangesoft.auth.firebase.credential.CredentialsEnum
-import by.orangesoft.auth.firebase.credential.Firebase
+import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import dalvik.system.DexClassLoader
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -48,17 +48,17 @@ open class FirebaseCredentialsManager(appContext: Context, parentJob: Job? = nul
     }
 
     private fun newInstanceOfCredController(credentialsEnum: CredentialsEnum,
-                                            googleCredential: Firebase.Google? = null,
-                                            phoneCredential: Firebase.Phone? = null): IBaseCredentialController {
+                                            googleCredential: FirebaseAuthCredential.Google? = null,
+                                            phoneCredential: FirebaseAuthCredential.Phone? = null): IBaseCredentialController {
         val className = credPaths.firstOrNull { it == credentialsEnum.className } ?: throw UnsupportedOperationException("Method is not supported")
         val clazz: Class<*> = Class.forName(className)
         val o = when (className) {
             CredentialsEnum.GOOGLE.className -> {
-                clazz.getConstructor(Firebase.Google::class.java)
+                clazz.getConstructor(FirebaseAuthCredential.Google::class.java)
                     .newInstance(googleCredential)
             }
             CredentialsEnum.PHONE.className -> {
-                clazz.getConstructor(Firebase.Phone::class.java)
+                clazz.getConstructor(FirebaseAuthCredential.Phone::class.java)
                     .newInstance(phoneCredential)
             }
             else -> {
@@ -113,10 +113,10 @@ open class FirebaseCredentialsManager(appContext: Context, parentJob: Job? = nul
         override fun createCredential(): IBaseCredentialController {
 
             return when (credential) {
-                is Firebase.Apple -> newInstanceOfCredController(CredentialsEnum.APPLE)
-                is Firebase.Google -> newInstanceOfCredController(CredentialsEnum.GOOGLE, googleCredential = credential)
-                is Firebase.Facebook -> newInstanceOfCredController(CredentialsEnum.FACEBOOK)
-                is Firebase.Phone -> newInstanceOfCredController(CredentialsEnum.PHONE, phoneCredential = credential)
+                is FirebaseAuthCredential.Apple -> newInstanceOfCredController(CredentialsEnum.APPLE)
+                is FirebaseAuthCredential.Google -> newInstanceOfCredController(CredentialsEnum.GOOGLE, googleCredential = credential)
+                is FirebaseAuthCredential.Facebook -> newInstanceOfCredController(CredentialsEnum.FACEBOOK)
+                is FirebaseAuthCredential.Phone -> newInstanceOfCredController(CredentialsEnum.PHONE, phoneCredential = credential)
                 else -> throw UnsupportedOperationException("Method $credential is not supported")
             }
         }

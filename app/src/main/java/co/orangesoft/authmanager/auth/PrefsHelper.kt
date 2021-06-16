@@ -2,11 +2,12 @@ package co.orangesoft.authmanager.auth
 
 import android.content.Context
 import android.content.SharedPreferences
-import by.orangesoft.auth.credentials.AuthCredential
+import by.orangesoft.auth.credentials.BaseAuthCredential
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
 import androidx.preference.PreferenceManager;
+import by.orangesoft.auth.credentials.CredentialResult
 
 
 class PrefsHelper(private val appContext: Context?) {
@@ -35,13 +36,13 @@ class PrefsHelper(private val appContext: Context?) {
         } ?: ""
     }
 
-    fun addCredential(credential: AuthCredential) {
+    fun addCredential(credential: BaseAuthCredential) {
         appContext?.let {
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(it)
             val credentials = getCredentials().toMutableList()
 
-            if (!credentials.any { it.providerId == credential.providerId }) {
-                credentials.add(credential)
+            if (credentials.none { credentialResult -> credentialResult.providerId == credential.providerId }) {
+                credentials.add(CredentialResult(credential.providerId))
                 val edit: SharedPreferences.Editor = sharedPreferences.edit()
                 val jsonCredentials = gson.toJson(credentials)
                 edit.putString(CREDENTIALS_PREF, jsonCredentials)
@@ -50,7 +51,7 @@ class PrefsHelper(private val appContext: Context?) {
         }
     }
 
-    fun removeCredential(credential: AuthCredential) {
+    fun removeCredential(credential: BaseAuthCredential) {
         appContext?.let { context ->
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
             val credentials = getCredentials().toMutableList()
@@ -65,15 +66,15 @@ class PrefsHelper(private val appContext: Context?) {
         }
     }
 
-    fun getCredentials(): List<AuthCredential> {
+    fun getCredentials(): List<CredentialResult> {
         return appContext?.let {
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(it)
             sharedPreferences.getString(CREDENTIALS_PREF, "")
 
-            var arrayItems: List<AuthCredential> = listOf()
+            var arrayItems: List<CredentialResult> = listOf()
             val serializedObject = sharedPreferences.getString(CREDENTIALS_PREF, null)
             if (serializedObject != null) {
-                val type: Type = object : TypeToken<List<AuthCredential?>?>() {}.type
+                val type: Type = object : TypeToken<List<CredentialResult?>?>() {}.type
                 arrayItems = gson.fromJson(serializedObject, type)
             }
             arrayItems
