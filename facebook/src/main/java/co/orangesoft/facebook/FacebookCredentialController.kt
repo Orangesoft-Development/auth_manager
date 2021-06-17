@@ -22,7 +22,7 @@ class FacebookCredentialController: BaseFirebaseCredentialController(FirebaseAut
         LoginManager.getInstance().apply {
             registerCallback(callbackFactory, object : FacebookCallback<LoginResult> {
                 override fun onSuccess(result: LoginResult) {
-                    activityCallback = getAuthTask(FacebookAuthProvider.getCredential(result.accessToken.token))
+                    emitAuthTask(FacebookAuthProvider.getCredential(result.accessToken.token))
                     getCredential()
                 }
 
