@@ -8,9 +8,7 @@ import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.tasks.await
 import java.lang.NullPointerException
 import kotlin.coroutines.CoroutineContext
@@ -19,15 +17,14 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
 
     protected val authInstance: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
-    protected lateinit var activityCallback: Task<AuthResult>
-
-    private var flow: MutableSharedFlow<CredentialResult> = MutableSharedFlow(1, 1)
+    private var credResultFlow: MutableSharedFlow<CredentialResult> = MutableSharedFlow(1, 1)
+    protected var authTaskFlow: MutableSharedFlow<Task<AuthResult>?> = MutableSharedFlow(1, 1)
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO + Job()
 
     override fun addCredential() : Flow<CredentialResult> {
         getCredential()
-        return flow.asSharedFlow()
+        return credResultFlow.asSharedFlow()
     }
 
     override fun removeCredential(): Job {
@@ -50,38 +47,31 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
         coroutineContext.job.cancel(message, cause)
     }
 
-    protected fun getAuthTask(credential: AuthCredential): Task<AuthResult> =
-        authInstance.currentUser?.let { currentUser ->
-            if(!currentUser.isAnonymous)
-                currentUser.linkWithCredential(credential)
-            else null
-        } ?: authInstance.signInWithCredential(credential)
+    protected fun emitAuthTask(credential: AuthCredential) {
+        authTaskFlow.tryEmit(authInstance.currentUser?.let { currentUser ->
+            val authTask = if (!currentUser.isAnonymous) currentUser.linkWithCredential(credential) else null
+            authTask
+        } ?: authInstance.signInWithCredential(credential))
+    }
 
 
     protected fun getCredential() {
         authInstance.currentUser?.let { user ->
             user.providerData.firstOrNull { it.providerId == authCredential.providerId }?.let {
-                user.getIdToken(true)
-                    .addOnSuccessListener { flow.tryEmit(CredentialResult(authCredential.providerId)) }
-                    .addOnFailureListener {
-                        authInstance.signOut()
-                        onError("Error add credential ${authCredential.providerId}", it)
-                    }
-                return
+                credResultFlow.tryEmit(CredentialResult(authCredential.providerId))
             }
+            return
         }
 
-        if(::activityCallback.isInitialized)
-            activityCallback
-                .addOnSuccessListener { result ->
-                    result.user?.getIdToken(true)
-                        ?.addOnSuccessListener { flow.tryEmit(CredentialResult(authCredential.providerId)) }
-                        ?.addOnFailureListener {
-                            authInstance.signOut()
-                            onError("Error add credential ${authCredential.providerId}", it)
-                        } ?: onError("Error add credential ${authCredential.providerId}", NullPointerException("Firebase user is null"))
-                }
-                .addOnFailureListener { onError("Error add credential ${authCredential.providerId}", it) }
-
+        authTaskFlow.onEach { task ->
+            task?.addOnSuccessListener {
+               credResultFlow.tryEmit(CredentialResult(authCredential.providerId))
+            }?.addOnFailureListener {
+                authInstance.signOut()
+                onError("Error add credential ${authCredential.providerId}", it)
+            } ?: onError("Error add credential ${authCredential.providerId}", NullPointerException("Auth task is null"))
+        }.catch {
+            onError("Error add credential ${authCredential.providerId}", it)
+        }
     }
 }

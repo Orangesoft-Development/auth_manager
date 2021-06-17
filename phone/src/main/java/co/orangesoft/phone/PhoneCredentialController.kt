@@ -29,7 +29,7 @@ class PhoneCredentialController(phoneAuthCredential: FirebaseAuthCredential.Phon
 
                 override fun onVerificationCompleted(credential: PhoneAuthCredential) {
                     Log.e("!!!", credential.smsCode)
-                    activityCallback = getAuthTask(credential)
+                    emitAuthTask(credential)
                     getCredential()
                 }
 
