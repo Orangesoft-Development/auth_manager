@@ -76,15 +76,4 @@ class SimpleUserController(private val appContext: Context? = null,
             }
         }
     }
-
-    override suspend fun saveChanges() {
-        (profile as? SimpleProfile)?.let { profile ->
-            profileService?.patchSimpleProfile(getAccessToken(), profile)?.apply {
-                val simpleProfile = body()
-                if (isSuccessful && simpleProfile != null) {
-                    prefsHelper.saveProfile(simpleProfile)
-                }
-            }
-        }
-    }
 }

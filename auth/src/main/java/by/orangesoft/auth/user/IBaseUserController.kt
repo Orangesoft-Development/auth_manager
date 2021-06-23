@@ -19,9 +19,6 @@ interface IBaseUserController<P> {
     @Throws(Throwable::class)
     suspend fun updateAccount(profile: P)
 
-    @Throws(Throwable::class)
-    suspend fun saveChanges()
-
 
 
 

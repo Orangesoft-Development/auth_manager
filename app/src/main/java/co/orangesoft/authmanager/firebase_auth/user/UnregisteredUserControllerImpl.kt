@@ -23,11 +23,6 @@ class UnregisteredUserControllerImpl(firebaseInstance: FirebaseAuth): FirebaseUs
     override suspend fun getAccessToken() = ""
 
     @Throws(Throwable::class)
-    override suspend fun saveChanges() {
-        //do nothing
-    }
-
-    @Throws(Throwable::class)
     override suspend fun updateAvatar(file: File) {
         //do nothing
     }
