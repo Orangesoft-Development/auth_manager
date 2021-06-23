@@ -7,6 +7,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.tasks.await
@@ -57,21 +58,33 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
 
     protected fun getCredential() {
         authInstance.currentUser?.let { user ->
-            user.providerData.firstOrNull { it.providerId == authCredential.providerId }?.let {
-                credResultFlow.tryEmit(CredentialResult(authCredential.providerId))
+            getToken(user) { token ->
+                user.providerData.firstOrNull { it.providerId == authCredential.providerId }?.let {
+                    credResultFlow.tryEmit(CredentialResult(authCredential.providerId, token))
+                }
             }
             return
         }
 
         authTaskFlow.onEach { task ->
             task?.addOnSuccessListener {
-               credResultFlow.tryEmit(CredentialResult(authCredential.providerId))
+                getToken(it.user) { token ->
+                   credResultFlow.tryEmit(CredentialResult(authCredential.providerId, token))
+               }
             }?.addOnFailureListener {
                 authInstance.signOut()
                 onError("Error add credential ${authCredential.providerId}", it)
             } ?: onError("Error add credential ${authCredential.providerId}", NullPointerException("Auth task is null"))
         }.catch {
             onError("Error add credential ${authCredential.providerId}", it)
+        }
+    }
+
+    private fun getToken(user: FirebaseUser?, onSuccessListener: (String) -> Unit) {
+        user?.getIdToken(true)?.addOnSuccessListener {
+            onSuccessListener.invoke(it.token ?: "")
+        }?.addOnFailureListener {
+            authInstance.signOut()
         }
     }
 }
