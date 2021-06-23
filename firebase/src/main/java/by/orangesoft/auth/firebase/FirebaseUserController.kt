@@ -51,14 +51,6 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
     }
 
     @Throws(Throwable::class)
-    override suspend fun saveChanges() {
-        firebaseInstance.currentUser?.let {
-            firebaseInstance.updateCurrentUser(it).await()
-            _credentials.value = firebaseInstance.getCredentials()
-        }
-    }
-
-    @Throws(Throwable::class)
     override suspend fun updateAvatar(file: File) {
         firebaseInstance.currentUser?.apply {
             updateProfile(UserProfileChangeRequest.Builder()

@@ -34,9 +34,10 @@ class SimplePhoneCredentialController(private val appContext: Context,
             launch {
                 authService.createPhoneToken(PhoneCredentialRequestBody(authCredential.phone, authCredential.code, prefsHelper.getProfile()?.id))
                     .apply {
-                        prefsHelper.saveToken(if (isSuccessful) body() ?: "" else "")
+                        val token = if (isSuccessful) body() ?: "" else ""
+                        prefsHelper.saveToken(token)
                         prefsHelper.addCredential(authCredential)
-                        flow.tryEmit(CredentialResult(authCredential.providerId))
+                        flow.tryEmit(CredentialResult(authCredential.providerId, token))
                     }
             }
         }

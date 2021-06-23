@@ -5,10 +5,11 @@ import com.google.firebase.auth.FirebaseAuth
 
 data class FirebaseCredentialResult(val uid: String,
                                     override val providerId: String,
+                                    override val token: String,
                                     var displayName: String = "",
                                     var photoUrl: String = "",
                                     var email: String = "",
-                                    var phoneNumber: String = "") : CredentialResult(providerId) {
+                                    var phoneNumber: String = "") : CredentialResult(providerId, token) {
 
     override fun equals(other: Any?): Boolean =
         when(other) {

@@ -52,8 +52,6 @@ internal class CredentialManager(
                 val profileName = profile.displayName ?: "*"
                 Account(profileName, accountType).also {
                     accountManager.addAccountExplicitly(it, accountPassword, loginResponse.toBundle(firebaseInstance.currentUser?.uid))
-                    accountManager.setAuthToken(it, "refresh", loginResponse.refreshToken)
-                    accountManager.setAuthToken(it, "access", loginResponse.accessToken)
                 }
             }
 
