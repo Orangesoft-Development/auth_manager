@@ -4,11 +4,18 @@ import android.content.Intent
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.FragmentActivity
-import by.orangesoft.auth.credentials.CredentialResult
 import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
+import by.orangesoft.auth.firebase.credential.UpdateCredAuthResult
 import by.orangesoft.auth.firebase.credential.controllers.BaseFirebaseCredentialController
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.TaskCompletionSource
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.FirebaseException
-import com.google.firebase.auth.*
+import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
 import java.util.concurrent.TimeUnit
 
 class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCredential.Phone): BaseFirebaseCredentialController(phoneAuthCredential) {
@@ -61,15 +68,10 @@ class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCre
         }
     }
 
-    override fun updateCurrentCredential(user: FirebaseUser, authCredential: AuthCredential) {
-//        user.updatePhoneNumber(authCredential as PhoneAuthCredential)
-//            .addOnFailureListener { onError("Error update current credential", it) }
-//            .addOnSuccessListener {
-//                user.getIdToken(false)
-//                    .addOnSuccessListener { flow.tryEmit(CredentialResult(authCredential.provider)) }
-//                    .addOnFailureListener { onError("Error update current credential", it) }
-//            }
-    }
+    //TODO update deprecated method
+    override fun updateCurrentCredential(user: FirebaseUser, authCredential: AuthCredential): Task<UpdateCredAuthResult> =
+        user.updatePhoneNumber(authCredential as PhoneAuthCredential)
+            .continueWithTask { Tasks.call { UpdateCredAuthResult(user, authCredential) } }
 
     override fun onActivityResult(code: Int, data: Intent?) {}
 

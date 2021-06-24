@@ -3,7 +3,9 @@ package by.orangesoft.auth.firebase.credential.controllers
 import by.orangesoft.auth.credentials.CredentialResult
 import by.orangesoft.auth.credentials.IBaseCredentialController
 import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
+import by.orangesoft.auth.firebase.credential.UpdateCredAuthResult
 import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
@@ -18,7 +20,7 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
     protected val authInstance: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
     private var credResultFlow: MutableSharedFlow<CredentialResult> = MutableSharedFlow(1, 1)
-    protected var authTaskFlow: MutableSharedFlow<Task<AuthResult>> = MutableSharedFlow(1, 1)
+    protected var authTaskFlow: MutableSharedFlow<Task<out AuthResult>> = MutableSharedFlow(1, 1)
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO + Job()
 
@@ -49,7 +51,7 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
 
     protected fun emitAuthTask(credential: AuthCredential) {
         authTaskFlow.tryEmit(authInstance.currentUser?.let { currentUser ->
-            val authTask = if (!currentUser.isAnonymous) currentUser.linkWithCredential(credential) else TODO("continue with task")
+            val authTask = if (!currentUser.isAnonymous) currentUser.linkWithCredential(credential) else updateCurrentCredential(currentUser, credential)
             authTask
         } ?: authInstance.signInWithCredential(credential))
     }
@@ -78,6 +80,8 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
         return user.getIdToken(true).await().token ?: throw KotlinNullPointerException("Token must not be null")
     }
 
-    protected open fun updateCurrentCredential(user: FirebaseUser, authCredential: AuthCredential): {}
+    //TODO update deprecated method
+    protected open fun updateCurrentCredential(user: FirebaseUser, authCredential: AuthCredential) : Task<UpdateCredAuthResult> =
+        Tasks.call { UpdateCredAuthResult(user, authCredential) }
 
 }
