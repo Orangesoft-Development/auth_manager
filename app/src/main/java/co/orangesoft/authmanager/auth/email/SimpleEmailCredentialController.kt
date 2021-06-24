@@ -35,9 +35,10 @@ class SimpleEmailCredentialController(private val appContext: Context,
                 Log.e("TAG","Controller thred:${Thread.currentThread()}")
                 authService.createEmailToken(EmailCredentialRequestBody(authCredential.email, authCredential.password, prefsHelper.getProfile()?.id))
                     .apply {
-                        prefsHelper.saveToken(if (isSuccessful) body() ?: "" else "")
+                        val token = if (isSuccessful) body() ?: "" else ""
+                        prefsHelper.saveToken(token)
                         prefsHelper.addCredential(authCredential)
-                        flow.tryEmit(CredentialResult(authCredential.providerId))
+                        flow.tryEmit(CredentialResult(authCredential.providerId, token))
                     }
             }
         }

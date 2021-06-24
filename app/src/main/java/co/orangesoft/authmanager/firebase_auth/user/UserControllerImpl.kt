@@ -40,18 +40,6 @@ class UserControllerImpl(
     override val coroutineContext: CoroutineContext = Dispatchers.IO
 
     @Throws(Throwable::class)
-    override suspend fun saveChanges() {
-        (profile as? Profile)?.let { profile ->
-            profileService.patchProfile(getAccessToken(), profile).apply {
-                val newProfile = body()
-                if (isSuccessful && newProfile != null) {
-                    super.updateAccount(newProfile)
-                }
-            }
-        }
-    }
-
-    @Throws(Throwable::class)
     override suspend fun updateAvatar(file: File) {
         (profile as? Profile)?.let { profile ->
             profileService.postProfileAvatar(
@@ -90,5 +78,10 @@ class UserControllerImpl(
                 }
             }
         }
+    }
+
+    override suspend fun setAccessToken(accessToken: String) {
+        super.setAccessToken(accessToken)
+        accountManager.setAuthToken(account, "access", accessToken)
     }
 }

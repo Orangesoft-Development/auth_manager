@@ -23,6 +23,7 @@ class FacebookCredentialController: BaseFirebaseCredentialController(FirebaseAut
             registerCallback(callbackFactory, object : FacebookCallback<LoginResult> {
                 override fun onSuccess(result: LoginResult) {
                     emitAuthTask(FacebookAuthProvider.getCredential(result.accessToken.token))
+                    getCredential()
                 }
 
                 override fun onCancel() { onError(CancellationException("Error add credential ${authCredential.providerId} cancelled by user")) }

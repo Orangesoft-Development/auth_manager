@@ -18,11 +18,11 @@ class AppleCredentialController: BaseFirebaseCredentialController(FirebaseAuthCr
     }
 
     override fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {
-        activityCallback = authInstance.currentUser?.let { currentUser ->
-            if (!currentUser.isAnonymous && currentUser.providerData.size > 1)
-                currentUser.startActivityForLinkWithProvider(activity, appleSingInClient)
-            else null
-        } ?: authInstance.startActivityForSignInWithProvider(activity, appleSingInClient)
+        authTaskFlow.tryEmit(authInstance.currentUser?.let { currentUser ->
+            val authTask = if (!currentUser.isAnonymous && currentUser.providerData.size > 1)
+                currentUser.startActivityForLinkWithProvider(activity, appleSingInClient) else null
+             authTask
+         } ?: authInstance.startActivityForSignInWithProvider(activity, appleSingInClient))
     }
 
     override fun onActivityResult(code: Int, data: Intent?) {}

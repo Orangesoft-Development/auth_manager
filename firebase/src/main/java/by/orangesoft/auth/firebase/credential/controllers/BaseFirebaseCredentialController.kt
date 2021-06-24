@@ -9,27 +9,22 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.tasks.await
-import java.lang.NullPointerException
 import kotlin.coroutines.CoroutineContext
 
 abstract class BaseFirebaseCredentialController(override val authCredential: FirebaseAuthCredential): IBaseCredentialController, CoroutineScope {
 
     protected val authInstance: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
-    protected lateinit var activityCallback: Task<AuthResult>
-    protected fun isActivityCallbackInitialised() = ::activityCallback.isInitialized
-
-    protected var flow: MutableSharedFlow<CredentialResult> = MutableSharedFlow(1, 1)
+    private var credResultFlow: MutableSharedFlow<CredentialResult> = MutableSharedFlow(1, 1)
+    protected var authTaskFlow: MutableSharedFlow<Task<AuthResult>> = MutableSharedFlow(1, 1)
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO + Job()
 
     override fun addCredential() : Flow<CredentialResult> {
         getCredential()
-        return flow.asSharedFlow()
+        return credResultFlow.asSharedFlow()
     }
 
     override fun removeCredential(): Job {
@@ -52,44 +47,37 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
         coroutineContext.job.cancel(message, cause)
     }
 
-    protected fun emitAuthTask(credential: AuthCredential) = getAuthTask(credential)?.let { getCredential() }
-
-    protected open fun getCredential() {
-        authInstance.currentUser?.let { user ->
-            user.providerData.firstOrNull { it.providerId == authCredential.providerId }?.let {
-                user.getIdToken(true)
-                    .addOnSuccessListener { flow.tryEmit(CredentialResult(authCredential.providerId)) }
-                    .addOnFailureListener {
-                        authInstance.signOut()
-                        onError("Error add credential ${authCredential.providerId}", it)
-                    }
-                return
-            }
-        }
-
-        if (::activityCallback.isInitialized)
-            activityCallback
-                .addOnSuccessListener { result ->
-                    result.user?.getIdToken(true)
-                        ?.addOnSuccessListener { flow.tryEmit(CredentialResult(authCredential.providerId)) }
-                        ?.addOnFailureListener {
-                            authInstance.signOut()
-                            onError("Error add credential ${authCredential.providerId}", it)
-                        } ?: onError("Error add credential ${authCredential.providerId}", NullPointerException("Firebase user is null"))
-                }
-                .addOnFailureListener { onError("Error add credential ${authCredential.providerId}", it) }
+    protected fun emitAuthTask(credential: AuthCredential) {
+        authTaskFlow.tryEmit(authInstance.currentUser?.let { currentUser ->
+            val authTask = if (!currentUser.isAnonymous) currentUser.linkWithCredential(credential) else TODO("continue with task")
+            authTask
+        } ?: authInstance.signInWithCredential(credential))
     }
 
-    protected open fun updateCurrentCredential(user: FirebaseUser, authCredential: AuthCredential) {}
 
-    private fun getAuthTask(credential: AuthCredential): Task<AuthResult>? =
-        authInstance.currentUser?.let { currentUser ->
-            if (!currentUser.isAnonymous) {
-                currentUser.providerData.firstOrNull { it.providerId == authCredential.providerId }?.let {
-                    updateCurrentCredential(currentUser, credential)
-                    return null
-                } ?: currentUser.linkWithCredential(credential)
-            } else null
-        } ?: authInstance.signInWithCredential(credential)
+    protected open fun getCredential() {
+        launch {
+            authInstance.currentUser?.let { user ->
+                user.providerData.firstOrNull { it.providerId == authCredential.providerId }?.let {
+                    credResultFlow.tryEmit(CredentialResult(authCredential.providerId, getToken(user)))
+                }
+                return@launch
+            }
+
+            authTaskFlow.onEach { task ->
+                credResultFlow.tryEmit(CredentialResult(authCredential.providerId, getToken(task.await().user
+                                                                                                ?: throw KotlinNullPointerException("FirebaseUser cannot be null"))))
+            }.catch {
+                onError("Error add credential ${authCredential.providerId}", it)
+                authInstance.signOut()
+            }.launchIn(this)
+        }
+    }
+
+    private suspend fun getToken(user: FirebaseUser): String {
+        return user.getIdToken(true).await().token ?: throw KotlinNullPointerException("Token must not be null")
+    }
+
+    protected open fun updateCurrentCredential(user: FirebaseUser, authCredential: AuthCredential): {}
 
 }

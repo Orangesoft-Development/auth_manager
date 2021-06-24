@@ -30,7 +30,8 @@ class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCre
 
                 override fun onVerificationCompleted(credential: PhoneAuthCredential) {
                     Log.i("!!!", "Verification completed: ${credential.smsCode}")
-                    onAuthCompleted(credential)
+                    emitAuthTask(credential)
+                    getCredential()
                 }
 
                 override fun onVerificationFailed(p0: FirebaseException) {
@@ -61,32 +62,23 @@ class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCre
     }
 
     override fun updateCurrentCredential(user: FirebaseUser, authCredential: AuthCredential) {
-        user.updatePhoneNumber(authCredential as PhoneAuthCredential)
-            .addOnFailureListener { onError("Error update current credential", it) }
-            .addOnSuccessListener {
-                user.getIdToken(false)
-                    .addOnSuccessListener { flow.tryEmit(CredentialResult(authCredential.provider)) }
-                    .addOnFailureListener { onError("Error update current credential", it) }
-            }
+//        user.updatePhoneNumber(authCredential as PhoneAuthCredential)
+//            .addOnFailureListener { onError("Error update current credential", it) }
+//            .addOnSuccessListener {
+//                user.getIdToken(false)
+//                    .addOnSuccessListener { flow.tryEmit(CredentialResult(authCredential.provider)) }
+//                    .addOnFailureListener { onError("Error update current credential", it) }
+//            }
     }
 
     override fun onActivityResult(code: Int, data: Intent?) {}
 
     override fun getCredential() {
-        if (!isActivityCallbackInitialised()) {
-            if (phoneAuthCredential.verificationId != null && phoneAuthCredential.code != null) {
-                val credential = PhoneAuthProvider.getCredential(phoneAuthCredential.verificationId!!, phoneAuthCredential.code!!)
-                onAuthCompleted(credential)
-            }
-            return
-        }
-        super.getCredential()
-    }
-
-    private fun onAuthCompleted(credential: PhoneAuthCredential) {
-        if (!isActivityCallbackInitialised()) {
+        if (phoneAuthCredential.verificationId != null && phoneAuthCredential.code != null) {
+            val credential = PhoneAuthProvider.getCredential(phoneAuthCredential.verificationId!!, phoneAuthCredential.code!!)
             emitAuthTask(credential)
         }
+        super.getCredential()
     }
 
 }

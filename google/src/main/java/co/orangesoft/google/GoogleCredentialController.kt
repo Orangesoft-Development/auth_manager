@@ -31,6 +31,7 @@ class GoogleCredentialController(method: FirebaseAuthCredential.Google): BaseFir
         GoogleSignIn.getSignedInAccountFromIntent(data).apply {
             addOnSuccessListener { account ->
                 emitAuthTask(GoogleAuthProvider.getCredential(account.idToken, null))
+                getCredential()
             }
             addOnFailureListener { onError("Error add credential ${authCredential.providerId}", it) }
         }

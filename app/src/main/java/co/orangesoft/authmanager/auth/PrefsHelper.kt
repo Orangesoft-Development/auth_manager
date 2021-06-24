@@ -42,7 +42,7 @@ class PrefsHelper(private val appContext: Context?) {
             val credentials = getCredentials().toMutableList()
 
             if (credentials.none { credentialResult -> credentialResult.providerId == credential.providerId }) {
-                credentials.add(CredentialResult(credential.providerId))
+                credentials.add(CredentialResult(credential.providerId, getToken()))
                 val edit: SharedPreferences.Editor = sharedPreferences.edit()
                 val jsonCredentials = gson.toJson(credentials)
                 edit.putString(CREDENTIALS_PREF, jsonCredentials)
