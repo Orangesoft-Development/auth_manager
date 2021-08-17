@@ -47,6 +47,6 @@ class AuthManager(credManager:FirebaseCredentialsManager,
     init {
         currentUser.onEach {
             _status.value = if(it.credentials.value.isEmpty()) UserStatus.UNREGISTERED else UserStatus.REGISTERED
-        }
+        }.launchIn(this)
     }
 }
