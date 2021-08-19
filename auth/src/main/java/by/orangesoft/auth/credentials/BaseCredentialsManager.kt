@@ -2,16 +2,15 @@ package by.orangesoft.auth.credentials
 
 import android.util.Log
 import androidx.fragment.app.FragmentActivity
-import by.orangesoft.auth.user.IBaseUserController
+import by.orangesoft.auth.user.BaseUserController
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.Throws
 
 @InternalCoroutinesApi
-abstract class BaseCredentialsManager<T: IBaseUserController<*>> (parentJob: Job? = null): CoroutineScope, IBaseCredentialsManager<T> {
+abstract class BaseCredentialsManager<T: BaseUserController<*>> (parentJob: Job? = null): CoroutineScope, IBaseCredentialsManager<T> {
 
     companion object {
         const val TAG = "CredentialsController"
