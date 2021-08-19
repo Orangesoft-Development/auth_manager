@@ -3,7 +3,7 @@ package by.orangesoft.auth.firebase
 import android.net.Uri
 import by.orangesoft.auth.firebase.credential.FirebaseCredentialResult
 import by.orangesoft.auth.firebase.credential.getCredentials
-import by.orangesoft.auth.user.IBaseUserController
+import by.orangesoft.auth.user.BaseUserController
 import by.orangesoft.auth.user.ITokenController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
@@ -13,7 +13,7 @@ import kotlinx.coroutines.tasks.await
 import java.io.File
 import kotlin.jvm.Throws
 
-open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) : IBaseUserController<FirebaseProfile>, ITokenController {
+class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) : BaseUserController<FirebaseProfile>(), ITokenController {
 
     companion object {
         const val TAG = "FirebaseUserController"
@@ -51,16 +51,6 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
     }
 
     @Throws(Throwable::class)
-    override suspend fun updateAvatar(file: File) {
-        firebaseInstance.currentUser?.apply {
-            updateProfile(UserProfileChangeRequest.Builder()
-                    .setPhotoUri(Uri.fromFile(file))
-                    .build())
-                 .await()
-        }
-    }
-
-    @Throws(Throwable::class)
     override suspend fun updateAccount(profile: FirebaseProfile) {
         firebaseInstance.currentUser?.apply {
             updateProfile(UserProfileChangeRequest.Builder()
@@ -68,6 +58,16 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
                     .setDisplayName(profile.displayName)
                     .build())
                  .await()
+        }
+    }
+
+    @Throws(Throwable::class)
+    override suspend fun updateAvatar(file: File) {
+        firebaseInstance.currentUser?.apply {
+            updateProfile(UserProfileChangeRequest.Builder()
+                .setPhotoUri(Uri.fromFile(file))
+                .build())
+                .await()
         }
     }
 
@@ -85,7 +85,7 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
                         it.providerId,
                         it.displayName,
                         it.phoneNumber,
-                        it.photoUrl.toString(),
+                        it.photoUrl?.toString(),
                         it.email)
             }
 
