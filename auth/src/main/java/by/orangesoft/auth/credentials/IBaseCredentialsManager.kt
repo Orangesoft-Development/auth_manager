@@ -1,13 +1,12 @@
 package by.orangesoft.auth.credentials
 
 import androidx.fragment.app.FragmentActivity
-import by.orangesoft.auth.user.IBaseUserController
-import kotlinx.coroutines.CoroutineScope
+import by.orangesoft.auth.user.BaseUserController
 import kotlinx.coroutines.flow.Flow
 import java.lang.UnsupportedOperationException
 import kotlin.jvm.Throws
 
-interface IBaseCredentialsManager<T: IBaseUserController<*>>  {
+interface IBaseCredentialsManager<T: BaseUserController<*>>  {
 
     /**
      * @param user if null - login process

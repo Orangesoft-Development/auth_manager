@@ -4,13 +4,13 @@ import androidx.fragment.app.FragmentActivity
 import by.orangesoft.auth.credentials.BaseAuthCredential
 import by.orangesoft.auth.credentials.IBaseCredential
 import by.orangesoft.auth.credentials.BaseCredentialsManager
-import by.orangesoft.auth.user.IBaseUserController
+import by.orangesoft.auth.user.BaseUserController
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlin.coroutines.CoroutineContext
 
 @InternalCoroutinesApi
-abstract class BaseAuthManager<T: IBaseUserController<*>, C: BaseCredentialsManager<T>>(protected val credentialsManager: C, parentJob: Job? = null): IAuthManager<T>, CoroutineScope {
+abstract class BaseAuthManager<T: BaseUserController<*>, C: BaseCredentialsManager<T>>(protected val credentialsManager: C, parentJob: Job? = null): IAuthManager<T>, CoroutineScope {
 
     protected abstract val user: MutableStateFlow<T>
 

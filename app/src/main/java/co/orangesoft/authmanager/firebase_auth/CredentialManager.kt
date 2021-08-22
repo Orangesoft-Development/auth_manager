@@ -14,6 +14,7 @@ import co.orangesoft.authmanager.firebase_auth.phone_auth.PhoneAuthCredential
 import co.orangesoft.authmanager.firebase_auth.phone_auth.PhoneCredentialController
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 @InternalCoroutinesApi
 internal class CredentialManager(
@@ -43,6 +44,7 @@ internal class CredentialManager(
             }
             UserControllerImpl(firebaseInstance, accountManager, account, profileService)
         } ?: UnregisteredUserControllerImpl(firebaseInstance)
+
     }
 
     override suspend fun onLogged(credentialResult: CredentialResult): FirebaseUserController {
@@ -55,7 +57,7 @@ internal class CredentialManager(
                 }
             }
 
-            updateAccount(profile)
+            updateProfileAccount(profile)
         }
     }
 

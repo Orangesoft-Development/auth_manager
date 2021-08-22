@@ -9,7 +9,7 @@ import by.orangesoft.auth.BaseAuthManager
 import by.orangesoft.auth.credentials.BaseAuthCredential
 import by.orangesoft.auth.firebase.FirebaseUserController
 import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
-import by.orangesoft.auth.user.IBaseUserController
+import by.orangesoft.auth.user.BaseUserController
 import co.orangesoft.authmanager.auth.SimpleAuthManager
 import co.orangesoft.authmanager.auth.email.EmailAuthCredential
 import co.orangesoft.authmanager.auth.phone.SimplePhoneAuthCredential
@@ -99,7 +99,7 @@ class MainActivity : FragmentActivity() {
 
     private fun initCallbacks(authManager: BaseAuthManager<*,*>) {
 
-        val loginSuccessListener: (IBaseUserController<*>) -> Unit  = {
+        val loginSuccessListener: (BaseUserController<*>) -> Unit  = {
             val resultCreds = authManager.currentUser.value.credentials.value
             binding.resultCredentials.text = if (resultCreds.isNotEmpty())
                 resultCreds.toString()
