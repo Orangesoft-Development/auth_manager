@@ -14,6 +14,7 @@ import co.orangesoft.authmanager.firebase_auth.phone_auth.PhoneAuthCredential
 import co.orangesoft.authmanager.firebase_auth.phone_auth.PhoneCredentialController
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 
 @InternalCoroutinesApi
@@ -56,8 +57,7 @@ internal class CredentialManager(
                     accountManager.addAccountExplicitly(it, accountPassword, loginResponse.toBundle(firebaseInstance.currentUser?.uid))
                 }
             }
-
-            updateProfileAccount(profile)
+            updateProfileAccount(profile).launchIn(this@CredentialManager)
         }
     }
 

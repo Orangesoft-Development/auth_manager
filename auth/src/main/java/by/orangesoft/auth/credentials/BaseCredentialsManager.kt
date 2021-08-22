@@ -9,7 +9,6 @@ import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.Throws
 
-@InternalCoroutinesApi
 abstract class BaseCredentialsManager<T: BaseUserController<*>> (parentJob: Job? = null): CoroutineScope, IBaseCredentialsManager<T> {
 
     companion object {

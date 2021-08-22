@@ -12,9 +12,7 @@ import co.orangesoft.authmanager.auth.phone.SimplePhoneAuthCredential
 import co.orangesoft.authmanager.auth.phone.SimplePhoneCredentialController
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.launchIn
 import kotlin.jvm.Throws
 
 @InternalCoroutinesApi
@@ -28,7 +26,7 @@ class SimpleCredentialManager(private val appContext: Context,
     @Throws(Throwable::class)
     override suspend fun onLogged(credentialResult: CredentialResult): SimpleUserController {
         authService.login(credentialResult)
-        return getCurrentUser().apply { updateAccount(profile) }
+        return getCurrentUser().apply { updateProfileAccount(profile).launchIn(this@SimpleCredentialManager) }
     }
 
     override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: SimpleUserController) {
