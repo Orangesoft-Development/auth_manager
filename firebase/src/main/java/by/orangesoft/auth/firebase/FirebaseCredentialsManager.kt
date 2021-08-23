@@ -82,7 +82,7 @@ open class FirebaseCredentialsManager(appContext: Context, parentJob: Job? = nul
     fun signInAnonymously(): Flow<FirebaseUserController> {
         launch {
             firebaseInstance.signInAnonymously().await()
-            userSharedFlow.tryEmit(getCurrentUser())
+            emitCurrentUser()
         }
 
         return userSharedFlow.asSharedFlow()
@@ -91,11 +91,13 @@ open class FirebaseCredentialsManager(appContext: Context, parentJob: Job? = nul
     @Throws(Throwable::class)
     override suspend fun logout(user: FirebaseUserController) {
         firebaseInstance.signOut()
+        emitCurrentUser()
     }
 
     @Throws(Throwable::class)
     override suspend fun deleteUser(user: FirebaseUserController) {
         firebaseInstance.currentUser?.delete()?.await()
+        emitCurrentUser()
     }
 
     override fun removeCredential(credential: IBaseCredential, user: FirebaseUserController): Flow<FirebaseUserController> {
@@ -107,6 +109,8 @@ open class FirebaseCredentialsManager(appContext: Context, parentJob: Job? = nul
     override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CredBuilder(
         credential
     )
+
+    private fun emitCurrentUser() = userSharedFlow.tryEmit(getCurrentUser())
 
     open inner class CredBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder(credential) {
 
