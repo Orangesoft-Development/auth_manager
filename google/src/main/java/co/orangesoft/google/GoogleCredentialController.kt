@@ -1,5 +1,6 @@
 package co.orangesoft.google
 
+import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
@@ -13,14 +14,16 @@ import com.google.firebase.auth.*
 
 class GoogleCredentialController(method: FirebaseAuthCredential.Google): BaseFirebaseCredentialController(method) {
 
-    private fun googleSingInClient(activity: FragmentActivity): GoogleSignInClient {
+    private fun googleSingInClient(context: Context, requestProfile: Boolean = true): GoogleSignInClient {
         val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken((authCredential as FirebaseAuthCredential.Google).clientId)
-            .requestProfile()
-            .build()
-
-        return GoogleSignIn.getClient(activity, options)
+        if (requestProfile) {
+            options.requestProfile()
+                .requestIdToken((authCredential as FirebaseAuthCredential.Google).clientId)
+        }
+        return GoogleSignIn.getClient(context, options.build())
     }
+
+    override fun signOut(context: Context) { googleSingInClient(context, false).signOut() }
 
     override fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {
         Log.e("!!!", "clientId: ${(authCredential as FirebaseAuthCredential.Google).clientId}")

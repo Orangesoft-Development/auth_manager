@@ -9,7 +9,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlin.coroutines.CoroutineContext
 
-@InternalCoroutinesApi
 abstract class BaseAuthManager<T: BaseUserController<*>, C: BaseCredentialsManager<T>>(protected val credentialsManager: C, parentJob: Job? = null): IAuthManager<T>, CoroutineScope {
 
     protected abstract val user: MutableStateFlow<T>
@@ -44,4 +43,21 @@ abstract class BaseAuthManager<T: BaseUserController<*>, C: BaseCredentialsManag
                 }
                 .launchIn(this)
         }
+
+    override suspend fun logout() {
+        credentialsManager.logout(currentUser.value)
+            .onEach {
+                user.value = it
+            }
+            .launchIn(this)
+    }
+
+    override suspend fun deleteUser() {
+        credentialsManager.deleteUser(currentUser.value)
+            .onEach {
+                user.value = it
+            }
+            .launchIn(this)
+    }
+
 }

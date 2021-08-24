@@ -14,8 +14,8 @@ import co.orangesoft.authmanager.firebase_auth.phone_auth.PhoneAuthCredential
 import co.orangesoft.authmanager.firebase_auth.phone_auth.PhoneCredentialController
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.launch
 
 @InternalCoroutinesApi
 internal class CredentialManager(
@@ -45,7 +45,6 @@ internal class CredentialManager(
             }
             UserControllerImpl(firebaseInstance, accountManager, account, profileService)
         } ?: UnregisteredUserControllerImpl(firebaseInstance)
-
     }
 
     override suspend fun onLogged(credentialResult: CredentialResult): FirebaseUserController {
@@ -71,18 +70,18 @@ internal class CredentialManager(
         user.reloadCredentials()
     }
 
-    override suspend fun logout(user: FirebaseUserController) {
+    override suspend fun logout(user: FirebaseUserController): Flow<FirebaseUserController> {
         authService.logout(user.getAccessToken())
         if(user is UserControllerImpl)
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
                 accountManager.removeAccountExplicitly(user.account)
             }
-        super.logout(user)
+        return super.logout(user)
     }
 
-    override suspend fun deleteUser(user: FirebaseUserController) {
+    override suspend fun deleteUser(user: FirebaseUserController): Flow<FirebaseUserController> {
         authService.delete(user.getAccessToken())
-        super.deleteUser(user)
+        return super.deleteUser(user)
     }
 
     override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CustomCredBuilder(credential)

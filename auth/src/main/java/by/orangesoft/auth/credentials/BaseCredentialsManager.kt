@@ -19,6 +19,8 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (parentJob: Job?
 
     protected val userSharedFlow = MutableSharedFlow<T>(1, 1)
 
+    abstract fun getCurrentUser(): T
+
     @Throws(Exception::class)
     protected abstract suspend fun onLogged(credentialResult: CredentialResult): T
 
@@ -28,11 +30,9 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (parentJob: Job?
     @Throws(Exception::class)
     protected abstract suspend fun onCredentialRemoved(credential: IBaseCredential, user: T)
 
-    @Throws(Exception::class)
-    open suspend fun logout(user: T) {}
+    abstract suspend fun logout(user: T): Flow<T>
 
-    @Throws(Exception::class)
-    open suspend fun deleteUser(user: T) {}
+    abstract suspend fun deleteUser(user: T):Flow<T>
 
     protected abstract fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder
 
@@ -59,7 +59,6 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (parentJob: Job?
         return userSharedFlow.asSharedFlow()
     }
 
-
     override fun removeCredential(credential: IBaseCredential, user: T): Flow<T> {
         if (!user.credentials.value.let { creds -> creds.firstOrNull { it.providerId == credential.providerId } != null && creds.size > 1 }) {
             throw NoSuchElementException("Cannot remove method $credential")
@@ -74,4 +73,10 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (parentJob: Job?
 
         return userSharedFlow.asSharedFlow()
     }
+
+    protected fun getUpdatedUserFlow(): Flow<T> {
+        userSharedFlow.tryEmit(getCurrentUser())
+        return userSharedFlow.asSharedFlow()
+    }
+
 }

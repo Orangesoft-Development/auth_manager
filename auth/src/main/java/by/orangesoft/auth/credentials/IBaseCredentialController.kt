@@ -1,5 +1,6 @@
 package by.orangesoft.auth.credentials
 
+import android.content.Context
 import android.content.Intent
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
@@ -15,6 +16,8 @@ interface IBaseCredentialController {
     fun addCredential(): Flow<CredentialResult>
 
     fun removeCredential(): Job
+
+    fun signOut(context: Context) { }
 
     fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>)
 

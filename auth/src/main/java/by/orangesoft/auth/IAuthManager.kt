@@ -14,10 +14,8 @@ interface IAuthManager<T : BaseUserController<*>> {
 
     fun login(activity: FragmentActivity, credential: BaseAuthCredential): Job
 
-    @Throws
     suspend fun logout()
 
-    @Throws
     suspend fun deleteUser()
 
     fun addCredential(activity: FragmentActivity, credential: BaseAuthCredential): Job
