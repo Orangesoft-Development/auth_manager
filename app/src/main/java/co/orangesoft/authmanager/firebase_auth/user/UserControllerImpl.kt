@@ -5,9 +5,13 @@ import android.accounts.AccountManager
 import by.orangesoft.auth.firebase.FirebaseProfile
 import by.orangesoft.auth.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.ProfileService
+import co.orangesoft.authmanager.firebase_auth.user.AccountManagerConst.ACCOUNT_ACCESS_TOKEN
+import co.orangesoft.authmanager.firebase_auth.user.AccountManagerConst.ACCOUNT_AVATAR_URL
+import co.orangesoft.authmanager.firebase_auth.user.AccountManagerConst.ACCOUNT_BIRTHDAY
+import co.orangesoft.authmanager.firebase_auth.user.AccountManagerConst.ACCOUNT_CITY
+import co.orangesoft.authmanager.firebase_auth.user.AccountManagerConst.ACCOUNT_COUNTRY
+import co.orangesoft.authmanager.firebase_auth.user.AccountManagerConst.ACCOUNT_ID
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
 import retrofit2.Response
@@ -23,12 +27,12 @@ class UserControllerImpl(
 
     override val profile: Profile by lazy {
         Profile(
-            id = accountManager.getUserData(account, "id"),
-            name = if (account.name == "*") null else account.name,
-            avatarUrl = accountManager.getUserData(account, "avatarUrl"),
-            birthday = accountManager.getUserData(account, "birthday"),
-            country = accountManager.getUserData(account, "country"),
-            city = accountManager.getUserData(account, "city")
+            id = accountManager.getUserData(account, ACCOUNT_ID),
+            name = if (account.name == AccountManagerConst.SPEC_SYMBOL) null else account.name,
+            avatarUrl = accountManager.getUserData(account, ACCOUNT_AVATAR_URL),
+            birthday = accountManager.getUserData(account, ACCOUNT_BIRTHDAY),
+            country = accountManager.getUserData(account, ACCOUNT_COUNTRY),
+            city = accountManager.getUserData(account, ACCOUNT_CITY)
         )
     }
 
@@ -61,7 +65,7 @@ class UserControllerImpl(
 
     override suspend fun setAccessToken(accessToken: String) {
         super.setAccessToken(accessToken)
-        accountManager.setAuthToken(account, "access", accessToken)
+        accountManager.setAuthToken(account, ACCOUNT_ACCESS_TOKEN, accessToken)
     }
 
     private suspend fun updateProfile(response: Response<Profile>) {
