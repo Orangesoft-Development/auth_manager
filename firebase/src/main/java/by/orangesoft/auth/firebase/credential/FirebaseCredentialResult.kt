@@ -27,7 +27,7 @@ fun FirebaseAuth.getCredentials(): Set<FirebaseCredentialResult> =
     currentUser?.providerData?.mapNotNull {
         if (it.providerId != "firebase")
             FirebaseCredentialResult(
-                uid = it.uid,
+                uid = it.uid ?: "",
                 providerId = it.providerId,
                 token = it.displayName ?: "",
                 displayName = it.displayName ?: "",
