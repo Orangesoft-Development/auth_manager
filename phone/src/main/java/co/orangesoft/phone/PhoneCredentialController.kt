@@ -8,6 +8,8 @@ import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
 import by.orangesoft.auth.firebase.credential.controllers.BaseFirebaseCredentialController
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.*
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class PhoneCredentialController(phoneAuthCredential: FirebaseAuthCredential.Phone): BaseFirebaseCredentialController(phoneAuthCredential) {
@@ -30,7 +32,9 @@ class PhoneCredentialController(phoneAuthCredential: FirebaseAuthCredential.Phon
                 override fun onVerificationCompleted(credential: PhoneAuthCredential) {
                     Log.e("!!!", credential.smsCode)
                     emitAuthTask(credential)
-                    getCredential()
+                    launch {
+                        getCredential(currentCoroutineContext())
+                    }
                 }
 
                 override fun onVerificationFailed(p0: FirebaseException) {
