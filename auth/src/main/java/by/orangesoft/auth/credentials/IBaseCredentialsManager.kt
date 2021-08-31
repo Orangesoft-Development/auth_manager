@@ -15,6 +15,8 @@ interface IBaseCredentialsManager<T: BaseUserController<*>>  {
 
     fun removeCredential(credential: IBaseCredential, user: T): Flow<T>
 
+    fun clearCredInfo(credential: IBaseCredential) { }
+
     abstract class Builder(protected val credential: IBaseCredential) {
 
         @Throws(UnsupportedOperationException::class)

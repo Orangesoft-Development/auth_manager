@@ -8,7 +8,6 @@ import com.google.firebase.auth.FirebaseAuth
 import dalvik.system.DexClassLoader
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -87,7 +86,6 @@ open class FirebaseCredentialsManager(private val appContext: Context, parentJob
 
     override suspend fun logout(user: FirebaseUserController): Flow<FirebaseUserController> {
         signOut()
-        firebaseInstance.signOut()
         return getUpdatedUserFlow()
     }
 
@@ -98,6 +96,7 @@ open class FirebaseCredentialsManager(private val appContext: Context, parentJob
     }
 
     override fun removeCredential(credential: IBaseCredential, user: FirebaseUserController): Flow<FirebaseUserController> {
+        clearCredInfo(credential)
         return super.removeCredential(credential, user).onEach {
             user.reloadCredentials()
         }
@@ -106,7 +105,13 @@ open class FirebaseCredentialsManager(private val appContext: Context, parentJob
     override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CredBuilder(credential)
 
     private fun signOut() {
-        getCurrentCredController(FirebaseAuthCredential.Google(""))?.signOut(appContext)
+        clearCredInfo(FirebaseAuthCredential.Google(""))
+        firebaseInstance.signOut()
+        firebaseInstance.currentUser?.providerData?.clear()
+    }
+
+    override fun clearCredInfo(credential: IBaseCredential) {
+        getCurrentCredController(credential)?.clearCredInfo(appContext)
         firebaseInstance.signOut()
         firebaseInstance.currentUser?.providerData?.clear()
     }

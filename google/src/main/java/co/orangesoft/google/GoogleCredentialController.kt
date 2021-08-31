@@ -23,7 +23,7 @@ class GoogleCredentialController(method: FirebaseAuthCredential.Google): BaseFir
         return GoogleSignIn.getClient(context, options.build())
     }
 
-    override fun signOut(context: Context) { googleSingInClient(context, false).signOut() }
+    override fun clearCredInfo(context: Context) { googleSingInClient(context, false).revokeAccess() }
 
     override fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {
         Log.e("!!!", "clientId: ${(authCredential as FirebaseAuthCredential.Google).clientId}")

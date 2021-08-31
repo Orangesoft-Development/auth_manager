@@ -17,11 +17,11 @@ interface IBaseCredentialController {
 
     fun removeCredential(): Job
 
-    fun signOut(context: Context) { }
-
     fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>)
 
     fun onActivityResult(code: Int, data: Intent?)
+
+    fun clearCredInfo(context: Context) { }
 
     fun setActivity(activity: FragmentActivity) {
         if(activity is ComponentCallbackActivity)

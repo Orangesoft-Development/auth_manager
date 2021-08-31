@@ -77,7 +77,7 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
             .onCompletion {
                 it?.let {
                     authInstance.signOut()
-                    coroutineContext.cancel(CancellationException(it.message))
+                    coroutineContext.cancel(CancellationException(it.message, it))
                 }
             }
             .launchIn(CoroutineScope(coroutineContext + this.coroutineContext.job))
