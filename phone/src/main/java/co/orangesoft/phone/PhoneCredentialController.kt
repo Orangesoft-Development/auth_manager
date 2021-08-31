@@ -8,7 +8,6 @@ import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
 import by.orangesoft.auth.firebase.credential.UpdateCredAuthResult
 import by.orangesoft.auth.firebase.credential.controllers.BaseFirebaseCredentialController
 import com.google.android.gms.tasks.Task
-import com.google.android.gms.tasks.TaskCompletionSource
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.AuthCredential
@@ -16,7 +15,10 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.CoroutineContext
 
 class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCredential.Phone): BaseFirebaseCredentialController(phoneAuthCredential) {
 
@@ -38,7 +40,7 @@ class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCre
                 override fun onVerificationCompleted(credential: PhoneAuthCredential) {
                     Log.i("!!!", "Verification completed: ${credential.smsCode}")
                     emitAuthTask(credential)
-                    getCredential()
+                    launch { getCredential(currentCoroutineContext()) }
                 }
 
                 override fun onVerificationFailed(p0: FirebaseException) {
@@ -75,12 +77,12 @@ class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCre
 
     override fun onActivityResult(code: Int, data: Intent?) {}
 
-    override fun getCredential() {
+    override suspend fun getCredential(coroutineContext: CoroutineContext) {
         if (phoneAuthCredential.verificationId != null && phoneAuthCredential.code != null) {
             val credential = PhoneAuthProvider.getCredential(phoneAuthCredential.verificationId!!, phoneAuthCredential.code!!)
             emitAuthTask(credential)
         }
-        super.getCredential()
+        super.getCredential(coroutineContext)
     }
 
 }

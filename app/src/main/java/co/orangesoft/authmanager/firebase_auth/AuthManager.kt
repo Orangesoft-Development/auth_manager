@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.*
 import okhttp3.Interceptor
 
 @InternalCoroutinesApi
-class AuthManager(credManager:FirebaseCredentialsManager,
+class AuthManager(credManager: FirebaseCredentialsManager,
                   parentJob: Job? = null) : FirebaseAuthManager(credManager, parentJob) {
 
     companion object {
@@ -47,6 +47,7 @@ class AuthManager(credManager:FirebaseCredentialsManager,
     init {
         currentUser.onEach {
             _status.value = if(it.credentials.value.isEmpty()) UserStatus.UNREGISTERED else UserStatus.REGISTERED
-        }
+        }.launchIn(this)
+        _user.tryEmit(credManager.getCurrentUser())
     }
 }

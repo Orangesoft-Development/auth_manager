@@ -2,22 +2,19 @@ package co.orangesoft.authmanager.auth
 
 import android.content.Context
 import by.orangesoft.auth.credentials.CredentialResult
-import by.orangesoft.auth.credentials.IBaseCredential
-import by.orangesoft.auth.user.IBaseUserController
+import by.orangesoft.auth.user.BaseUserController
 import by.orangesoft.auth.user.ITokenController
 import co.orangesoft.authmanager.api.ProfileService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
 class SimpleUserController(private val appContext: Context? = null,
-                           private val profileService: ProfileService? = null) : IBaseUserController<SimpleProfile>,
+                           private val profileService: ProfileService? = null) : BaseUserController<SimpleProfile>(),
      ITokenController, CoroutineScope {
 
     companion object {

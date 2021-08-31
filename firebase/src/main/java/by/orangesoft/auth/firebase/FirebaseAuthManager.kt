@@ -7,8 +7,10 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-@InternalCoroutinesApi
-abstract class FirebaseAuthManager(credManager: FirebaseCredentialsManager, parentJob: Job? = null) : BaseAuthManager<FirebaseUserController, FirebaseCredentialsManager>(credManager, parentJob) {
+abstract class FirebaseAuthManager(
+    credManager: FirebaseCredentialsManager,
+    parentJob: Job? = null
+) : BaseAuthManager<FirebaseUserController, FirebaseCredentialsManager>(credManager, parentJob) {
 
     fun signInAnonymously() {
         launch {
@@ -20,12 +22,7 @@ abstract class FirebaseAuthManager(credManager: FirebaseCredentialsManager, pare
         }
     }
 
-    override suspend fun logout() {
-        credentialsManager.logout(currentUser.value)
-    }
-
-    override suspend fun deleteUser() {
-        credentialsManager.deleteUser(currentUser.value)
-    }
 }
+
+
 

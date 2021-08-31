@@ -24,10 +24,8 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO + Job()
 
-    override fun addCredential() : Flow<CredentialResult> {
-        getCredential()
-        return credResultFlow.asSharedFlow()
-    }
+    override fun addCredential(): Flow<CredentialResult> =
+        credResultFlow.asSharedFlow().onStart { getCredential(currentCoroutineContext()) }
 
     override fun removeCredential(): Job {
         authInstance.currentUser?.providerData?.firstOrNull {
@@ -56,24 +54,33 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
         } ?: authInstance.signInWithCredential(credential))
     }
 
+    protected open suspend fun getCredential(coroutineContext: CoroutineContext) {
+        authInstance.currentUser?.let { user ->
+            user.providerData.firstOrNull { it.providerId == authCredential.providerId }?.let {
+                credResultFlow.tryEmit(CredentialResult(authCredential.providerId, getToken(user)))
 
-    protected open fun getCredential() {
-        launch {
-            authInstance.currentUser?.let { user ->
-                user.providerData.firstOrNull { it.providerId == authCredential.providerId }?.let {
-                    credResultFlow.tryEmit(CredentialResult(authCredential.providerId, getToken(user)))
-                }
-                return@launch
             }
-
-            authTaskFlow.onEach { task ->
-                credResultFlow.tryEmit(CredentialResult(authCredential.providerId, getToken(task.await().user
-                                                                                                ?: throw KotlinNullPointerException("FirebaseUser cannot be null"))))
-            }.catch {
-                onError("Error add credential ${authCredential.providerId}", it)
-                authInstance.signOut()
-            }.launchIn(this)
+            return
         }
+
+        authTaskFlow.onEach { task ->
+            credResultFlow.tryEmit(
+                CredentialResult(authCredential.providerId,
+                                 getToken(task.await().user
+                                              ?: throw KotlinNullPointerException("FirebaseUser cannot be null"))))
+
+        }
+            .catch {
+                authInstance.signOut()
+                coroutineContext.job.cancel("Error add credential ${authCredential.providerId}", it)
+            }
+            .onCompletion {
+                it?.let {
+                    authInstance.signOut()
+                    coroutineContext.cancel(CancellationException(it.message))
+                }
+            }
+            .launchIn(CoroutineScope(coroutineContext + this.coroutineContext.job))
     }
 
     private suspend fun getToken(user: FirebaseUser): String {
