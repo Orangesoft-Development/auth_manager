@@ -105,15 +105,13 @@ open class FirebaseCredentialsManager(private val appContext: Context, parentJob
     override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CredBuilder(credential)
 
     private fun signOut() {
-        clearCredInfo(FirebaseAuthCredential.Google(""))
+        getCurrentCredController(FirebaseAuthCredential.Google(""))?.clearCredInfo(appContext)
         firebaseInstance.signOut()
         firebaseInstance.currentUser?.providerData?.clear()
     }
 
     override fun clearCredInfo(credential: IBaseCredential) {
         getCurrentCredController(credential)?.clearCredInfo(appContext)
-        firebaseInstance.signOut()
-        firebaseInstance.currentUser?.providerData?.clear()
     }
 
     private fun getCurrentCredController(credential: IBaseCredential): IBaseCredentialController? =

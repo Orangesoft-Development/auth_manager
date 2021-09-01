@@ -4,11 +4,13 @@ import by.orangesoft.auth.credentials.CredentialResult
 import by.orangesoft.auth.credentials.IBaseCredentialController
 import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
 import by.orangesoft.auth.firebase.credential.UpdateCredAuthResult
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthWebException
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -44,7 +46,7 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
     }
 
     protected open fun onError(message: String, cause: Throwable) {
-        coroutineContext.job.cancel(message, cause)
+        coroutineContext.job.cancel(message, cause.convertToNormalExceptionType())
     }
 
     protected fun emitAuthTask(credential: AuthCredential) {
@@ -58,9 +60,8 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
         authInstance.currentUser?.let { user ->
             user.providerData.firstOrNull { it.providerId == authCredential.providerId }?.let {
                 credResultFlow.tryEmit(CredentialResult(authCredential.providerId, getToken(user)))
-
+                return
             }
-            return
         }
 
         authTaskFlow.onEach { task ->
@@ -68,27 +69,35 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
                 CredentialResult(authCredential.providerId,
                                  getToken(task.await().user
                                               ?: throw KotlinNullPointerException("FirebaseUser cannot be null"))))
-
         }
             .catch {
                 authInstance.signOut()
-                coroutineContext.job.cancel("Error add credential ${authCredential.providerId}", it)
+                coroutineContext.job.cancel("Error add credential ${authCredential.providerId}", it.convertToNormalExceptionType())
             }
             .onCompletion {
                 it?.let {
                     authInstance.signOut()
-                    coroutineContext.cancel(CancellationException(it.message, it))
+                    coroutineContext.cancel(CancellationException(it.message, it.cause))
                 }
             }
             .launchIn(CoroutineScope(coroutineContext + this.coroutineContext.job))
     }
 
-    private suspend fun getToken(user: FirebaseUser): String {
-        return user.getIdToken(true).await().token ?: throw KotlinNullPointerException("Token must not be null")
-    }
+    private suspend fun getToken(user: FirebaseUser): String = user.getIdToken(true).await().token
+        ?: throw KotlinNullPointerException("Token must not be null")
 
     //TODO update deprecated method
     protected open fun updateCurrentCredential(user: FirebaseUser, authCredential: AuthCredential) : Task<UpdateCredAuthResult> =
         Tasks.call { UpdateCredAuthResult(user, authCredential) }
+
+    private fun Throwable.convertToNormalExceptionType(): Throwable =
+        if ((this is FirebaseAuthWebException && this.message?.contains("canceled by the user", true) == true)
+            || (this is ApiException && this.statusCode == CANCEL_API_ERROR)) {
+            CancellationException("${authCredential.providerId} canceled by user")
+        } else  this
+
+    companion object {
+        const val CANCEL_API_ERROR = 12501
+    }
 
 }
