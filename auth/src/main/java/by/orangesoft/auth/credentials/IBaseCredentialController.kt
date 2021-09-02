@@ -8,7 +8,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
-
 interface IBaseCredentialController {
 
     val authCredential: BaseAuthCredential

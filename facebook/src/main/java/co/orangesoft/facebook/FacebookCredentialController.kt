@@ -1,5 +1,6 @@
 package co.orangesoft.facebook
 
+import android.content.Context
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.FragmentActivity
@@ -30,6 +31,11 @@ class FacebookCredentialController: BaseFirebaseCredentialController(FirebaseAut
                 override fun onError(error: FacebookException) { onError("Error add credential ${authCredential.providerId}", error) }
             })
         }
+    }
+
+    override fun clearCredInfo(context: Context) {
+        super.clearCredInfo(context)
+        loginManager.logOut()
     }
 
     override fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {

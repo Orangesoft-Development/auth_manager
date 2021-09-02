@@ -14,6 +14,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.onStart
 import kotlin.coroutines.CoroutineContext
 
 class SimplePhoneCredentialController(private val appContext: Context,
@@ -45,11 +46,7 @@ class SimplePhoneCredentialController(private val appContext: Context,
         return flow.asSharedFlow()
     }
 
-    override fun removeCredential(): Job {
-        return launch {
-            prefsHelper.removeCredential(authCredential)
-        }
-    }
+    override fun removeCredential() =  flow.asSharedFlow().onStart { prefsHelper.removeCredential(authCredential) }
 
     override fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {}
 

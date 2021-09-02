@@ -4,6 +4,7 @@ import android.content.Context
 import by.orangesoft.auth.credentials.*
 import by.orangesoft.auth.firebase.credential.CredentialsEnum
 import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
+import by.orangesoft.auth.firebase.credential.Providers
 import com.google.firebase.auth.FirebaseAuth
 import dalvik.system.DexClassLoader
 import kotlinx.coroutines.Job
@@ -104,14 +105,26 @@ open class FirebaseCredentialsManager(private val appContext: Context, parentJob
 
     override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CredBuilder(credential)
 
-    private fun signOut() {
-        getCurrentCredController(FirebaseAuthCredential.Google(""))?.clearCredInfo(appContext)
+    override fun signOut() {
+        singOutAllCredController()
         firebaseInstance.signOut()
         firebaseInstance.currentUser?.providerData?.clear()
     }
 
     override fun clearCredInfo(credential: IBaseCredential) {
         getCurrentCredController(credential)?.clearCredInfo(appContext)
+    }
+
+    private fun singOutAllCredController() {
+        getCurrentUser().credentials.value.forEach {
+            when (it.providerId) {
+                Providers.APPLE -> FirebaseAuthCredential.Apple
+                Providers.FACEBOOK -> FirebaseAuthCredential.Facebook
+                Providers.GOOGLE -> FirebaseAuthCredential.Google("")
+                Providers.PHONE -> FirebaseAuthCredential.Phone("")
+                else -> null
+            }?.let {  authCred -> clearCredInfo(authCred) }
+        }
     }
 
     private fun getCurrentCredController(credential: IBaseCredential): IBaseCredentialController? =

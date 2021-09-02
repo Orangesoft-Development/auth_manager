@@ -15,6 +15,8 @@ interface IBaseCredentialsManager<T: BaseUserController<*>>  {
 
     fun removeCredential(credential: IBaseCredential, user: T): Flow<T>
 
+    fun signOut() {}
+
     fun clearCredInfo(credential: IBaseCredential) { }
 
     abstract class Builder(protected val credential: IBaseCredential) {
@@ -24,9 +26,8 @@ interface IBaseCredentialsManager<T: BaseUserController<*>>  {
 
         @Throws(UnsupportedOperationException::class)
         open fun build(activity: FragmentActivity? = null): IBaseCredentialController =
-             createCredential()
-                     .apply { activity?.let { setActivity(it) } }
-
+            createCredential()
+                .apply { activity?.let { setActivity(it) } }
     }
 
 }

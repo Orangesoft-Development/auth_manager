@@ -49,9 +49,9 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
     }
 
     protected open suspend fun getCredential(coroutineContext: CoroutineContext) {
-        authInstance.currentUser?.let { user ->
-            user.providerData.firstOrNull { it.providerId == authCredential.providerId }?.let {
-                credResultFlow.tryEmit(CredentialResult(authCredential.providerId, getToken(user)))
+        authInstance.currentUser?.let { currentUser ->
+            currentUser.providerData.firstOrNull { it.providerId == authCredential.providerId }?.let {
+                credResultFlow.tryEmit(CredentialResult(authCredential.providerId, getToken(currentUser)))
                 return
             }
         }
@@ -63,12 +63,10 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
                                               ?: throw KotlinNullPointerException("FirebaseUser cannot be null"))))
         }
             .catch {
-                authInstance.signOut()
                 coroutineContext.job.cancel("Error add credential ${authCredential.providerId}", it.convertToNormalExceptionType())
             }
             .onCompletion {
                 it?.let {
-                    authInstance.signOut()
                     coroutineContext.cancel(CancellationException(it.message, it.cause))
                 }
             }

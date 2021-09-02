@@ -45,7 +45,7 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (parentJob: Job?
         return userSharedFlow.asSharedFlow().onStart {
             if (!user.credentials.value.let { creds -> creds.firstOrNull { it.providerId == credential.providerId } != null && creds.size > 1 }) {
                 throw NoSuchElementException("Cannot remove method $credential")
-            } else removeBuilderCredential(credential, user, currentCoroutineContext())
+            } else removeBuilderCredential(credential, currentCoroutineContext())
         }
     }
 
@@ -65,17 +65,17 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (parentJob: Job?
                 } ?: userSharedFlow.tryEmit(onLogged(credResult))
             }
             .catch {
-                clearCredInfo(credential)
+                user?.let { clearCredInfo(credential) } ?: signOut()
                 coroutineContext.job.cancel("Error add credential ${credential.providerId}", it)
             }
             .onCompletion {
-                clearCredInfo(credential)
+                user?.let { clearCredInfo(credential) } ?: signOut()
                 it?.let { coroutineContext.cancel(CancellationException(it.message, it.cause)) }
             }
             .launchIn(CoroutineScope(coroutineContext + this.coroutineContext.job))
     }
 
-    private suspend fun removeBuilderCredential(credential: IBaseCredential, user: T, coroutineContext: CoroutineContext) {
+    private suspend fun removeBuilderCredential(credential: IBaseCredential, coroutineContext: CoroutineContext) {
         getBuilder(credential).build().removeCredential()
             .onEach {
                 getCurrentUser().let {
