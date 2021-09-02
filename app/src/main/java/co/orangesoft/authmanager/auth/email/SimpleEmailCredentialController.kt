@@ -46,11 +46,7 @@ class SimpleEmailCredentialController(private val appContext: Context,
         return flow.asSharedFlow()
     }
 
-    override fun removeCredential(): Job {
-        return launch {
-            prefsHelper.removeCredential(authCredential)
-        }
-    }
+    override fun removeCredential() = flow.asSharedFlow().onStart { prefsHelper.removeCredential(authCredential) }
 
     override fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {}
 

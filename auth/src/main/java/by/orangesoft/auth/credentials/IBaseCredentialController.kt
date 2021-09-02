@@ -15,7 +15,7 @@ interface IBaseCredentialController {
 
     fun addCredential(): Flow<CredentialResult>
 
-    fun removeCredential(): Job
+    fun removeCredential(): Flow<CredentialResult>
 
     fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>)
 

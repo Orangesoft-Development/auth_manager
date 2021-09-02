@@ -45,7 +45,7 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (parentJob: Job?
         return userSharedFlow.asSharedFlow().onStart {
             if (!user.credentials.value.let { creds -> creds.firstOrNull { it.providerId == credential.providerId } != null && creds.size > 1 }) {
                 throw NoSuchElementException("Cannot remove method $credential")
-            } else removeBuilderCredential(credential, user)
+            } else removeBuilderCredential(credential, user, currentCoroutineContext())
         }
     }
 
@@ -56,11 +56,13 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (parentJob: Job?
 
     private fun addBuilderCredential(activity: FragmentActivity, credential: IBaseCredential, user: T?, coroutineContext: CoroutineContext) {
         getBuilder(credential).build(activity).addCredential()
-            .onEach {
-                user?.let { user ->
-                    onCredentialAdded(it, user)
-                    userSharedFlow.tryEmit(user)
-                } ?: userSharedFlow.tryEmit(onLogged(it))
+            .onEach { credResult ->
+                user?.let {
+                    getCurrentUser().let { user ->
+                        onCredentialAdded(credResult, user)
+                        userSharedFlow.tryEmit(user)
+                    }
+                } ?: userSharedFlow.tryEmit(onLogged(credResult))
             }
             .catch {
                 clearCredInfo(credential)
@@ -73,11 +75,20 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (parentJob: Job?
             .launchIn(CoroutineScope(coroutineContext + this.coroutineContext.job))
     }
 
-    private fun removeBuilderCredential(credential: IBaseCredential, user: T) {
-        getBuilder(credential).build().removeCredential().invokeOnCompletion {
-            runBlocking { onCredentialRemoved(credential, user) }
-            userSharedFlow.tryEmit(user)
-        }
+    private suspend fun removeBuilderCredential(credential: IBaseCredential, user: T, coroutineContext: CoroutineContext) {
+        getBuilder(credential).build().removeCredential()
+            .onEach {
+                getCurrentUser().let {
+                    onCredentialRemoved(credential, it)
+                    userSharedFlow.tryEmit(it)
+                }
+            }.catch {
+                coroutineContext.job.cancel("Error remove credential ${credential.providerId}", it)
+            }
+            .onCompletion {
+                it?.let { coroutineContext.cancel(CancellationException(it.message, it.cause)) }
+            }
+            .launchIn(CoroutineScope(coroutineContext + this.coroutineContext.job))
     }
 
 }

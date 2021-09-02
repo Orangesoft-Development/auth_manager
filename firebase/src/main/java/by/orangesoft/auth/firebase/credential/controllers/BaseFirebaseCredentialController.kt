@@ -2,6 +2,7 @@ package by.orangesoft.auth.firebase.credential.controllers
 
 import by.orangesoft.auth.credentials.CredentialResult
 import by.orangesoft.auth.credentials.IBaseCredentialController
+import by.orangesoft.auth.credentials.UnlinkCredentialResult
 import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
 import by.orangesoft.auth.firebase.credential.UpdateCredAuthResult
 import com.google.android.gms.common.api.ApiException
@@ -29,17 +30,8 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
     override fun addCredential(): Flow<CredentialResult> =
         credResultFlow.asSharedFlow().onStart { getCredential(currentCoroutineContext()) }
 
-    override fun removeCredential(): Job {
-        authInstance.currentUser?.providerData?.firstOrNull {
-            it.providerId == authCredential.providerId
-        }?.let { provider ->
-            return launch {
-                authInstance.currentUser?.unlink(provider.providerId)?.await()
-            }
-        }
-
-        return coroutineContext.job
-    }
+    override fun removeCredential(): Flow<CredentialResult> =
+        credResultFlow.asSharedFlow().onStart { unlinkCurrentProvider() }
 
     protected open fun onError(error: CancellationException) {
         coroutineContext.cancel(error)
@@ -81,6 +73,15 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
                 }
             }
             .launchIn(CoroutineScope(coroutineContext + this.coroutineContext.job))
+    }
+
+    private suspend fun unlinkCurrentProvider() {
+        authInstance.currentUser?.providerData?.firstOrNull {
+            it.providerId == authCredential.providerId
+        }?.let { provider ->
+            authInstance.currentUser?.unlink(provider.providerId)?.await()
+            credResultFlow.tryEmit(UnlinkCredentialResult())
+        } ?: throw NoSuchElementException("Cannot remove method ${authCredential.providerId}")
     }
 
     private suspend fun getToken(user: FirebaseUser): String = user.getIdToken(true).await().token
