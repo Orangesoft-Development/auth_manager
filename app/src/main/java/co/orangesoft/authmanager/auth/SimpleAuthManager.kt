@@ -50,11 +50,4 @@ class SimpleAuthManager(credManager: SimpleCredentialManager,
         _user.tryEmit(credManager.getCurrentUser())
     }
 
-    override suspend fun logout() {
-        credentialsManager.logout(currentUser.value)
-    }
-
-    override suspend fun deleteUser() {
-        credentialsManager.deleteUser(currentUser.value)
-    }
 }

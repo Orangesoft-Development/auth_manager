@@ -74,18 +74,18 @@ internal class CredentialManager(
         user.reloadCredentials()
     }
 
-    override suspend fun logout(user: FirebaseUserController): Flow<FirebaseUserController> {
+    override suspend fun onUserLogout(user: FirebaseUserController): FirebaseUserController {
         authService.logout(user.getAccessToken())
         if(user is UserControllerImpl)
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
                 accountManager.removeAccountExplicitly(user.account)
             }
-        return super.logout(user)
+        return super.onUserLogout(user)
     }
 
-    override suspend fun deleteUser(user: FirebaseUserController): Flow<FirebaseUserController> {
+    override suspend fun onUserDelete(user: FirebaseUserController): FirebaseUserController {
         authService.delete(user.getAccessToken())
-        return super.deleteUser(user)
+        return super.onUserDelete(user)
     }
 
     override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CustomCredBuilder(credential)

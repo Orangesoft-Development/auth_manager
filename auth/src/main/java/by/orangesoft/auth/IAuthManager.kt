@@ -12,9 +12,11 @@ interface IAuthManager<T : BaseUserController<*>> {
 
     val currentUser: StateFlow<T>
 
-    suspend fun logout()
+    fun logoutFlow(): Flow<T>
+    fun logout(): Job
 
-    suspend fun deleteUser()
+    fun deleteUserFlow(): Flow<T>
+    fun deleteUser(): Job
 
     fun login(activity: FragmentActivity, credential: BaseAuthCredential): Job
     fun loginFlow(activity: FragmentActivity, credential: BaseAuthCredential): Flow<T>

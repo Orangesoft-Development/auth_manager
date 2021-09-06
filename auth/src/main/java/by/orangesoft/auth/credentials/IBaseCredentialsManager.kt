@@ -15,9 +15,13 @@ interface IBaseCredentialsManager<T: BaseUserController<*>>  {
 
     fun removeCredential(credential: IBaseCredential, user: T): Flow<T>
 
+    fun logout(user: T): Flow<T>
+
+    fun deleteUser(user: T): Flow<T>
+
     fun signOut() {}
 
-    fun clearCredInfo(credential: IBaseCredential) { }
+    fun clearCredInfo(credential: IBaseCredential, force: Boolean = false) {}
 
     abstract class Builder(protected val credential: IBaseCredential) {
 

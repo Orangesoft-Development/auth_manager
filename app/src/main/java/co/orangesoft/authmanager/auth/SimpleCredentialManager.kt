@@ -10,8 +10,6 @@ import co.orangesoft.authmanager.auth.phone.SimplePhoneAuthCredential
 import co.orangesoft.authmanager.auth.phone.SimplePhoneCredentialController
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlin.jvm.Throws
 
@@ -37,17 +35,17 @@ class SimpleCredentialManager(private val appContext: Context,
         authService.removeCreds(user.getAccessToken(), credential.providerId.replace(".com", ""))
     }
 
-    override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CredBuilder(credential)
-
-    override suspend fun logout(user: SimpleUserController): Flow<SimpleUserController> {
-        authService.logout(user.getAccessToken())
-        return getUpdatedUserFlow()
-    }
-
-    override suspend fun deleteUser(user: SimpleUserController): Flow<SimpleUserController> {
+    override suspend fun onUserLogout(user: SimpleUserController): SimpleUserController {
         authService.delete(user.getAccessToken())
-        return getUpdatedUserFlow()
+        return getCurrentUser()
     }
+
+    override suspend fun onUserDelete(user: SimpleUserController): SimpleUserController {
+        authService.logout(user.getAccessToken())
+        return getCurrentUser()
+    }
+
+    override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CredBuilder(credential)
 
     open inner class CredBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder(credential) {
 

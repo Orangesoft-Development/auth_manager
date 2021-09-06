@@ -78,21 +78,21 @@ open class FirebaseCredentialsManager(private val appContext: Context, parentJob
         user.reloadCredentials()
     }
 
+    override suspend fun onUserLogout(user: FirebaseUserController): FirebaseUserController {
+        signOut()
+        return getCurrentUser()
+    }
+
+    override suspend fun onUserDelete(user: FirebaseUserController): FirebaseUserController {
+        signOut()
+        firebaseInstance.currentUser?.delete()?.await()
+        return getCurrentUser()
+    }
+
     fun signInAnonymously(): Flow<FirebaseUserController> {
         launch {
             firebaseInstance.signInAnonymously().await()
         }
-        return getUpdatedUserFlow()
-    }
-
-    override suspend fun logout(user: FirebaseUserController): Flow<FirebaseUserController> {
-        signOut()
-        return getUpdatedUserFlow()
-    }
-
-    override suspend fun deleteUser(user: FirebaseUserController): Flow<FirebaseUserController> {
-        signOut()
-        firebaseInstance.currentUser?.delete()?.await()
         return getUpdatedUserFlow()
     }
 
@@ -111,8 +111,8 @@ open class FirebaseCredentialsManager(private val appContext: Context, parentJob
         firebaseInstance.currentUser?.providerData?.clear()
     }
 
-    override fun clearCredInfo(credential: IBaseCredential) {
-        getCurrentCredController(credential)?.clearCredInfo(appContext)
+    override fun clearCredInfo(credential: IBaseCredential, force: Boolean) {
+        getCurrentCredController(credential, force)?.clearCredInfo(appContext)
     }
 
     private fun singOutAllCredController() {
@@ -127,11 +127,10 @@ open class FirebaseCredentialsManager(private val appContext: Context, parentJob
         }
     }
 
-    private fun getCurrentCredController(credential: IBaseCredential): IBaseCredentialController? =
-        getCurrentUser().credentials.value.firstOrNull { it.providerId == credential.providerId }
-            ?.let {
-                getBuilder(credential).build()
-            }
+    private fun getCurrentCredController(credential: IBaseCredential, force: Boolean = false): IBaseCredentialController? =
+        if (force || getCurrentUser().credentials.value.firstOrNull { it.providerId == credential.providerId} != null) {
+            getBuilder(credential).build()
+        } else null
 
     open inner class CredBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder(credential) {
 
@@ -150,4 +149,5 @@ open class FirebaseCredentialsManager(private val appContext: Context, parentJob
     companion object {
         private const val OUTDEX_NAME = "outdex"
     }
+
 }

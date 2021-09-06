@@ -18,37 +18,31 @@ abstract class BaseAuthManager<T: BaseUserController<*>, C: BaseCredentialsManag
     override val currentUser: StateFlow<T> by lazy { user.asStateFlow() }
 
     override fun loginFlow(activity: FragmentActivity, credential: BaseAuthCredential): Flow<T> =
-        credentialsManager.addCredential(activity, credential, null)
-            .onEach { user.value = it }
+        credentialsManager.addCredential(activity, credential, null).takeSingleUserFlow()
 
     override fun login(activity: FragmentActivity, credential: BaseAuthCredential): Job =
         loginFlow(activity, credential).launchIn(this)
 
     override fun addCredentialFlow(activity: FragmentActivity, credential: BaseAuthCredential): Flow<T> =
-        credentialsManager.addCredential(activity, credential, currentUser.value)
-            .onEach { user.value = it }
+        credentialsManager.addCredential(activity, credential, currentUser.value).takeSingleUserFlow()
 
     override fun addCredential(activity: FragmentActivity, credential: BaseAuthCredential): Job =
         addCredentialFlow(activity, credential).launchIn(this)
 
     override fun removeCredentialFlow(credential: IBaseCredential): Flow<T> =
-        credentialsManager.removeCredential(credential, currentUser.value)
-            .onEach { user.value = it }
+        credentialsManager.removeCredential(credential, currentUser.value).takeSingleUserFlow()
 
     override fun removeCredential(credential: IBaseCredential): Job =
         removeCredentialFlow(credential).launchIn(this)
 
-    //todo refactoring on same logic
-    override suspend fun logout() {
-        credentialsManager.logout(currentUser.value)
-            .onEach { user.value = it }
-            .launchIn(this)
-    }
+    override fun logoutFlow() = credentialsManager.logout(currentUser.value).takeSingleUserFlow()
 
-    override suspend fun deleteUser() {
-        credentialsManager.deleteUser(currentUser.value)
-            .onEach { user.value = it }
-            .launchIn(this)
-    }
+    override fun logout() = logoutFlow().launchIn(this)
+
+    override fun deleteUserFlow() = credentialsManager.deleteUser(currentUser.value).takeSingleUserFlow()
+
+    override fun deleteUser() = deleteUserFlow().launchIn(this)
+
+    private fun Flow<T>.takeSingleUserFlow() = onEach { user.value = it }.take(1)
 
 }
