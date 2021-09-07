@@ -21,28 +21,29 @@ abstract class BaseAuthManager<T: BaseUserController<*>, C: BaseCredentialsManag
         credentialsManager.addCredential(activity, credential, null).takeSingleUserFlow()
 
     override fun login(activity: FragmentActivity, credential: BaseAuthCredential): Job =
-        loginFlow(activity, credential).launchIn(this)
+        loginFlow(activity, credential).launchInWithCatch()
 
     override fun addCredentialFlow(activity: FragmentActivity, credential: BaseAuthCredential): Flow<T> =
         credentialsManager.addCredential(activity, credential, currentUser.value).takeSingleUserFlow()
 
     override fun addCredential(activity: FragmentActivity, credential: BaseAuthCredential): Job =
-        addCredentialFlow(activity, credential).launchIn(this)
+        addCredentialFlow(activity, credential).launchInWithCatch()
 
     override fun removeCredentialFlow(credential: IBaseCredential): Flow<T> =
         credentialsManager.removeCredential(credential, currentUser.value).takeSingleUserFlow()
 
     override fun removeCredential(credential: IBaseCredential): Job =
-        removeCredentialFlow(credential).launchIn(this)
+        removeCredentialFlow(credential).launchInWithCatch()
 
     override fun logoutFlow() = credentialsManager.logout(currentUser.value).takeSingleUserFlow()
 
-    override fun logout() = logoutFlow().launchIn(this)
+    override fun logout() = logoutFlow().launchInWithCatch()
 
     override fun deleteUserFlow() = credentialsManager.deleteUser(currentUser.value).takeSingleUserFlow()
 
-    override fun deleteUser() = deleteUserFlow().launchIn(this)
+    override fun deleteUser() = deleteUserFlow().launchInWithCatch()
 
     private fun Flow<T>.takeSingleUserFlow() = onEach { user.value = it }.take(1)
+    private fun Flow<T>.launchInWithCatch() = catch { it.printStackTrace() }.launchIn(this@BaseAuthManager)
 
 }
