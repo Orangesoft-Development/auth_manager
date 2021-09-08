@@ -17,7 +17,9 @@ class GoogleCredentialController(method: FirebaseAuthCredential.Google): BaseFir
     private fun googleSingInClient(context: Context, requestProfile: Boolean = true): GoogleSignInClient {
         val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
         if (requestProfile) {
-            options.requestProfile()
+            options
+                .requestProfile()
+                .requestEmail()
                 .requestIdToken((authCredential as FirebaseAuthCredential.Google).clientId)
         }
         return GoogleSignIn.getClient(context, options.build())
