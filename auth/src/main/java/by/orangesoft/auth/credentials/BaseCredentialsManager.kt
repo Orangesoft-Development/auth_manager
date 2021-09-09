@@ -43,10 +43,7 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (parentJob: Job?
     override fun deleteUser(user: T): Flow<T> = userSharedFlow.asSharedFlow().onStart { emit(onUserDelete(user)) }
 
     override fun addCredential(activity: FragmentActivity, credential: IBaseCredential, user: T?): Flow<T> =
-        userSharedFlow.asSharedFlow().onStart { user?.credentials?.value?.firstOrNull { it.providerId == credential.providerId }
-            ?.let { userSharedFlow.tryEmit(user) }
-            ?: addBuilderCredential(activity, credential, user, currentCoroutineContext())
-        }
+        userSharedFlow.asSharedFlow().onStart { addBuilderCredential(activity, credential, user, currentCoroutineContext()) }
 
     override fun removeCredential(credential: IBaseCredential, user: T): Flow<T> =
         userSharedFlow.asSharedFlow().onStart {

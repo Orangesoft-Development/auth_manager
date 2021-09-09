@@ -27,11 +27,9 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO + Job()
 
-    override fun addCredential(): Flow<CredentialResult> =
-        credResultFlow.asSharedFlow().onStart { getCredential(currentCoroutineContext()) }
+    override fun addCredential(): Flow<CredentialResult> = credResultFlow.onStart { getCredential(currentCoroutineContext()) }
 
-    override fun removeCredential(): Flow<CredentialResult> =
-        credResultFlow.asSharedFlow().onStart { unlinkCurrentProvider() }
+    override fun removeCredential(): Flow<CredentialResult> = credResultFlow.onStart { unlinkCurrentProvider() }
 
     protected open fun onError(error: CancellationException) {
         coroutineContext.cancel(error)
@@ -43,19 +41,16 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
 
     protected fun emitAuthTask(credential: AuthCredential) {
         authTaskFlow.tryEmit(authInstance.currentUser?.let { currentUser ->
-            val authTask = if (!currentUser.isAnonymous) currentUser.linkWithCredential(credential) else updateCurrentCredential(currentUser, credential)
+            val authTask = if (!currentUser.isAnonymous) {
+                currentUser.providerData.firstOrNull { it.providerId == authCredential.providerId }?.let {
+                    updateCurrentCredential(currentUser, credential)
+                } ?: currentUser.linkWithCredential(credential)
+            } else null
             authTask
         } ?: authInstance.signInWithCredential(credential))
     }
 
     protected open suspend fun getCredential(coroutineContext: CoroutineContext) {
-        authInstance.currentUser?.let { currentUser ->
-            currentUser.providerData.firstOrNull { it.providerId == authCredential.providerId }?.let {
-                credResultFlow.tryEmit(CredentialResult(authCredential.providerId, getToken(currentUser)))
-                return
-            }
-        }
-
         authTaskFlow.onEach { task ->
             credResultFlow.tryEmit(
                 CredentialResult(authCredential.providerId,
@@ -78,7 +73,7 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
             it.providerId == authCredential.providerId
         }?.let { provider ->
             authInstance.currentUser?.unlink(provider.providerId)?.await()
-            credResultFlow.tryEmit(UnlinkCredentialResult())
+            credResultFlow.emit(UnlinkCredentialResult())
         } ?: throw NoSuchElementException("Cannot remove method ${authCredential.providerId}")
     }
 
