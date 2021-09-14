@@ -22,14 +22,14 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
 
     protected val authInstance: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
-    private var credResultFlow: MutableSharedFlow<CredentialResult> = MutableSharedFlow(1, 1)
     protected var authTaskFlow: MutableSharedFlow<Task<out AuthResult>> = MutableSharedFlow(1, 1)
+    private var credResultFlow: MutableSharedFlow<CredentialResult> = MutableSharedFlow(1, 1)
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO + Job()
 
-    override fun addCredential(): Flow<CredentialResult> = credResultFlow.onStart { getCredential(currentCoroutineContext()) }
+    override fun addCredential(): Flow<CredentialResult> = credResultFlow.onStart { getCredential(currentCoroutineContext()) }.take(1)
 
-    override fun removeCredential(): Flow<CredentialResult> = credResultFlow.onStart { unlinkCurrentProvider() }
+    override fun removeCredential(): Flow<CredentialResult> = credResultFlow.onStart { unlinkCurrentProvider() }.take(1)
 
     protected open fun onError(error: CancellationException) {
         coroutineContext.cancel(error)

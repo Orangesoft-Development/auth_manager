@@ -18,7 +18,6 @@ import co.orangesoft.authmanager.firebase_auth.user.AccountManagerConst.ACCOUNT_
 import co.orangesoft.authmanager.firebase_auth.user.AccountManagerConst.SPEC_SYMBOL
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 
 @InternalCoroutinesApi

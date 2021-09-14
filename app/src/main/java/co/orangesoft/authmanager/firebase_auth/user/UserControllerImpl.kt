@@ -41,6 +41,7 @@ class UserControllerImpl(
         profileService.getProfile(getAccessToken()).apply {
             updateProfile(this)
         }
+        super.reload()
     }
 
     @Throws(Throwable::class)

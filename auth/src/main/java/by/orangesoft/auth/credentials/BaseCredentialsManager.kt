@@ -71,8 +71,10 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (parentJob: Job?
                 coroutineContext.job.cancel("Error add credential ${credential.providerId}", it)
             }
             .onCompletion {
-                user?.let { clearCredInfo(credential, true) } ?: signOut()
-                it?.let { coroutineContext.cancel(CancellationException(it.message, it.cause)) }
+                it?.let {
+                    user?.let { clearCredInfo(credential, true) } ?: signOut()
+                    coroutineContext.cancel(CancellationException(it.message, it.cause))
+                }
             }
             .launchIn(CoroutineScope(coroutineContext + this.coroutineContext.job))
     }
@@ -88,7 +90,9 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (parentJob: Job?
                 coroutineContext.job.cancel("Error remove credential ${credential.providerId}", it)
             }
             .onCompletion {
-                it?.let { coroutineContext.cancel(CancellationException(it.message, it.cause)) }
+                it?.let {
+                    coroutineContext.cancel(CancellationException(it.message, it.cause))
+                }
             }
             .launchIn(CoroutineScope(coroutineContext + this.coroutineContext.job))
     }
