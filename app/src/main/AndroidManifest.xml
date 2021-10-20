@@ -3,6 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="co.orangesoft.authmanager">
 
+    <queries>
+        <package android:name="com.facebook.katana" />
+    </queries>
+
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
