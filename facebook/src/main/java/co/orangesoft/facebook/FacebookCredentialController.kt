@@ -14,7 +14,6 @@ import com.facebook.FacebookException
 import com.facebook.FacebookSdk
 import com.facebook.LoginStatusCallback
 import com.facebook.internal.CallbackManagerImpl
-import com.facebook.login.LoginBehavior
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.google.firebase.auth.*
