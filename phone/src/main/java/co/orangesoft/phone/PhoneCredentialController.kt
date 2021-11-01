@@ -18,11 +18,13 @@ import com.google.firebase.auth.PhoneAuthProvider
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
+import java.util.Locale
 import kotlin.coroutines.CoroutineContext
 
 class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCredential.Phone): BaseFirebaseCredentialController(phoneAuthCredential) {
 
     private fun phoneSingInClient(activity: FragmentActivity) {
+        authInstance.languageCode = Locale.getDefault().language
         val options = PhoneAuthOptions.newBuilder(authInstance)
             .setPhoneNumber(phoneAuthCredential.phoneNumber)
             .setTimeout(60, TimeUnit.SECONDS)
