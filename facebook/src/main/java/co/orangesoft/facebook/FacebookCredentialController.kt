@@ -14,6 +14,7 @@ import com.facebook.FacebookException
 import com.facebook.FacebookSdk
 import com.facebook.LoginStatusCallback
 import com.facebook.internal.CallbackManagerImpl
+import com.facebook.login.LoginBehavior
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.google.firebase.auth.*
@@ -51,7 +52,8 @@ class FacebookCredentialController: BaseFirebaseCredentialController(FirebaseAut
         callbackFactory.onActivityResult(CallbackManagerImpl.RequestCodeOffset.Login.toRequestCode(), code, data)
     }
 
-    private fun logIn(activity: FragmentActivity) = loginManager.logIn(activity, permissions)
+    private fun logIn(activity: FragmentActivity) =
+        loginManager.setLoginBehavior(LoginBehavior.WEB_ONLY).logIn(activity, permissions)
 
     private fun retrieveLoginStatus(activity: FragmentActivity) {
         loginManager.retrieveLoginStatus(activity, object : LoginStatusCallback {
