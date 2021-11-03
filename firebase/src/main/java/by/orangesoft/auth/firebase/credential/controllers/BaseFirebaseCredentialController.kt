@@ -1,5 +1,7 @@
 package by.orangesoft.auth.firebase.credential.controllers
 
+import androidx.fragment.app.FragmentActivity
+import by.orangesoft.auth.credentials.CredentialFragment
 import by.orangesoft.auth.credentials.CredentialResult
 import by.orangesoft.auth.credentials.IBaseCredentialController
 import by.orangesoft.auth.credentials.UnlinkCredentialResult
@@ -25,18 +27,37 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
     protected var authTaskFlow: MutableSharedFlow<Task<out AuthResult>> = MutableSharedFlow(1, 1)
     private var credResultFlow: MutableSharedFlow<CredentialResult> = MutableSharedFlow(1, 1)
 
+    private lateinit var credActivity: FragmentActivity
+    private val credFragment by lazy { CredentialFragment.getInstance(this@BaseFirebaseCredentialController) }
+
     override val coroutineContext: CoroutineContext = Dispatchers.IO + Job()
 
-    override fun addCredential(): Flow<CredentialResult> = credResultFlow.onStart { getCredential(currentCoroutineContext()) }.take(1)
+    override fun addCredential(): Flow<CredentialResult> {
+        return credResultFlow.onStart { getCredential(currentCoroutineContext()) }.take(1)
+    }
 
-    override fun removeCredential(): Flow<CredentialResult> = credResultFlow.onStart { unlinkCurrentProvider() }.take(1)
+    override fun removeCredential(): Flow<CredentialResult> {
+        return credResultFlow.onStart { unlinkCurrentProvider() }.take(1)
+    }
 
     protected open fun onError(error: CancellationException) {
+        super.onError()
         coroutineContext.cancel(error)
     }
 
     protected open fun onError(message: String, cause: Throwable) {
+        super.onError()
         coroutineContext.job.cancel(message, cause.convertToNormalExceptionType())
+    }
+
+    override fun onError() = removeCredentialFragment()
+
+    override fun setActivity(activity: FragmentActivity) {
+        super.setActivity(activity)
+        credActivity = activity
+        credActivity.supportFragmentManager.beginTransaction()
+            .add(credFragment, CredentialFragment.TAG)
+            .commit()
     }
 
     protected fun emitAuthTask(credential: AuthCredential) {
@@ -89,6 +110,12 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
             || (this is ApiException && this.statusCode == CANCEL_API_ERROR)) {
             CancellationException("${authCredential.providerId} canceled by user")
         } else  this
+
+
+    private fun removeCredentialFragment() {
+        if (::credActivity.isInitialized)
+            credActivity.supportFragmentManager.beginTransaction().remove(credFragment).commit()
+    }
 
     companion object {
         const val CANCEL_API_ERROR = 12501

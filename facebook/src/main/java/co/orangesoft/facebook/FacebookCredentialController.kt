@@ -29,9 +29,7 @@ class FacebookCredentialController: BaseFirebaseCredentialController(FirebaseAut
     private val loginManager: LoginManager by lazy {
         LoginManager.getInstance().apply {
             registerCallback(callbackFactory, object : FacebookCallback<LoginResult> {
-                override fun onSuccess(result: LoginResult) {
-                    emitAuthTask(FacebookAuthProvider.getCredential(result.accessToken.token))
-                }
+                override fun onSuccess(result: LoginResult) { onSuccessLogin(result.accessToken.token) }
 
                 override fun onCancel() { onError(CancellationException("Error add credential ${authCredential.providerId} cancelled by user")) }
 
