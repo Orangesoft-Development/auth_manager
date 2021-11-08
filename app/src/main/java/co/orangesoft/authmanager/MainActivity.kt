@@ -9,7 +9,6 @@ import by.orangesoft.auth.BaseAuthManager
 import by.orangesoft.auth.credentials.BaseAuthCredential
 import by.orangesoft.auth.firebase.FirebaseUserController
 import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
-import by.orangesoft.auth.user.BaseUserController
 import co.orangesoft.authmanager.auth.SimpleAuthManager
 import co.orangesoft.authmanager.auth.email.EmailAuthCredential
 import co.orangesoft.authmanager.auth.phone.SimplePhoneAuthCredential
@@ -17,6 +16,7 @@ import co.orangesoft.authmanager.databinding.ActivityMainBinding
 import co.orangesoft.authmanager.firebase_auth.AuthManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -56,7 +56,7 @@ class MainActivity : FragmentActivity() {
 
             appleBtn.setOnClickListener { launchCredential(FirebaseAuthCredential.Apple) }
 
-            phoneBtn.setOnClickListener { launchCredential(FirebaseAuthCredential.Phone("+16505551234") { verificationId ->
+            phoneBtn.setOnClickListener { launchCredential(FirebaseAuthCredential.Phone("+16505551234") { verificationId, forceResendingToken ->
                 //TODO manually send code + verificationId
             }) }
 
@@ -75,9 +75,15 @@ class MainActivity : FragmentActivity() {
         initCallbacks(authManager)
 
         if (authManager.userStatus.value == AuthManager.UserStatus.REGISTERED && authManager.currentUser.value.credentials.value.contains(credential)) {
-            authManager.removeCredential(credential)
+            authManager.removeCredentialFlow(credential)
+                .flowOn(Dispatchers.IO)
+                .catch { loginError(it) }
+                .onEach {
+                    Toast.makeText(this, "RemoveCredential: ${credential.providerId}", Toast.LENGTH_SHORT).show()
+                }
+                .launchIn(CoroutineScope(Dispatchers.Main))
         } else {
-            authManager.login(this, credential)
+            authManager.login(this, credential).invokeOnCompletion { it?.let { loginError(it.cause) } }
         }
     }
 
@@ -86,9 +92,15 @@ class MainActivity : FragmentActivity() {
         initCallbacks(simpleAuthManager)
 
         if (isRemove || simpleAuthManager.userStatus.value == SimpleAuthManager.UserStatus.REGISTERED && simpleAuthManager.currentUser.value.credentials.value.contains(credential)) {
-            simpleAuthManager.removeCredential(credential)
+            simpleAuthManager.removeCredentialFlow(credential)
+                .flowOn(Dispatchers.IO)
+                .catch { loginError(it) }
+                .onEach {
+                    Toast.makeText(this, "RemoveCredential: ${credential.providerId}", Toast.LENGTH_SHORT).show()
+                }
+                .launchIn(CoroutineScope(Dispatchers.Main))
         } else {
-            simpleAuthManager.login(this, credential)
+            simpleAuthManager.login(this, credential).invokeOnCompletion { it?.let { loginError(it.cause) } }
         }
     }
 
@@ -97,27 +109,24 @@ class MainActivity : FragmentActivity() {
         authManager.signInAnonymously()
     }
 
-    private fun initCallbacks(authManager: BaseAuthManager<*,*>) {
-
-        val loginSuccessListener: (BaseUserController<*>) -> Unit  = {
-            val resultCreds = authManager.currentUser.value.credentials.value
-            binding.resultCredentials.text = if (resultCreds.isNotEmpty())
-                resultCreds.toString()
-            else "GUEST USER ID: ${(it as FirebaseUserController).profile.uid}"
-        }
-
-        val loginErrorListener: (Throwable) -> Unit = {
+    private fun loginError(throwable: Throwable?) {
+        throwable?.let {
             Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
             val resultCreds = authManager.currentUser.value.credentials.value.toString()
             if (resultCreds.isNotEmpty()) {
                 binding.resultCredentials.text = resultCreds
             }
         }
+    }
 
-        authManager.currentUser.onEach {
-            loginSuccessListener(authManager.currentUser.value)
-        }.catch {
-            loginErrorListener(it)
-        }.launchIn(CoroutineScope(Dispatchers.Main))
+    private fun initCallbacks(authManager: BaseAuthManager<*,*>) {
+        authManager.currentUser
+            .onEach {
+                val resultCreds = authManager.currentUser.value.credentials.value
+                binding.resultCredentials.text =
+                    if (resultCreds.isNotEmpty()) resultCreds.toString()
+                    else "GUEST USER ID: ${(it as FirebaseUserController).profile.uid}"
+            }
+            .launchIn(CoroutineScope(Dispatchers.Main))
     }
 }

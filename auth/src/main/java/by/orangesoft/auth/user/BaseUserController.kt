@@ -33,6 +33,12 @@ abstract class BaseUserController<P> {
         }
     }
 
+    fun updateCurrentProfileAccount(): Flow<P> {
+        return getProfileAfterUpdateFlow {
+            updateAccount(profile)
+        }
+    }
+
     fun updateProfileAccount(profile: P): Flow<P> {
         return getProfileAfterUpdateFlow {
             updateAccount(profile)
@@ -45,6 +51,5 @@ abstract class BaseUserController<P> {
             emit(profile)
         }
     }
-
 
 }

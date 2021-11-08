@@ -13,7 +13,7 @@ import kotlinx.coroutines.tasks.await
 import java.io.File
 import kotlin.jvm.Throws
 
-class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) : BaseUserController<FirebaseProfile>(), ITokenController {
+open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) : BaseUserController<FirebaseProfile>(), ITokenController {
 
     companion object {
         const val TAG = "FirebaseUserController"

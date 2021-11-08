@@ -3,6 +3,7 @@ plugins {
     id("com.github.dcendents.android-maven")
     kotlin("android")
     kotlin("kapt")
+    kotlin("android.extensions")
 }
 
 group = "com.github.orangesoft-co.auth_manager"
@@ -38,6 +39,7 @@ dependencies {
 
     implementation(Depends.Coroutines.core)
     implementation(Depends.Coroutines.android)
+    implementation(Depends.Kotlin.extensions)
 
     implementation(Depends.PlayServices.base)
     implementation(Depends.PlayServices.auth)

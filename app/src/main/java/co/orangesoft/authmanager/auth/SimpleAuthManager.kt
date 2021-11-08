@@ -11,6 +11,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import okhttp3.Interceptor
 
@@ -38,23 +39,15 @@ class SimpleAuthManager(credManager: SimpleCredentialManager,
         REGISTERED
     }
 
-    override val user: MutableStateFlow<SimpleUserController>
-        get() = _user
-
+    override val user: MutableStateFlow<SimpleUserController> by lazy { _user }
     private val _status: MutableStateFlow<UserStatus> by lazy { MutableStateFlow(UserStatus.UNREGISTERED) }
     val userStatus: StateFlow<UserStatus> by lazy { _status.asStateFlow() }
 
     init {
         currentUser.onEach {
             _status.value = if(it.credentials.value.isEmpty()) UserStatus.UNREGISTERED else UserStatus.REGISTERED
-        }
+        }.launchIn(this)
+        _user.tryEmit(credManager.getCurrentUser())
     }
 
-    override suspend fun logout() {
-        credentialsManager.logout(currentUser.value)
-    }
-
-    override suspend fun deleteUser() {
-        credentialsManager.deleteUser(currentUser.value)
-    }
 }

@@ -4,19 +4,18 @@ import android.content.Context
 import by.orangesoft.auth.credentials.*
 import by.orangesoft.auth.firebase.credential.CredentialsEnum
 import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
+import by.orangesoft.auth.firebase.credential.Providers
 import com.google.firebase.auth.FirebaseAuth
 import dalvik.system.DexClassLoader
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.*
+import kotlin.jvm.Throws
 
-@InternalCoroutinesApi
-open class FirebaseCredentialsManager(appContext: Context, parentJob: Job? = null): BaseCredentialsManager<FirebaseUserController>(parentJob) {
+open class FirebaseCredentialsManager(private val appContext: Context, parentJob: Job? = null): BaseCredentialsManager<FirebaseUserController>(parentJob) {
 
     protected val firebaseInstance: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
     private val credPaths by lazy { getCredentialPaths(appContext) }
@@ -24,7 +23,7 @@ open class FirebaseCredentialsManager(appContext: Context, parentJob: Job? = nul
     @Throws(Throwable::class)
     override suspend fun onLogged(credentialResult: CredentialResult): FirebaseUserController = getCurrentUser()
 
-    protected open fun getCurrentUser(): FirebaseUserController = FirebaseUserController(firebaseInstance)
+    override fun getCurrentUser(): FirebaseUserController = FirebaseUserController(firebaseInstance)
 
     private fun getCredentialPaths(appContext: Context): ArrayList<String> {
         val credentials = arrayListOf<String>()
@@ -79,34 +78,59 @@ open class FirebaseCredentialsManager(appContext: Context, parentJob: Job? = nul
         user.reloadCredentials()
     }
 
+    override suspend fun onUserLogout(user: FirebaseUserController): FirebaseUserController {
+        signOut()
+        return getCurrentUser()
+    }
+
+    override suspend fun onUserDelete(user: FirebaseUserController): FirebaseUserController {
+        signOut()
+        firebaseInstance.currentUser?.delete()?.await()
+        return getCurrentUser()
+    }
+
     fun signInAnonymously(): Flow<FirebaseUserController> {
         launch {
             firebaseInstance.signInAnonymously().await()
-            userSharedFlow.tryEmit(getCurrentUser())
         }
-
-        return userSharedFlow.asSharedFlow()
-    }
-
-    @Throws(Throwable::class)
-    override suspend fun logout(user: FirebaseUserController) {
-        firebaseInstance.signOut()
-    }
-
-    @Throws(Throwable::class)
-    override suspend fun deleteUser(user: FirebaseUserController) {
-        firebaseInstance.currentUser?.delete()?.await()
+        return getUpdatedUserFlow()
     }
 
     override fun removeCredential(credential: IBaseCredential, user: FirebaseUserController): Flow<FirebaseUserController> {
+        clearCredInfo(credential)
         return super.removeCredential(credential, user).onEach {
             user.reloadCredentials()
         }
     }
 
-    override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CredBuilder(
-        credential
-    )
+    override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CredBuilder(credential)
+
+    override fun signOut() {
+        singOutAllCredController()
+        firebaseInstance.signOut()
+        firebaseInstance.currentUser?.providerData?.clear()
+    }
+
+    override fun clearCredInfo(credential: IBaseCredential, force: Boolean) {
+        getCurrentCredController(credential, force)?.clearCredInfo(appContext)
+    }
+
+    private fun singOutAllCredController() {
+        getCurrentUser().credentials.value.forEach {
+            when (it.providerId) {
+                Providers.APPLE -> FirebaseAuthCredential.Apple
+                Providers.FACEBOOK -> FirebaseAuthCredential.Facebook
+                Providers.GOOGLE -> FirebaseAuthCredential.Google("")
+                Providers.PHONE -> FirebaseAuthCredential.Phone("")
+                else -> null
+            }?.let {  authCred -> clearCredInfo(authCred) }
+        }
+    }
+
+    private fun getCurrentCredController(credential: IBaseCredential, force: Boolean = false): IBaseCredentialController? =
+        if (force || getCurrentUser().credentials.value.firstOrNull { it.providerId == credential.providerId} != null) {
+            getBuilder(credential).build()
+        } else null
 
     open inner class CredBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder(credential) {
 
@@ -125,4 +149,5 @@ open class FirebaseCredentialsManager(appContext: Context, parentJob: Job? = nul
     companion object {
         private const val OUTDEX_NAME = "outdex"
     }
+
 }

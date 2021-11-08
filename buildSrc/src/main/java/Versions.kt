@@ -27,9 +27,9 @@ object Versions {
     const val fragments = "1.3.0-alpha08"
     const val activityKtx = "1.2.0-alpha08"
 
-    const val facebookAuth = "9.1.0"
-    const val firebasePlatform = "26.7.0"
-    const val playServicesAuth = "19.0.0"
+    const val facebookAuth = "12.0.1"
+    const val firebasePlatform = "29.0.0"
+    const val playServicesAuth = "19.2.0"
     const val playServicesBase = "17.6.0"
-    const val playServicesCoroutines = "1.4.3"
+    const val playServicesCoroutines = "1.5.2"
 }

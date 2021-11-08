@@ -9,7 +9,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlin.coroutines.CoroutineContext
 
-@InternalCoroutinesApi
 abstract class BaseAuthManager<T: BaseUserController<*>, C: BaseCredentialsManager<T>>(protected val credentialsManager: C, parentJob: Job? = null): IAuthManager<T>, CoroutineScope {
 
     protected abstract val user: MutableStateFlow<T>
@@ -18,30 +17,33 @@ abstract class BaseAuthManager<T: BaseUserController<*>, C: BaseCredentialsManag
 
     override val currentUser: StateFlow<T> by lazy { user.asStateFlow() }
 
+    override fun loginFlow(activity: FragmentActivity, credential: BaseAuthCredential): Flow<T> =
+        credentialsManager.addCredential(activity, credential, null).takeSingleUserFlow()
+
     override fun login(activity: FragmentActivity, credential: BaseAuthCredential): Job =
-        launch {
-            credentialsManager.addCredential(activity, credential, null)
-                .onEach {
-                    user.value = it
-                }
-                .launchIn(this)
-        }
+        loginFlow(activity, credential).launchInWithCatch()
+
+    override fun addCredentialFlow(activity: FragmentActivity, credential: BaseAuthCredential): Flow<T> =
+        credentialsManager.addCredential(activity, credential, currentUser.value).takeSingleUserFlow()
 
     override fun addCredential(activity: FragmentActivity, credential: BaseAuthCredential): Job =
-        launch {
-            credentialsManager.addCredential(activity, credential, currentUser.value)
-                .onEach {
-                    user.value = it
-                }
-                .launchIn(this)
-        }
+        addCredentialFlow(activity, credential).launchInWithCatch()
+
+    override fun removeCredentialFlow(credential: IBaseCredential): Flow<T> =
+        credentialsManager.removeCredential(credential, currentUser.value).takeSingleUserFlow()
 
     override fun removeCredential(credential: IBaseCredential): Job =
-        launch {
-            credentialsManager.removeCredential(credential, currentUser.value)
-                .onEach {
-                    user.value = it
-                }
-                .launchIn(this)
-        }
+        removeCredentialFlow(credential).launchInWithCatch()
+
+    override fun logoutFlow() = credentialsManager.logout(currentUser.value).takeSingleUserFlow()
+
+    override fun logout() = logoutFlow().launchInWithCatch()
+
+    override fun deleteUserFlow() = credentialsManager.deleteUser(currentUser.value).takeSingleUserFlow()
+
+    override fun deleteUser() = deleteUserFlow().launchInWithCatch()
+
+    private fun Flow<T>.takeSingleUserFlow() = onEach { user.value = it }.take(1)
+    private fun Flow<T>.launchInWithCatch() = catch { it.printStackTrace() }.launchIn(this@BaseAuthManager)
+
 }

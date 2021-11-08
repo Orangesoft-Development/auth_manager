@@ -1,9 +1,7 @@
 package co.orangesoft.authmanager.auth
 
 import android.content.Context
-import android.util.Log
 import by.orangesoft.auth.credentials.*
-import by.orangesoft.auth.firebase.FirebaseUserController
 import co.orangesoft.authmanager.api.AuthService
 import co.orangesoft.authmanager.api.ProfileService
 import co.orangesoft.authmanager.auth.email.EmailAuthCredential
@@ -12,9 +10,7 @@ import co.orangesoft.authmanager.auth.phone.SimplePhoneAuthCredential
 import co.orangesoft.authmanager.auth.phone.SimplePhoneCredentialController
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.launchIn
 import kotlin.jvm.Throws
 
 @InternalCoroutinesApi
@@ -23,12 +19,12 @@ class SimpleCredentialManager(private val appContext: Context,
                               private val profileService: ProfileService,
                               parentJob: Job? = null) : BaseCredentialsManager<SimpleUserController>(parentJob) {
 
-    private fun getCurrentUser(): SimpleUserController = SimpleUserController(appContext, profileService)
+    override fun getCurrentUser(): SimpleUserController = SimpleUserController(appContext, profileService)
 
     @Throws(Throwable::class)
     override suspend fun onLogged(credentialResult: CredentialResult): SimpleUserController {
         authService.login(credentialResult)
-        return getCurrentUser().apply { updateAccount(profile) }
+        return getCurrentUser().apply { updateProfileAccount(profile).launchIn(this@SimpleCredentialManager) }
     }
 
     override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: SimpleUserController) {
@@ -39,17 +35,17 @@ class SimpleCredentialManager(private val appContext: Context,
         authService.removeCreds(user.getAccessToken(), credential.providerId.replace(".com", ""))
     }
 
-    override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CredBuilder(credential)
-
-    @Throws(Throwable::class)
-    override suspend fun logout(user: SimpleUserController) {
-        authService.logout(user.getAccessToken())
-    }
-
-    @Throws(Throwable::class)
-    override suspend fun deleteUser(user: SimpleUserController) {
+    override suspend fun onUserLogout(user: SimpleUserController): SimpleUserController {
         authService.delete(user.getAccessToken())
+        return getCurrentUser()
     }
+
+    override suspend fun onUserDelete(user: SimpleUserController): SimpleUserController {
+        authService.logout(user.getAccessToken())
+        return getCurrentUser()
+    }
+
+    override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CredBuilder(credential)
 
     open inner class CredBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder(credential) {
 
@@ -60,4 +56,5 @@ class SimpleCredentialManager(private val appContext: Context,
                 else -> throw UnsupportedOperationException("Method $credential is not supported")
             }
     }
+
 }

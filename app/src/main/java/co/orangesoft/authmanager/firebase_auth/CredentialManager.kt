@@ -12,9 +12,13 @@ import co.orangesoft.authmanager.api.ProfileService
 import co.orangesoft.authmanager.firebase_auth.user.*
 import co.orangesoft.authmanager.firebase_auth.phone_auth.PhoneAuthCredential
 import co.orangesoft.authmanager.firebase_auth.phone_auth.PhoneCredentialController
+import co.orangesoft.authmanager.firebase_auth.user.AccountManagerConst.ACCOUNT_AVATAR_URL
+import co.orangesoft.authmanager.firebase_auth.user.AccountManagerConst.ACCOUNT_FIREBASE_UID
+import co.orangesoft.authmanager.firebase_auth.user.AccountManagerConst.ACCOUNT_ID
+import co.orangesoft.authmanager.firebase_auth.user.AccountManagerConst.SPEC_SYMBOL
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.launchIn
 
 @InternalCoroutinesApi
 internal class CredentialManager(
@@ -29,7 +33,7 @@ internal class CredentialManager(
 
     override fun getCurrentUser(): FirebaseUserController {
         return accountManager.getAccountsByType(accountType).firstOrNull { account ->
-            accountManager.getUserData(account, "firebaseUid") == firebaseInstance.currentUser?.uid
+            accountManager.getUserData(account, ACCOUNT_FIREBASE_UID) == firebaseInstance.currentUser?.uid
         }?.let {
             UserControllerImpl(firebaseInstance, accountManager, it, profileService)
         } ?: firebaseInstance.currentUser?.let { user ->
@@ -37,27 +41,25 @@ internal class CredentialManager(
 
             val account = Account(name, accountType).also {
                 accountManager.addAccountExplicitly(it, accountPassword, Bundle().apply {
-                    putString("firebaseUid", user.uid)
-                    putString("id", user.uid)
-                    putString("avatarUrl", user.photoUrl?.toString() ?: "")
+                    putString(ACCOUNT_ID, user.uid)
+                    putString(ACCOUNT_FIREBASE_UID, user.uid)
+                    putString(ACCOUNT_AVATAR_URL, user.photoUrl?.toString() ?: "")
                 })
             }
             UserControllerImpl(firebaseInstance, accountManager, account, profileService)
         } ?: UnregisteredUserControllerImpl(firebaseInstance)
-
     }
 
     override suspend fun onLogged(credentialResult: CredentialResult): FirebaseUserController {
         val loginResponse = authService.login(credentialResult).body()
         return super.onLogged(credentialResult).apply {
             loginResponse?.let { loginResponse ->
-                val profileName = profile.displayName ?: "*"
+                val profileName = profile.displayName ?: SPEC_SYMBOL
                 Account(profileName, accountType).also {
                     accountManager.addAccountExplicitly(it, accountPassword, loginResponse.toBundle(firebaseInstance.currentUser?.uid))
                 }
             }
-
-            updateProfileAccount(profile)
+            updateProfileAccount(profile).launchIn(this@CredentialManager)
         }
     }
 
@@ -71,18 +73,18 @@ internal class CredentialManager(
         user.reloadCredentials()
     }
 
-    override suspend fun logout(user: FirebaseUserController) {
+    override suspend fun onUserLogout(user: FirebaseUserController): FirebaseUserController {
         authService.logout(user.getAccessToken())
         if(user is UserControllerImpl)
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
                 accountManager.removeAccountExplicitly(user.account)
             }
-        super.logout(user)
+        return super.onUserLogout(user)
     }
 
-    override suspend fun deleteUser(user: FirebaseUserController) {
+    override suspend fun onUserDelete(user: FirebaseUserController): FirebaseUserController {
         authService.delete(user.getAccessToken())
-        super.deleteUser(user)
+        return super.onUserDelete(user)
     }
 
     override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CustomCredBuilder(credential)
