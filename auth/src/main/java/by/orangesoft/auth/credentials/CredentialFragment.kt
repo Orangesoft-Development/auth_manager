@@ -5,7 +5,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 
-class CredentialFragment : Fragment() {
+class CredentialFragment private constructor() : Fragment() {
 
     companion object {
         const val TAG = "CredentialFragment"
@@ -20,13 +20,16 @@ class CredentialFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        credentialControllerResultListener.onProviderCreated(requireActivity(), credentialResultLauncher)
-        (activity as? ComponentCallbackActivity)?.setActivityResultCallback { componentActivityResult(it) }
+        if (::credentialControllerResultListener.isInitialized) {
+            credentialControllerResultListener.onProviderCreated(requireActivity(), credentialResultLauncher)
+            (activity as? ComponentCallbackActivity)?.setActivityResultCallback { componentActivityResult(it) }
+        }
     }
 
-    private fun componentActivityResult(result: ActivityResult){
-        credentialControllerResultListener.onActivityResult(result.resultCode, result.data)
-        activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
+    private fun componentActivityResult(result: ActivityResult) {
+        if (::credentialControllerResultListener.isInitialized) {
+            credentialControllerResultListener.onActivityResult(result.resultCode, result.data)
+            activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
+        }
     }
-
 }
