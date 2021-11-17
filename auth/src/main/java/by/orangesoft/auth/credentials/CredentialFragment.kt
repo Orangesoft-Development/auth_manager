@@ -5,7 +5,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 
-class CredentialFragment private constructor() : Fragment() {
+class CredentialFragment : Fragment() {
 
     companion object {
         const val TAG = "CredentialFragment"
