@@ -102,7 +102,7 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
         ?: throw KotlinNullPointerException("Token must not be null")
 
     //TODO update deprecated method
-    protected open fun updateCurrentCredential(user: FirebaseUser, authCredential: AuthCredential) : Task<UpdateCredAuthResult> =
+    protected open fun updateCurrentCredential(user: FirebaseUser, authCredential: AuthCredential) : Task<UpdateCredAuthResult>? =
         Tasks.call { UpdateCredAuthResult(user, authCredential) }
 
     private fun Throwable.convertToNormalExceptionType(): Throwable =
