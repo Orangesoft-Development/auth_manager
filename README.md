@@ -33,7 +33,7 @@ dependencies {
 ```
 
 ## Working scheme
-![AuthManager Diagram](https://a.radikal.ru/a14/2103/77/ec6aa28f7bb5.png)
+![AuthManager Diagram](https://raw.githubusercontent.com/Orangesoft-Development/auth_manager/develop/app/src/main/res/drawable/AuthManager%20Diagram.png)
 
 ## License
 
