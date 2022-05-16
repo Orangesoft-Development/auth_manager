@@ -1,5 +1,6 @@
 package co.orangesoft.facebook
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
@@ -50,6 +51,11 @@ class FacebookCredentialController: BaseFirebaseCredentialController(FirebaseAut
 
     override fun onActivityResult(code: Int, data: Intent?) {
         callbackFactory.onActivityResult(CallbackManagerImpl.RequestCodeOffset.Login.toRequestCode(), code, data)
+    }
+
+    override fun clearCredInfo(context: Context) {
+        super.clearCredInfo(context)
+        loginManager.logOut()
     }
 
     private fun logIn(activity: FragmentActivity) =

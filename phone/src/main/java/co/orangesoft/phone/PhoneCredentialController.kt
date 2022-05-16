@@ -75,7 +75,9 @@ class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCre
     //TODO update deprecated method
     override fun updateCurrentCredential(user: FirebaseUser, authCredential: AuthCredential): Task<UpdateCredAuthResult> =
         user.updatePhoneNumber(authCredential as PhoneAuthCredential)
-            .continueWithTask { Tasks.call { UpdateCredAuthResult(user, authCredential) } }
+            .continueWithTask {
+                it.exception?.let { throw it } ?: Tasks.call { UpdateCredAuthResult(user, authCredential) }
+            }
 
     override fun onActivityResult(code: Int, data: Intent?) {}
 

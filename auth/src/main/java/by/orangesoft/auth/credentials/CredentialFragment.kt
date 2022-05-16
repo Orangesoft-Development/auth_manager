@@ -20,13 +20,16 @@ class CredentialFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        credentialControllerResultListener.onProviderCreated(requireActivity(), credentialResultLauncher)
-        (activity as? ComponentCallbackActivity)?.setActivityResultCallback { componentActivityResult(it) }
+        if (::credentialControllerResultListener.isInitialized) {
+            credentialControllerResultListener.onProviderCreated(requireActivity(), credentialResultLauncher)
+            (activity as? ComponentCallbackActivity)?.setActivityResultCallback { componentActivityResult(it) }
+        }
     }
 
-    private fun componentActivityResult(result: ActivityResult){
-        credentialControllerResultListener.onActivityResult(result.resultCode, result.data)
-        activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
+    private fun componentActivityResult(result: ActivityResult) {
+        if (::credentialControllerResultListener.isInitialized) {
+            credentialControllerResultListener.onActivityResult(result.resultCode, result.data)
+            activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
+        }
     }
-
 }
