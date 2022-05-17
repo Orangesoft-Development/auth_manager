@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "142753893367",
+    "project_id": "authmanager-e8138",
+    "storage_bucket": "authmanager-e8138.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:142753893367:android:fee7bf2e4555c556ad3cf2",
+        "android_client_info": {
+          "package_name": "co.orangesoft.authmanager"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "142753893367-ett2nh02va4oclvavg3bilnskird7pfj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "co.orangesoft.authmanager",
+            "certificate_hash": "988f88455ed18a42985baf75f38864812e3922e0"
+          }
+        },
+        {
+          "client_id": "142753893367-l04c74ijg20n16enu5alcg8rahb15s5g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2wgglcKBK2-giQ9cTs6TO1-xKDTU3n-A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "142753893367-l04c74ijg20n16enu5alcg8rahb15s5g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
