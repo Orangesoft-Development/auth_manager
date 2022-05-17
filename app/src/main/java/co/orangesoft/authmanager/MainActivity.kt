@@ -1,5 +1,6 @@
 package co.orangesoft.authmanager
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -7,9 +8,10 @@ import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import by.orangesoft.auth.BaseAuthManager
 import by.orangesoft.auth.credentials.BaseAuthCredential
-import by.orangesoft.auth.firebase.FirebaseUserController
+import by.orangesoft.auth.firebase.FirebaseProfile
 import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
 import co.orangesoft.authmanager.auth.SimpleAuthManager
+import co.orangesoft.authmanager.auth.SimpleProfile
 import co.orangesoft.authmanager.auth.email.EmailAuthCredential
 import co.orangesoft.authmanager.auth.phone.SimplePhoneAuthCredential
 import co.orangesoft.authmanager.databinding.ActivityMainBinding
@@ -111,12 +113,15 @@ class MainActivity : FragmentActivity() {
         authManager.signInAnonymously()
     }
 
+    @SuppressLint("SetTextI18n")
     private fun loginError(throwable: Throwable?) {
-        throwable?.let {
-            Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
-            val resultCreds = authManager.currentUser.value.credentials.value.toString()
-            if (resultCreds.isNotEmpty()) {
-                binding.resultCredentials.text = resultCreds
+        binding.root.post {
+            throwable?.let {
+                Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
+                val resultCreds = authManager.currentUser.value.credentials.value
+                if (resultCreds.isNotEmpty()) {
+                    binding.resultCredentials.text = "USER CRED: ${resultCreds.map { it.providerId }}"
+                }
             }
         }
     }
@@ -126,8 +131,14 @@ class MainActivity : FragmentActivity() {
             .onEach {
                 val resultCreds = authManager.currentUser.value.credentials.value
                 binding.resultCredentials.text =
-                    if (resultCreds.isNotEmpty()) resultCreds.toString()
-                    else "GUEST USER ID: ${(it as FirebaseUserController).profile.uid}"
+                    if (resultCreds.isNotEmpty()) "USER CRED: ${resultCreds.map { it.providerId }}"
+                    else "GUEST USER ID: " + it.profile?.let { profile ->
+                        when (profile) {
+                            is SimpleProfile -> profile.id
+                            is FirebaseProfile -> profile.uid
+                            else -> "unknown"
+                        }
+                    }
             }
             .launchIn(CoroutineScope(Dispatchers.Main))
     }

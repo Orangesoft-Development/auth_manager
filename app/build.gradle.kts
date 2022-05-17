@@ -2,7 +2,7 @@ plugins {
     id("com.android.application")
 
     /**Uncomment this line and add your own google-services json to the 'app' folder**/
-    //id("com.google.gms.google-services")
+    id("com.google.gms.google-services")
 
     kotlin("android")
     kotlin("kapt")
