@@ -74,7 +74,8 @@ class MainActivity : FragmentActivity() {
 
         initCallbacks(authManager)
 
-        if (authManager.userStatus.value == AuthManager.UserStatus.REGISTERED && authManager.currentUser.value.credentials.value.contains(credential)) {
+        if (authManager.userStatus.value == AuthManager.UserStatus.REGISTERED && authManager.currentUser.value.containsCredential(credential)) {
+            //TODO update removeCredentialFlow logic (add it?.cause in onCompletion)
             authManager.removeCredentialFlow(credential)
                 .flowOn(Dispatchers.IO)
                 .catch { loginError(it) }
@@ -91,7 +92,8 @@ class MainActivity : FragmentActivity() {
 
         initCallbacks(simpleAuthManager)
 
-        if (isRemove || simpleAuthManager.userStatus.value == SimpleAuthManager.UserStatus.REGISTERED && simpleAuthManager.currentUser.value.credentials.value.contains(credential)) {
+        if (isRemove || simpleAuthManager.userStatus.value == SimpleAuthManager.UserStatus.REGISTERED && simpleAuthManager.currentUser.value.containsCredential(credential)) {
+            //TODO update removeCredentialFlow logic (add it?.cause in onCompletion)
             simpleAuthManager.removeCredentialFlow(credential)
                 .flowOn(Dispatchers.IO)
                 .catch { loginError(it) }

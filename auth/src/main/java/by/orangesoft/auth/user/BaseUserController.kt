@@ -1,5 +1,6 @@
 package by.orangesoft.auth.user
 
+import by.orangesoft.auth.credentials.BaseAuthCredential
 import by.orangesoft.auth.credentials.CredentialResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,6 +45,9 @@ abstract class BaseUserController<P> {
             updateAccount(profile)
         }
     }
+
+    fun containsCredential(authCredential: BaseAuthCredential) =
+        credentials.value.let { creds -> creds.firstOrNull { it.providerId == authCredential.providerId } != null && creds.size > 1 }
 
     private fun getProfileAfterUpdateFlow(request: suspend () -> Unit): Flow<P> {
         return flow {
