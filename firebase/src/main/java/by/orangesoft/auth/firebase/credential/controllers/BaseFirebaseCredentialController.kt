@@ -9,7 +9,7 @@ import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
 import by.orangesoft.auth.firebase.credential.UpdateCredAuthResult
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
-import com.google.android.gms.tasks.Tasks
+import com.google.android.gms.tasks.TaskCompletionSource
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
@@ -101,9 +101,10 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
     private suspend fun getToken(user: FirebaseUser): String = user.getIdToken(true).await().token
         ?: throw KotlinNullPointerException("Token must not be null")
 
-    //TODO update deprecated method
     protected open fun updateCurrentCredential(user: FirebaseUser, authCredential: AuthCredential) : Task<UpdateCredAuthResult>? =
-        Tasks.call { UpdateCredAuthResult(user, authCredential) }
+        TaskCompletionSource<UpdateCredAuthResult>().also {
+            it.setResult(UpdateCredAuthResult(user, authCredential))
+        }.task
 
     private fun Throwable.convertToNormalExceptionType(): Throwable =
         if ((this is FirebaseAuthWebException && this.message?.contains("canceled by the user", true) == true)
