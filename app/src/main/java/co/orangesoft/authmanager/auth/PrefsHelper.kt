@@ -9,7 +9,6 @@ import java.lang.reflect.Type
 import androidx.preference.PreferenceManager;
 import by.orangesoft.auth.credentials.CredentialResult
 
-
 class PrefsHelper(private val appContext: Context?) {
 
     companion object {

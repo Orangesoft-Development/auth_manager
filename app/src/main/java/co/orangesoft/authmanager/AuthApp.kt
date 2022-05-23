@@ -16,11 +16,10 @@ class AuthApp : Application() {
             return
         }
         val options = FirebaseOptions.fromResource(this)
-        if (options == null) {
+        if (options == null)
             FirebaseApp.initializeApp(this)
-        } else {
+        else
             FirebaseApp.initializeApp(this, options)
-        }
     }
 
     private fun isFirebaseInitialized(): Boolean {

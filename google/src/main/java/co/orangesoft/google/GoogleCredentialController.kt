@@ -12,9 +12,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.*
 
-class GoogleCredentialController(method: FirebaseAuthCredential.Google): BaseFirebaseCredentialController(method) {
+class GoogleCredentialController(method: FirebaseAuthCredential.Google) :
+    BaseFirebaseCredentialController(method) {
 
-    private fun googleSingInClient(context: Context, requestProfile: Boolean = true): GoogleSignInClient {
+    private fun googleSingInClient(
+        context: Context,
+        requestProfile: Boolean = true
+    ): GoogleSignInClient {
         val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
         if (requestProfile) {
             options
@@ -25,10 +29,15 @@ class GoogleCredentialController(method: FirebaseAuthCredential.Google): BaseFir
         return GoogleSignIn.getClient(context, options.build())
     }
 
-    override fun clearCredInfo(context: Context) { googleSingInClient(context, false).revokeAccess() }
+    override fun clearCredInfo(context: Context) {
+        googleSingInClient(context, false).revokeAccess()
+    }
 
-    override fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {
-        Log.e("!!!", "clientId: ${(authCredential as FirebaseAuthCredential.Google).clientId}")
+    override fun onProviderCreated(
+        activity: FragmentActivity,
+        activityLauncher: ActivityResultLauncher<Intent>
+    ) {
+        Log.i("!!!", "clientId: ${(authCredential as FirebaseAuthCredential.Google).clientId}")
         activityLauncher.launch(googleSingInClient(activity).signInIntent)
     }
 
@@ -37,7 +46,12 @@ class GoogleCredentialController(method: FirebaseAuthCredential.Google): BaseFir
             addOnSuccessListener { account ->
                 emitAuthTask(GoogleAuthProvider.getCredential(account.idToken, null))
             }
-            addOnFailureListener { onError("Error add credential ${authCredential.providerId}", it) }
+            addOnFailureListener {
+                onError(
+                    "Error add credential ${authCredential.providerId}",
+                    it
+                )
+            }
         }
     }
 }

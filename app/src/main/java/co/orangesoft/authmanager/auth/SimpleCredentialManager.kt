@@ -50,9 +50,9 @@ class SimpleCredentialManager(private val appContext: Context,
     open inner class CredBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder(credential) {
 
         override fun createCredential(): IBaseCredentialController =
-            when (credential) {
-                is SimplePhoneAuthCredential -> SimplePhoneCredentialController(appContext, authService, credential)
-                is EmailAuthCredential -> SimpleEmailCredentialController(appContext, authService, credential)
+            when (val simpleCred = credential) {
+                is SimplePhoneAuthCredential -> SimplePhoneCredentialController(appContext, authService, simpleCred)
+                is EmailAuthCredential -> SimpleEmailCredentialController(appContext, authService, simpleCred)
                 else -> throw UnsupportedOperationException("Method $credential is not supported")
             }
     }

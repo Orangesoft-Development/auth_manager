@@ -22,7 +22,8 @@ import com.google.firebase.auth.*
 import kotlinx.coroutines.CancellationException
 import java.lang.Exception
 
-class FacebookCredentialController: BaseFirebaseCredentialController(FirebaseAuthCredential.Facebook) {
+class FacebookCredentialController :
+    BaseFirebaseCredentialController(FirebaseAuthCredential.Facebook) {
 
     private val permissions = listOf("email", "public_profile")
 
@@ -31,17 +32,26 @@ class FacebookCredentialController: BaseFirebaseCredentialController(FirebaseAut
     private val loginManager: LoginManager by lazy {
         LoginManager.getInstance().apply {
             registerCallback(callbackFactory, object : FacebookCallback<LoginResult> {
-                override fun onSuccess(result: LoginResult) { onSuccessLogin(result.accessToken.token) }
+                override fun onSuccess(result: LoginResult) {
+                    onSuccessLogin(result.accessToken.token)
+                }
 
-                override fun onCancel() { onError(CancellationException("Error add credential ${authCredential.providerId} cancelled by user")) }
+                override fun onCancel() {
+                    onError(CancellationException("Error add credential ${authCredential.providerId} cancelled by user"))
+                }
 
-                override fun onError(error: FacebookException) { onError("Error add credential ${authCredential.providerId}", error) }
+                override fun onError(error: FacebookException) {
+                    onError("Error add credential ${authCredential.providerId}", error)
+                }
             })
 
         }
     }
 
-    override fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {
+    override fun onProviderCreated(
+        activity: FragmentActivity,
+        activityLauncher: ActivityResultLauncher<Intent>
+    ) {
         if (isAutoLoginSupport()) {
             retrieveLoginStatus(activity)
         } else {
@@ -50,7 +60,11 @@ class FacebookCredentialController: BaseFirebaseCredentialController(FirebaseAut
     }
 
     override fun onActivityResult(code: Int, data: Intent?) {
-        callbackFactory.onActivityResult(CallbackManagerImpl.RequestCodeOffset.Login.toRequestCode(), code, data)
+        callbackFactory.onActivityResult(
+            CallbackManagerImpl.RequestCodeOffset.Login.toRequestCode(),
+            code,
+            data
+        )
     }
 
     override fun clearCredInfo(context: Context) {
@@ -64,7 +78,8 @@ class FacebookCredentialController: BaseFirebaseCredentialController(FirebaseAut
     private fun retrieveLoginStatus(activity: FragmentActivity) {
         loginManager.retrieveLoginStatus(activity, object : LoginStatusCallback {
             override fun onCompleted(accessToken: AccessToken?) {
-                accessToken?.token?.let { onSuccessLogin(it) } ?: run { onError(Exception("accessToken is null")) }
+                accessToken?.token?.let { onSuccessLogin(it) }
+                    ?: run { onError(Exception("accessToken is null")) }
             }
 
             override fun onFailure() {
@@ -73,16 +88,25 @@ class FacebookCredentialController: BaseFirebaseCredentialController(FirebaseAut
             }
 
             override fun onError(exception: Exception?) {
-                exception?.let { onError("Error add credential ${authCredential.providerId}", exception) }
+                exception?.let {
+                    onError(
+                        "Error add credential ${authCredential.providerId}",
+                        exception
+                    )
+                }
             }
         })
     }
 
-    private fun onSuccessLogin(authToken: String) = emitAuthTask(FacebookAuthProvider.getCredential(authToken))
+    private fun onSuccessLogin(authToken: String) =
+        emitAuthTask(FacebookAuthProvider.getCredential(authToken))
 
     private fun isAutoLoginSupport(): Boolean {
         return try {
-            FacebookSdk.getApplicationContext().packageManager.getApplicationInfo("com.facebook.katana", 0)
+            FacebookSdk.getApplicationContext().packageManager.getApplicationInfo(
+                "com.facebook.katana",
+                0
+            )
             true
         } catch (e: PackageManager.NameNotFoundException) {
             false

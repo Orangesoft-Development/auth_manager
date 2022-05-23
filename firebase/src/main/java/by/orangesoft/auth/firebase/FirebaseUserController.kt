@@ -13,7 +13,8 @@ import kotlinx.coroutines.tasks.await
 import java.io.File
 import kotlin.jvm.Throws
 
-open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) : BaseUserController<FirebaseProfile>(), ITokenController {
+open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) :
+    BaseUserController<FirebaseProfile>(), ITokenController {
 
     companion object {
         const val TAG = "FirebaseUserController"
@@ -54,19 +55,21 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
     override suspend fun updateAccount(profile: FirebaseProfile) {
         firebaseInstance.currentUser?.apply {
             updateProfile(UserProfileChangeRequest.Builder()
-                    .setPhotoUri(profile.photoUrl?.let { photoUrl -> Uri.parse(photoUrl) } ?: Uri.EMPTY)
-                    .setDisplayName(profile.displayName)
-                    .build())
-                 .await()
+                .setPhotoUri(profile.photoUrl?.let { photoUrl -> Uri.parse(photoUrl) } ?: Uri.EMPTY)
+                .setDisplayName(profile.displayName)
+                .build())
+                .await()
         }
     }
 
     @Throws(Throwable::class)
     override suspend fun updateAvatar(file: File) {
         firebaseInstance.currentUser?.apply {
-            updateProfile(UserProfileChangeRequest.Builder()
-                .setPhotoUri(Uri.fromFile(file))
-                .build())
+            updateProfile(
+                UserProfileChangeRequest.Builder()
+                    .setPhotoUri(Uri.fromFile(file))
+                    .build()
+            )
                 .await()
         }
     }
@@ -80,13 +83,15 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
     }
 
     private fun FirebaseAuth.getProfile(): FirebaseProfile =
-            currentUser!!.let {
-                FirebaseProfile(it.uid,
-                        it.providerId,
-                        it.displayName,
-                        it.phoneNumber,
-                        it.photoUrl?.toString(),
-                        it.email)
-            }
+        currentUser!!.let {
+            FirebaseProfile(
+                it.uid,
+                it.providerId,
+                it.displayName,
+                it.phoneNumber,
+                it.photoUrl?.toString(),
+                it.email
+            )
+        }
 
 }

@@ -15,20 +15,27 @@ import kotlinx.coroutines.tasks.await
 import java.util.*
 import kotlin.jvm.Throws
 
-open class FirebaseCredentialsManager(private val appContext: Context, parentJob: Job? = null): BaseCredentialsManager<FirebaseUserController>(parentJob) {
+open class FirebaseCredentialsManager(private val appContext: Context, parentJob: Job? = null) :
+    BaseCredentialsManager<FirebaseUserController>(parentJob) {
 
     protected val firebaseInstance: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
     private val credPaths by lazy { getCredentialPaths(appContext) }
 
     @Throws(Throwable::class)
-    override suspend fun onLogged(credentialResult: CredentialResult): FirebaseUserController = getCurrentUser()
+    override suspend fun onLogged(credentialResult: CredentialResult): FirebaseUserController =
+        getCurrentUser()
 
     override fun getCurrentUser(): FirebaseUserController = FirebaseUserController(firebaseInstance)
 
     private fun getCredentialPaths(appContext: Context): ArrayList<String> {
         val credentials = arrayListOf<String>()
         val optimizedDirectory = appContext.getDir(OUTDEX_NAME, 0).absolutePath
-        val classLoader = DexClassLoader(appContext.packageCodePath, optimizedDirectory, null, DexClassLoader.getSystemClassLoader())
+        val classLoader = DexClassLoader(
+            appContext.packageCodePath,
+            optimizedDirectory,
+            null,
+            DexClassLoader.getSystemClassLoader()
+        )
         loadClassIfExist(classLoader) { className ->
             credentials.add(className)
         }
@@ -46,10 +53,13 @@ open class FirebaseCredentialsManager(private val appContext: Context, parentJob
         }
     }
 
-    private fun newInstanceOfCredController(credentialsEnum: CredentialsEnum,
-                                            googleCredential: FirebaseAuthCredential.Google? = null,
-                                            phoneCredential: FirebaseAuthCredential.Phone? = null): IBaseCredentialController {
-        val className = credPaths.firstOrNull { it == credentialsEnum.className } ?: throw UnsupportedOperationException("Method is not supported")
+    private fun newInstanceOfCredController(
+        credentialsEnum: CredentialsEnum,
+        googleCredential: FirebaseAuthCredential.Google? = null,
+        phoneCredential: FirebaseAuthCredential.Phone? = null
+    ): IBaseCredentialController {
+        val className = credPaths.firstOrNull { it == credentialsEnum.className }
+            ?: throw UnsupportedOperationException("Method is not supported")
         val clazz: Class<*> = Class.forName(className)
         val o = when (className) {
             CredentialsEnum.GOOGLE.className -> {
@@ -69,12 +79,18 @@ open class FirebaseCredentialsManager(private val appContext: Context, parentJob
     }
 
     @Throws(Throwable::class)
-    override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: FirebaseUserController) {
+    override suspend fun onCredentialAdded(
+        credentialResult: CredentialResult,
+        user: FirebaseUserController
+    ) {
         user.reloadCredentials()
     }
 
     @Throws(Throwable::class)
-    override suspend fun onCredentialRemoved(credential: IBaseCredential, user: FirebaseUserController) {
+    override suspend fun onCredentialRemoved(
+        credential: IBaseCredential,
+        user: FirebaseUserController
+    ) {
         user.reloadCredentials()
     }
 
@@ -96,14 +112,18 @@ open class FirebaseCredentialsManager(private val appContext: Context, parentJob
         return getUpdatedUserFlow()
     }
 
-    override fun removeCredential(credential: IBaseCredential, user: FirebaseUserController): Flow<FirebaseUserController> {
+    override fun removeCredential(
+        credential: IBaseCredential,
+        user: FirebaseUserController
+    ): Flow<FirebaseUserController> {
         clearCredInfo(credential)
         return super.removeCredential(credential, user).onEach {
             user.reloadCredentials()
         }
     }
 
-    override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder = CredBuilder(credential)
+    override fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder =
+        CredBuilder(credential)
 
     override fun signOut() {
         singOutAllCredController()
@@ -120,27 +140,36 @@ open class FirebaseCredentialsManager(private val appContext: Context, parentJob
             when (it.providerId) {
                 Providers.APPLE -> FirebaseAuthCredential.Apple
                 Providers.FACEBOOK -> FirebaseAuthCredential.Facebook
-                Providers.GOOGLE -> FirebaseAuthCredential.Google("")
-                Providers.PHONE -> FirebaseAuthCredential.Phone("")
+                Providers.GOOGLE -> FirebaseAuthCredential.Google()
+                Providers.PHONE -> FirebaseAuthCredential.Phone()
                 else -> null
-            }?.let {  authCred -> clearCredInfo(authCred) }
+            }?.let { authCred -> clearCredInfo(authCred) }
         }
     }
 
-    private fun getCurrentCredController(credential: IBaseCredential, force: Boolean = false): IBaseCredentialController? =
-        if (force || getCurrentUser().credentials.value.firstOrNull { it.providerId == credential.providerId} != null) {
+    private fun getCurrentCredController(
+        credential: IBaseCredential,
+        force: Boolean = false
+    ): IBaseCredentialController? =
+        if (force || getCurrentUser().credentials.value.firstOrNull { it.providerId == credential.providerId } != null) {
             getBuilder(credential).build()
         } else null
 
-    open inner class CredBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder(credential) {
+    open inner class CredBuilder(credential: IBaseCredential) :
+        IBaseCredentialsManager.Builder(credential) {
 
         override fun createCredential(): IBaseCredentialController {
-
-            return when (credential) {
+            return when (val firebaseCredential = credential) {
                 is FirebaseAuthCredential.Apple -> newInstanceOfCredController(CredentialsEnum.APPLE)
-                is FirebaseAuthCredential.Google -> newInstanceOfCredController(CredentialsEnum.GOOGLE, googleCredential = credential)
+                is FirebaseAuthCredential.Google -> newInstanceOfCredController(
+                    CredentialsEnum.GOOGLE,
+                    googleCredential = firebaseCredential
+                )
                 is FirebaseAuthCredential.Facebook -> newInstanceOfCredController(CredentialsEnum.FACEBOOK)
-                is FirebaseAuthCredential.Phone -> newInstanceOfCredController(CredentialsEnum.PHONE, phoneCredential = credential)
+                is FirebaseAuthCredential.Phone -> newInstanceOfCredController(
+                    CredentialsEnum.PHONE,
+                    phoneCredential = firebaseCredential
+                )
                 else -> throw UnsupportedOperationException("Method $credential is not supported")
             }
         }

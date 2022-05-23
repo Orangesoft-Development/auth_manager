@@ -25,8 +25,12 @@ import kotlinx.coroutines.flow.onEach
 @InternalCoroutinesApi
 class MainActivity : FragmentActivity() {
 
-    private val authManager: AuthManager by lazy { AuthManager.getInstance(applicationContext, AuthManager.BASE_URL) }
-    private val simpleAuthManager: SimpleAuthManager by lazy { SimpleAuthManager.getInstance(SimpleAuthManager.BASE_URL, applicationContext) }
+    private val authManager: AuthManager by lazy {
+        AuthManager.getInstance(applicationContext, AuthManager.BASE_URL)
+    }
+    private val simpleAuthManager: SimpleAuthManager by lazy {
+        SimpleAuthManager.getInstance(SimpleAuthManager.BASE_URL, applicationContext)
+    }
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,25 +54,42 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun initViews() {
-
         binding.apply {
-            googleBtn.setOnClickListener { launchCredential(FirebaseAuthCredential.Google(getString(R.string.server_client_id))) }
+            googleBtn.setOnClickListener {
+                launchCredential(
+                    FirebaseAuthCredential.Google(
+                        getString(
+                            R.string.server_client_id
+                        )
+                    )
+                )
+            }
 
             facebookBtn.setOnClickListener { launchCredential(FirebaseAuthCredential.Facebook) }
 
             appleBtn.setOnClickListener { launchCredential(FirebaseAuthCredential.Apple) }
 
-            phoneBtn.setOnClickListener { launchCredential(FirebaseAuthCredential.Phone("+16505551234") { verificationId ->
-                //TODO manually send code + verificationId
-            }) }
+            phoneBtn.setOnClickListener {
+                launchCredential(FirebaseAuthCredential.Phone("+16505551234") { verificationId ->
+                    //TODO manually send code + verificationId
+                })
+            }
 
-            simplePhoneBtn.setOnClickListener { launchSimpleCredential(SimplePhoneAuthCredential("+375334445566", "1234")) }
+            simplePhoneBtn.setOnClickListener {
+                launchSimpleCredential(SimplePhoneAuthCredential("+375334445566", "1234"))
+            }
 
-            simpleEmailBtn.setOnClickListener { launchSimpleCredential(EmailAuthCredential("email@gmail.com", "password111")) }
+            simpleEmailBtn.setOnClickListener {
+                launchSimpleCredential(EmailAuthCredential("email@gmail.com", "password111"))
+            }
 
-            simpleRemoveEmailBtn.setOnClickListener { launchSimpleCredential(EmailAuthCredential("email@gmail.com", "password111"), true) }
+            simpleRemoveEmailBtn.setOnClickListener {
+                launchSimpleCredential(EmailAuthCredential("email@gmail.com", "password111"), true)
+            }
 
-            simpleRemovePhoneBtn.setOnClickListener { launchSimpleCredential(SimplePhoneAuthCredential("+375334445566", "1234"), true) }
+            simpleRemovePhoneBtn.setOnClickListener {
+                launchSimpleCredential(SimplePhoneAuthCredential("+375334445566", "1234"), true)
+            }
         }
     }
 
@@ -76,17 +97,24 @@ class MainActivity : FragmentActivity() {
 
         initCallbacks(authManager)
 
-        if (authManager.userStatus.value == AuthManager.UserStatus.REGISTERED && authManager.currentUser.value.containsCredential(credential)) {
+        if (authManager.userStatus.value == AuthManager.UserStatus.REGISTERED
+            && authManager.currentUser.value.containsCredential(credential)
+        ) {
             //TODO update removeCredentialFlow logic (add it?.cause in onCompletion)
             authManager.removeCredentialFlow(credential)
                 .flowOn(Dispatchers.IO)
                 .catch { loginError(it) }
                 .onEach {
-                    Toast.makeText(this, "RemoveCredential: ${credential.providerId}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "RemoveCredential: ${credential.providerId}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 .launchIn(CoroutineScope(Dispatchers.Main))
         } else {
-            authManager.login(this, credential).invokeOnCompletion { it?.let { loginError(it.cause) } }
+            authManager.login(this, credential)
+                .invokeOnCompletion { it?.let { loginError(it.cause) } }
         }
     }
 
@@ -94,17 +122,24 @@ class MainActivity : FragmentActivity() {
 
         initCallbacks(simpleAuthManager)
 
-        if (isRemove || simpleAuthManager.userStatus.value == SimpleAuthManager.UserStatus.REGISTERED && simpleAuthManager.currentUser.value.containsCredential(credential)) {
+        if (isRemove || simpleAuthManager.userStatus.value == SimpleAuthManager.UserStatus.REGISTERED
+            && simpleAuthManager.currentUser.value.containsCredential(credential)
+        ) {
             //TODO update removeCredentialFlow logic (add it?.cause in onCompletion)
             simpleAuthManager.removeCredentialFlow(credential)
                 .flowOn(Dispatchers.IO)
                 .catch { loginError(it) }
                 .onEach {
-                    Toast.makeText(this, "RemoveCredential: ${credential.providerId}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "RemoveCredential: ${credential.providerId}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 .launchIn(CoroutineScope(Dispatchers.Main))
         } else {
-            simpleAuthManager.login(this, credential).invokeOnCompletion { it?.let { loginError(it.cause) } }
+            simpleAuthManager.login(this, credential)
+                .invokeOnCompletion { it?.let { loginError(it.cause) } }
         }
     }
 
@@ -120,13 +155,14 @@ class MainActivity : FragmentActivity() {
                 Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
                 val resultCreds = authManager.currentUser.value.credentials.value
                 if (resultCreds.isNotEmpty()) {
-                    binding.resultCredentials.text = "USER CRED: ${resultCreds.map { it.providerId }}"
+                    binding.resultCredentials.text =
+                        "USER CRED: ${resultCreds.map { it.providerId }}"
                 }
             }
         }
     }
 
-    private fun initCallbacks(authManager: BaseAuthManager<*,*>) {
+    private fun initCallbacks(authManager: BaseAuthManager<*, *>) {
         authManager.currentUser
             .onEach {
                 val resultCreds = authManager.currentUser.value.credentials.value

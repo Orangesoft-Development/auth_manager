@@ -69,6 +69,7 @@ dependencies {
 
     implementation(Depends.BaseAndroid.material)
     implementation(Depends.BaseAndroid.appcompat)
+    implementation(Depends.BaseAndroid.preference)
 
     implementation(Depends.Coroutines.core)
     implementation(Depends.Coroutines.android)
@@ -89,5 +90,4 @@ dependencies {
     implementation(platform(Depends.Firebase.firebasePlatform))
     implementation(Depends.Firebase.auth)
     implementation(Depends.Firebase.messaging)
-    implementation("androidx.preference:preference:1.1.1")
 }

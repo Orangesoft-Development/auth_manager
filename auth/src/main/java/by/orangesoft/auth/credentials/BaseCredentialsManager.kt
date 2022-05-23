@@ -9,7 +9,8 @@ import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.Throws
 
-abstract class BaseCredentialsManager<T: BaseUserController<*>> (parentJob: Job? = null): CoroutineScope, IBaseCredentialsManager<T> {
+abstract class BaseCredentialsManager<T : BaseUserController<*>>(parentJob: Job? = null) :
+    CoroutineScope, IBaseCredentialsManager<T> {
 
     companion object {
         const val TAG = "CredentialsController"
@@ -38,12 +39,19 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (parentJob: Job?
 
     protected abstract fun getBuilder(credential: IBaseCredential): IBaseCredentialsManager.Builder
 
-    override fun logout(user: T): Flow<T> = userSharedFlow.asSharedFlow().onStart { emit(onUserLogout(user)) }
+    override fun logout(user: T): Flow<T> =
+        userSharedFlow.asSharedFlow().onStart { emit(onUserLogout(user)) }
 
-    override fun deleteUser(user: T): Flow<T> = userSharedFlow.asSharedFlow().onStart { emit(onUserDelete(user)) }
+    override fun deleteUser(user: T): Flow<T> =
+        userSharedFlow.asSharedFlow().onStart { emit(onUserDelete(user)) }
 
-    override fun addCredential(activity: FragmentActivity, credential: IBaseCredential, user: T?): Flow<T> =
-        userSharedFlow.asSharedFlow().onStart { addBuilderCredential(activity, credential, user, currentCoroutineContext()) }
+    override fun addCredential(
+        activity: FragmentActivity,
+        credential: IBaseCredential,
+        user: T?
+    ): Flow<T> =
+        userSharedFlow.asSharedFlow()
+            .onStart { addBuilderCredential(activity, credential, user, currentCoroutineContext()) }
 
     override fun removeCredential(credential: IBaseCredential, user: T): Flow<T> =
         userSharedFlow.asSharedFlow().onStart {
@@ -56,7 +64,12 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (parentJob: Job?
         return userSharedFlow.asSharedFlow().onStart { userSharedFlow.emit(getCurrentUser()) }
     }
 
-    private fun addBuilderCredential(activity: FragmentActivity, credential: IBaseCredential, user: T?, coroutineContext: CoroutineContext) {
+    private fun addBuilderCredential(
+        activity: FragmentActivity,
+        credential: IBaseCredential,
+        user: T?,
+        coroutineContext: CoroutineContext
+    ) {
         getBuilder(credential).build(activity).addCredential()
             .onEach { credResult ->
                 user?.let {
@@ -79,7 +92,10 @@ abstract class BaseCredentialsManager<T: BaseUserController<*>> (parentJob: Job?
             .launchIn(CoroutineScope(coroutineContext + this.coroutineContext.job))
     }
 
-    private suspend fun removeBuilderCredential(credential: IBaseCredential, coroutineContext: CoroutineContext) {
+    private suspend fun removeBuilderCredential(
+        credential: IBaseCredential,
+        coroutineContext: CoroutineContext
+    ) {
         getBuilder(credential).build().removeCredential()
             .onEach {
                 getCurrentUser().let {

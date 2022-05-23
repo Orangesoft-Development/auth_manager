@@ -29,9 +29,7 @@ class SimpleUserController(private val appContext: Context? = null,
         MutableStateFlow(prefsHelper.getCredentials())
     }
 
-    override suspend fun getAccessToken(): String {
-        return prefsHelper.getToken()
-    }
+    override suspend fun getAccessToken(): String = prefsHelper.getToken()
 
     override suspend fun setAccessToken(accessToken: String) {
         prefsHelper.saveToken(accessToken)

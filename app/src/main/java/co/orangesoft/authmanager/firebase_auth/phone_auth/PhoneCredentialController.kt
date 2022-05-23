@@ -13,8 +13,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.CoroutineContext
 
-class PhoneCredentialController(private val authService: AuthService,
-                                phoneAuthCredential: PhoneAuthCredential
+class PhoneCredentialController(
+    private val authService: AuthService,
+    phoneAuthCredential: PhoneAuthCredential
 ) : BaseFirebaseCredentialController(phoneAuthCredential), CoroutineScope {
 
     override val authCredential: PhoneAuthCredential = phoneAuthCredential
@@ -23,8 +24,15 @@ class PhoneCredentialController(private val authService: AuthService,
 
     override fun addCredential(): Flow<CredentialResult> {
         runBlocking {
-            val prevUser: FirebaseUser? = authInstance.currentUser?.let { if(it.providerData.size > 1) it else null }
-            authService.createPhoneToken(PhoneCredentialRequestBody(authCredential.phone, authCredential.code, prevUser?.uid)).apply {
+            val prevUser: FirebaseUser? =
+                authInstance.currentUser?.let { if (it.providerData.size > 1) it else null }
+            authService.createPhoneToken(
+                PhoneCredentialRequestBody(
+                    authCredential.phone,
+                    authCredential.code,
+                    prevUser?.uid
+                )
+            ).apply {
                 authInstance.signInWithCustomToken(body() ?: "").await()
             }
         }
@@ -34,5 +42,7 @@ class PhoneCredentialController(private val authService: AuthService,
 
     override fun onActivityResult(code: Int, data: Intent?) {}
 
-    override fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {}
+    override fun onProviderCreated(
+        activity: FragmentActivity,
+        activityLauncher: ActivityResultLauncher<Intent>) {}
 }

@@ -8,7 +8,7 @@ import by.orangesoft.auth.firebase.credential.controllers.BaseFirebaseCredential
 import com.google.firebase.auth.OAuthProvider
 import java.util.*
 
-class AppleCredentialController: BaseFirebaseCredentialController(FirebaseAuthCredential.Apple) {
+class AppleCredentialController : BaseFirebaseCredentialController(FirebaseAuthCredential.Apple) {
 
     private val appleSingInClient: OAuthProvider by lazy {
         OAuthProvider.newBuilder(authCredential.providerId).apply {
@@ -17,12 +17,15 @@ class AppleCredentialController: BaseFirebaseCredentialController(FirebaseAuthCr
         }.build()
     }
 
-    override fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {
+    override fun onProviderCreated(
+        activity: FragmentActivity,
+        activityLauncher: ActivityResultLauncher<Intent>
+    ) {
         authTaskFlow.tryEmit(authInstance.currentUser?.let { currentUser ->
             val authTask = if (!currentUser.isAnonymous && currentUser.providerData.size > 1)
                 currentUser.startActivityForLinkWithProvider(activity, appleSingInClient) else null
-             authTask
-         } ?: authInstance.startActivityForSignInWithProvider(activity, appleSingInClient))
+            authTask
+        } ?: authInstance.startActivityForSignInWithProvider(activity, appleSingInClient))
     }
 
     override fun onActivityResult(code: Int, data: Intent?) {}

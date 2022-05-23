@@ -22,7 +22,8 @@ import java.util.concurrent.TimeUnit
 import java.util.Locale
 import kotlin.coroutines.CoroutineContext
 
-class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCredential.Phone): BaseFirebaseCredentialController(phoneAuthCredential) {
+class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCredential.Phone) :
+    BaseFirebaseCredentialController(phoneAuthCredential) {
 
     companion object {
         private val phoneCredResendingToken = PhoneCredResendingToken()
@@ -83,7 +84,10 @@ class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCre
         }
     }
 
-    override fun updateCurrentCredential(user: FirebaseUser, authCredential: AuthCredential): Task<UpdateCredAuthResult> =
+    override fun updateCurrentCredential(
+        user: FirebaseUser,
+        authCredential: AuthCredential
+    ): Task<UpdateCredAuthResult> =
         user.updatePhoneNumber(authCredential as PhoneAuthCredential)
             .continueWithTask {
                 it.exception?.let { throw it } ?: run {
@@ -98,7 +102,10 @@ class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCre
 
     override suspend fun getCredential(coroutineContext: CoroutineContext) {
         if (phoneAuthCredential.verificationId != null && phoneAuthCredential.code != null) {
-            val credential = PhoneAuthProvider.getCredential(phoneAuthCredential.verificationId!!, phoneAuthCredential.code!!)
+            val credential = PhoneAuthProvider.getCredential(
+                phoneAuthCredential.verificationId!!,
+                phoneAuthCredential.code!!
+            )
             emitAuthTask(credential)
         }
         super.getCredential(coroutineContext)
@@ -106,7 +113,7 @@ class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCre
 
 }
 
-private data class PhoneCredResendingToken (
+private data class PhoneCredResendingToken(
     var phoneNumber: String? = null,
     var forceResendingToken: Parcelable? = null
 ) {

@@ -22,7 +22,6 @@ data class FirebaseCredentialResult(val uid: String,
     override fun toString(): String = "${javaClass.simpleName}($providerId)"
 }
 
-//TODO check token logic
 fun FirebaseAuth.getCredentials(): Set<FirebaseCredentialResult> =
     currentUser?.providerData?.mapNotNull {
         if (it.providerId != "firebase")

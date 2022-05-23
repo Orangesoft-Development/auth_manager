@@ -15,8 +15,10 @@ import kotlinx.coroutines.flow.*
 import okhttp3.Interceptor
 
 @InternalCoroutinesApi
-class AuthManager(credManager: FirebaseCredentialsManager,
-                  parentJob: Job? = null) : FirebaseAuthManager(credManager, parentJob) {
+class AuthManager(
+    credManager: FirebaseCredentialsManager,
+    parentJob: Job? = null
+) : FirebaseAuthManager(credManager, parentJob) {
 
     companion object {
 
@@ -26,10 +28,25 @@ class AuthManager(credManager: FirebaseCredentialsManager,
             MutableStateFlow(UnregisteredUserControllerImpl(FirebaseAuth.getInstance()))
         }
 
-        fun getInstance(appContext: Context, tokenServiceBaseUrl: String, interceptors: List<Interceptor> = arrayListOf(), parentJob: Job? = null): AuthManager {
+        fun getInstance(
+            appContext: Context,
+            tokenServiceBaseUrl: String,
+            interceptors: List<Interceptor> = arrayListOf(),
+            parentJob: Job? = null
+        ): AuthManager {
             val tokenManager = TokenManager(_user.asStateFlow(), tokenServiceBaseUrl, interceptors)
             val okHttp = provideOkHttp(interceptors, tokenManager)
-            return AuthManager(CredentialManager(AccountManager.get(appContext), appContext.packageName, "", provideAuthService(BASE_URL, okHttp), provideProfileService(BASE_URL, okHttp), appContext, parentJob), parentJob)
+            return AuthManager(
+                CredentialManager(
+                    AccountManager.get(appContext),
+                    appContext.packageName,
+                    "",
+                    provideAuthService(BASE_URL, okHttp),
+                    provideProfileService(BASE_URL, okHttp),
+                    appContext,
+                    parentJob
+                ), parentJob
+            )
         }
     }
 
@@ -46,7 +63,8 @@ class AuthManager(credManager: FirebaseCredentialsManager,
 
     init {
         currentUser.onEach {
-            _status.value = if(it.credentials.value.isEmpty()) UserStatus.UNREGISTERED else UserStatus.REGISTERED
+            _status.value =
+                if (it.credentials.value.isEmpty()) UserStatus.UNREGISTERED else UserStatus.REGISTERED
         }.launchIn(this)
         _user.tryEmit(credManager.getCurrentUser())
     }

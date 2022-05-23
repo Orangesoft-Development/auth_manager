@@ -32,7 +32,7 @@ class SimpleEmailCredentialController(private val appContext: Context,
     override fun addCredential(): Flow<CredentialResult> {
         if (authCredential is EmailAuthCredential) {
             launch {
-                Log.e("TAG","Controller thred:${Thread.currentThread()}")
+                Log.i("EmailCredential","Controller thred:${Thread.currentThread()}")
                 authService.createEmailToken(EmailCredentialRequestBody(authCredential.email, authCredential.password, prefsHelper.getProfile()?.id))
                     .apply {
                         val token = if (isSuccessful) body() ?: "" else ""

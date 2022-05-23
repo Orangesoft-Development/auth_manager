@@ -18,6 +18,7 @@ object Depends {
         const val appcompat = "androidx.appcompat:appcompat:${Versions.appcompat}"
         const val activityKtx = "androidx.activity:activity-ktx:${Versions.activityKtx}"
         const val fragments = "androidx.fragment:fragment:${Versions.fragments}"
+        const val preference = "androidx.preference:preference:${Versions.preference}"
     }
 
     object Coroutines {

@@ -26,6 +26,7 @@ object Versions {
     const val lifecycle = "2.4.0"
     const val fragments = "1.4.0"
     const val activityKtx = "1.4.0"
+    const val preference = "1.2.0"
 
     const val facebookAuth = "12.0.1"
     const val firebasePlatform = "29.1.0"

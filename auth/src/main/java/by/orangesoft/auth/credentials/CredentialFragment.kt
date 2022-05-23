@@ -16,13 +16,20 @@ class CredentialFragment : Fragment() {
     private lateinit var credentialControllerResultListener: CredentialControllerResultListener
 
     private val credentialResultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { componentActivityResult(it) }
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            componentActivityResult(it)
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (::credentialControllerResultListener.isInitialized) {
-            credentialControllerResultListener.onProviderCreated(requireActivity(), credentialResultLauncher)
-            (activity as? ComponentCallbackActivity)?.setActivityResultCallback { componentActivityResult(it) }
+            credentialControllerResultListener.onProviderCreated(
+                requireActivity(),
+                credentialResultLauncher
+            )
+            (activity as? ComponentCallbackActivity)?.setActivityResultCallback {
+                componentActivityResult(it)
+            }
         }
     }
 

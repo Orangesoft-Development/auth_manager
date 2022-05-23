@@ -15,9 +15,7 @@ abstract class FirebaseAuthManager(
     fun signInAnonymously() {
         launch {
             credentialsManager.signInAnonymously()
-                .onEach {
-                    user.value = it
-                }
+                .onEach { user.value = it }
                 .launchIn(this)
         }
     }
