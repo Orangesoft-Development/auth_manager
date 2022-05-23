@@ -12,8 +12,7 @@ open class FirebaseAuthCredential(providerId: String) : BaseAuthCredential(provi
         val phoneNumber: String,
         val code: String? = null,
         val verificationId: String? = null,
-        val forceResendingToken: Parcelable? = null,
-        val onCodeSentListener: ((verificationId: String, forceResendingToken: Parcelable) -> Unit)? = null
+        val onCodeSentListener: ((verificationId: String) -> Unit)? = null
     ) : FirebaseAuthCredential(Providers.PHONE)
     data class Google(val clientId: String) : FirebaseAuthCredential(Providers.GOOGLE)
 }

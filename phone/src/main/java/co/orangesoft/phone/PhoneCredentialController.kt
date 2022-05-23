@@ -1,6 +1,7 @@
 package co.orangesoft.phone
 
 import android.content.Intent
+import android.os.Parcelable
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.FragmentActivity
@@ -8,7 +9,7 @@ import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
 import by.orangesoft.auth.firebase.credential.UpdateCredAuthResult
 import by.orangesoft.auth.firebase.credential.controllers.BaseFirebaseCredentialController
 import com.google.android.gms.tasks.Task
-import com.google.android.gms.tasks.Tasks
+import com.google.android.gms.tasks.TaskCompletionSource
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
@@ -23,6 +24,10 @@ import kotlin.coroutines.CoroutineContext
 
 class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCredential.Phone): BaseFirebaseCredentialController(phoneAuthCredential) {
 
+    companion object {
+        private val phoneCredResendingToken = PhoneCredResendingToken()
+    }
+
     private fun phoneSingInClient(activity: FragmentActivity) {
         authInstance.setLanguageCode(Locale.getDefault().language)
         val options = PhoneAuthOptions.newBuilder(authInstance)
@@ -36,11 +41,13 @@ class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCre
                     forceResendingToken: PhoneAuthProvider.ForceResendingToken
                 ) {
                     Log.i("!!!", "Code sent $verificationId")
-                    phoneAuthCredential.onCodeSentListener?.invoke(verificationId, forceResendingToken)
+                    phoneCredResendingToken.forceResendingToken = forceResendingToken
+                    phoneAuthCredential.onCodeSentListener?.invoke(verificationId)
                 }
 
                 override fun onVerificationCompleted(credential: PhoneAuthCredential) {
                     Log.i("!!!", "Verification completed: ${credential.smsCode}")
+                    phoneCredResendingToken.clear()
                     emitAuthTask(credential)
                     launch { getCredential(currentCoroutineContext()) }
                 }
@@ -48,6 +55,7 @@ class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCre
                 override fun onVerificationFailed(p0: FirebaseException) {
                     Log.e("!!!", "Verification failed: ${p0.message}")
                     onError("Error phoneSingIn", p0)
+                    phoneCredResendingToken.clear()
                 }
 
                 override fun onCodeAutoRetrievalTimeOut(p0: String) {
@@ -55,7 +63,10 @@ class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCre
                     super.onCodeAutoRetrievalTimeOut(p0)
                 }
             })
-        (phoneAuthCredential.forceResendingToken as? PhoneAuthProvider.ForceResendingToken)?.let {
+
+        (phoneCredResendingToken.updatePhoneCred(phoneAuthCredential.phoneNumber)
+            .forceResendingToken as? PhoneAuthProvider.ForceResendingToken)?.let {
+            Log.i("!!!", "Phone provider: resend sms")
             options.setForceResendingToken(it)
         }
         PhoneAuthProvider.verifyPhoneNumber(options.build())
@@ -72,11 +83,15 @@ class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCre
         }
     }
 
-    //TODO update deprecated method
     override fun updateCurrentCredential(user: FirebaseUser, authCredential: AuthCredential): Task<UpdateCredAuthResult> =
         user.updatePhoneNumber(authCredential as PhoneAuthCredential)
             .continueWithTask {
-                it.exception?.let { throw it } ?: Tasks.call { UpdateCredAuthResult(user, authCredential) }
+                it.exception?.let { throw it } ?: run {
+                    val completionSource = TaskCompletionSource<UpdateCredAuthResult>().also {
+                        it.setResult(UpdateCredAuthResult(user, authCredential))
+                    }
+                    completionSource.task
+                }
             }
 
     override fun onActivityResult(code: Int, data: Intent?) {}
@@ -87,6 +102,25 @@ class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCre
             emitAuthTask(credential)
         }
         super.getCredential(coroutineContext)
+    }
+
+}
+
+private data class PhoneCredResendingToken (
+    var phoneNumber: String? = null,
+    var forceResendingToken: Parcelable? = null
+) {
+
+    fun updatePhoneCred(newPhoneNumber: String) = apply {
+        if (phoneNumber != newPhoneNumber) {
+            phoneNumber = newPhoneNumber
+            forceResendingToken = null
+        }
+    }
+
+    fun clear() {
+        phoneNumber = null
+        forceResendingToken = null
     }
 
 }
