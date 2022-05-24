@@ -47,7 +47,10 @@ abstract class BaseUserController<P> {
     }
 
     fun containsCredential(authCredential: BaseAuthCredential) =
-        credentials.value.let { creds -> creds.firstOrNull { it.providerId == authCredential.providerId } != null && creds.size > 1 }
+        credentials.value.let { creds -> creds.firstOrNull { it.providerId == authCredential.providerId } != null }
+
+    fun isSingleCredential() = credentials.value.size == 1
+
 
     private fun getProfileAfterUpdateFlow(request: suspend () -> Unit): Flow<P> {
         return flow {

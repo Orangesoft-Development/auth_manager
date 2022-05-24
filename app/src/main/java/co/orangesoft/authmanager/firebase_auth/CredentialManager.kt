@@ -16,8 +16,12 @@ import co.orangesoft.authmanager.firebase_auth.user.AccountManagerConst.ACCOUNT_
 import co.orangesoft.authmanager.firebase_auth.user.AccountManagerConst.ACCOUNT_FIREBASE_UID
 import co.orangesoft.authmanager.firebase_auth.user.AccountManagerConst.ACCOUNT_ID
 import co.orangesoft.authmanager.firebase_auth.user.AccountManagerConst.SPEC_SYMBOL
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 
 @InternalCoroutinesApi
@@ -59,18 +63,18 @@ internal class CredentialManager(
                     accountManager.addAccountExplicitly(it, accountPassword, loginResponse.toBundle(firebaseInstance.currentUser?.uid))
                 }
             }
-            updateProfileAccount(profile).launchIn(this@CredentialManager)
+            updateProfileAccount(profile)
+                .catch { it.printStackTrace() }
+                .launchIn(this@CredentialManager)
         }
     }
 
     override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: FirebaseUserController) {
-        authService.addCreds(user.getAccessToken(), credentialResult.providerId)
-        user.reloadCredentials()
+        user.reloadProfile().flowOn(Dispatchers.IO).catch { it.printStackTrace() }.collect()
     }
 
     override suspend fun onCredentialRemoved(credential: IBaseCredential, user: FirebaseUserController) {
-        authService.removeCreds(user.getAccessToken(), credential.providerId.replace(".com", ""))
-        user.reloadCredentials()
+        user.reloadProfile().flowOn(Dispatchers.IO).catch { it.printStackTrace() }.collect()
     }
 
     override suspend fun onUserLogout(user: FirebaseUserController): FirebaseUserController {

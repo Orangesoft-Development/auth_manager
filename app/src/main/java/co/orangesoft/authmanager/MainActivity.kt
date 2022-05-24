@@ -57,11 +57,7 @@ class MainActivity : FragmentActivity() {
         binding.apply {
             googleBtn.setOnClickListener {
                 launchCredential(
-                    FirebaseAuthCredential.Google(
-                        getString(
-                            R.string.server_client_id
-                        )
-                    )
+                    FirebaseAuthCredential.Google(getString(R.string.server_client_id))
                 )
             }
 
@@ -70,8 +66,9 @@ class MainActivity : FragmentActivity() {
             appleBtn.setOnClickListener { launchCredential(FirebaseAuthCredential.Apple) }
 
             phoneBtn.setOnClickListener {
-                launchCredential(FirebaseAuthCredential.Phone("+16505551234") { verificationId ->
-                    //TODO manually send code + verificationId
+                launchCredential(FirebaseAuthCredential.Phone("+375334445566") { verificationId ->
+                    // manually launchCredential with code + verificationId
+                    launchCredential(FirebaseAuthCredential.Phone("+375334445566", "123456", verificationId))
                 })
             }
 
@@ -101,20 +98,28 @@ class MainActivity : FragmentActivity() {
             && authManager.currentUser.value.containsCredential(credential)
         ) {
             //TODO update removeCredentialFlow logic (add it?.cause in onCompletion)
-            authManager.removeCredentialFlow(credential)
-                .flowOn(Dispatchers.IO)
-                .catch { loginError(it) }
-                .onEach {
-                    Toast.makeText(
-                        this,
-                        "RemoveCredential: ${credential.providerId}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                .launchIn(CoroutineScope(Dispatchers.Main))
+            if (!authManager.currentUser.value.isSingleCredential()) {
+                authManager.removeCredentialFlow(credential)
+                    .flowOn(Dispatchers.IO)
+                    .catch { loginError(it) }
+                    .onEach {
+                        Toast.makeText(
+                            this,
+                            "RemoveCredential: ${credential.providerId}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    .launchIn(CoroutineScope(Dispatchers.Main))
+            } else {
+                Toast.makeText(
+                    this,
+                    "Cannot remove single credential: ${credential.providerId}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         } else {
             authManager.login(this, credential)
-                .invokeOnCompletion { it?.let { loginError(it.cause) } }
+                .invokeOnCompletion { it?.cause?.let { loginError(it) } }
         }
     }
 
@@ -126,17 +131,25 @@ class MainActivity : FragmentActivity() {
             && simpleAuthManager.currentUser.value.containsCredential(credential)
         ) {
             //TODO update removeCredentialFlow logic (add it?.cause in onCompletion)
-            simpleAuthManager.removeCredentialFlow(credential)
-                .flowOn(Dispatchers.IO)
-                .catch { loginError(it) }
-                .onEach {
+                if (!simpleAuthManager.currentUser.value.isSingleCredential()) {
+                    simpleAuthManager.removeCredentialFlow(credential)
+                        .flowOn(Dispatchers.IO)
+                        .catch { loginError(it) }
+                        .onEach {
+                            Toast.makeText(
+                                this,
+                                "RemoveCredential: ${credential.providerId}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        .launchIn(CoroutineScope(Dispatchers.Main))
+                } else {
                     Toast.makeText(
                         this,
-                        "RemoveCredential: ${credential.providerId}",
+                        "Cannot remove single credential: ${credential.providerId}",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-                .launchIn(CoroutineScope(Dispatchers.Main))
         } else {
             simpleAuthManager.login(this, credential)
                 .invokeOnCompletion { it?.let { loginError(it.cause) } }

@@ -10,9 +10,10 @@
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 
-    <string name="facebook_app_id" translatable="false">1057252707963898</string>
-    <string name="fb_login_protocol_scheme" translatable="false">fb1057252707963898</string>
+    <string name="facebook_app_id" translatable="false">791683691996137</string>
+    <string name="fb_login_protocol_scheme" translatable="false">fb791683691996137</string>
+    <string name="facebook_client_token" translatable="false">73f957ae0a8ccfd1ba737c86f4b8b519</string>
 
-    <string name="server_client_id" translatable="false">159284128303-haeabapbf2vlhdkfvptnpms67ldck0f3.apps.googleusercontent.com</string>
-    <string name="client_secret" translatable="false">U8AarskY-ET8dkfaDPFJOd60</string>
+    <string name="server_client_id" translatable="false">142753893367-l04c74ijg20n16enu5alcg8rahb15s5g.apps.googleusercontent.com</string>
+    <string name="client_secret" translatable="false">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</string>
 </resources>
