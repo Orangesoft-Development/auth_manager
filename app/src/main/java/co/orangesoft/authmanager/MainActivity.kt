@@ -6,21 +6,15 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
-import by.orangesoft.auth.BaseAuthManager
 import by.orangesoft.auth.credentials.BaseAuthCredential
-import by.orangesoft.auth.firebase.FirebaseProfile
 import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
 import co.orangesoft.authmanager.auth.SimpleAuthManager
-import co.orangesoft.authmanager.auth.SimpleProfile
 import co.orangesoft.authmanager.auth.email.EmailAuthCredential
 import co.orangesoft.authmanager.auth.phone.SimplePhoneAuthCredential
 import co.orangesoft.authmanager.databinding.ActivityMainBinding
 import co.orangesoft.authmanager.firebase_auth.AuthManager
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 
 @InternalCoroutinesApi
 class MainActivity : FragmentActivity() {
@@ -87,17 +81,20 @@ class MainActivity : FragmentActivity() {
             simpleRemovePhoneBtn.setOnClickListener {
                 launchSimpleCredential(SimplePhoneAuthCredential("+375334445566", "1234"), true)
             }
+
+            logout.setOnClickListener {
+                if (authManager.userStatus.value == AuthManager.UserStatus.REGISTERED)
+                    credentialLogout()
+            }
         }
+        initAuthManagerCallbacks(authManager)
+        initSimpleAuthManagerCallbacks(simpleAuthManager)
     }
 
     private fun launchCredential(credential: FirebaseAuthCredential) {
-
-        initCallbacks(authManager)
-
         if (authManager.userStatus.value == AuthManager.UserStatus.REGISTERED
             && authManager.currentUser.value.containsCredential(credential)
         ) {
-            //TODO update removeCredentialFlow logic (add it?.cause in onCompletion)
             if (!authManager.currentUser.value.isSingleCredential()) {
                 authManager.removeCredentialFlow(credential)
                     .flowOn(Dispatchers.IO)
@@ -105,7 +102,7 @@ class MainActivity : FragmentActivity() {
                     .onEach {
                         Toast.makeText(
                             this,
-                            "RemoveCredential: ${credential.providerId}",
+                            getString(R.string.remove_credential, credential.providerId),
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -113,7 +110,7 @@ class MainActivity : FragmentActivity() {
             } else {
                 Toast.makeText(
                     this,
-                    "Cannot remove single credential: ${credential.providerId}",
+                    getString(R.string.remove_simple_credential_error, credential.providerId),
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -124,71 +121,85 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun launchSimpleCredential(credential: BaseAuthCredential, isRemove: Boolean = false) {
-
-        initCallbacks(simpleAuthManager)
-
         if (isRemove || simpleAuthManager.userStatus.value == SimpleAuthManager.UserStatus.REGISTERED
             && simpleAuthManager.currentUser.value.containsCredential(credential)
         ) {
-            //TODO update removeCredentialFlow logic (add it?.cause in onCompletion)
-                if (!simpleAuthManager.currentUser.value.isSingleCredential()) {
-                    simpleAuthManager.removeCredentialFlow(credential)
-                        .flowOn(Dispatchers.IO)
-                        .catch { loginError(it) }
-                        .onEach {
-                            Toast.makeText(
-                                this,
-                                "RemoveCredential: ${credential.providerId}",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        .launchIn(CoroutineScope(Dispatchers.Main))
-                } else {
-                    Toast.makeText(
-                        this,
-                        "Cannot remove single credential: ${credential.providerId}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+            if (!simpleAuthManager.currentUser.value.isSingleCredential()) {
+                simpleAuthManager.removeCredentialFlow(credential)
+                    .flowOn(Dispatchers.IO)
+                    .catch { simpleLoginError(it) }
+                    .onEach {
+                        Toast.makeText(
+                            this,
+                            getString(R.string.remove_credential, credential.providerId),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    .launchIn(CoroutineScope(Dispatchers.Main))
+            } else {
+                Toast.makeText(
+                    this,
+                    getString(R.string.remove_simple_credential_error, credential.providerId),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         } else {
             simpleAuthManager.login(this, credential)
-                .invokeOnCompletion { it?.let { loginError(it.cause) } }
+                .invokeOnCompletion { it?.cause?.let { simpleLoginError(it)} }
         }
     }
 
     private fun signInAnonymously() {
-        initCallbacks(authManager)
         authManager.signInAnonymously()
+    }
+
+    //TODO add logout logic for simple cred manager
+    private fun credentialLogout() {
+        authManager.logout().invokeOnCompletion { it?.cause?.let { loginError(it) } }
     }
 
     @SuppressLint("SetTextI18n")
     private fun loginError(throwable: Throwable?) {
-        binding.root.post {
-            throwable?.let {
+        throwable?.let {
+            binding.root.post {
                 Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
-                val resultCreds = authManager.currentUser.value.credentials.value
-                if (resultCreds.isNotEmpty()) {
-                    binding.resultCredentials.text =
-                        "USER CRED: ${resultCreds.map { it.providerId }}"
-                }
+                binding.logout.isEnabled =
+                    authManager.currentUser.value.credentials.value.isNotEmpty()
             }
         }
     }
 
-    private fun initCallbacks(authManager: BaseAuthManager<*, *>) {
+    @SuppressLint("SetTextI18n")
+    private fun simpleLoginError(throwable: Throwable?) {
+        throwable?.let {
+            binding.root.post {
+                Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun initAuthManagerCallbacks(authManager: AuthManager) {
         authManager.currentUser
             .onEach {
                 val resultCreds = authManager.currentUser.value.credentials.value
-                binding.resultCredentials.text =
-                    if (resultCreds.isNotEmpty()) "USER CRED: ${resultCreds.map { it.providerId }}"
-                    else "GUEST USER ID: " + it.profile?.let { profile ->
-                        when (profile) {
-                            is SimpleProfile -> profile.id
-                            is FirebaseProfile -> profile.uid
-                            else -> "unknown"
-                        }
-                    }
+                binding.logout.isEnabled = resultCreds.isNotEmpty()
+                binding.authResultCredentials.text =
+                    if (resultCreds.isNotEmpty()) "User(${
+                        authManager.userAccountName().firstOrNull()
+                    }): ${resultCreds.map { it.providerId }}" else null
             }
             .launchIn(CoroutineScope(Dispatchers.Main))
     }
+
+    private fun initSimpleAuthManagerCallbacks(simpleAuthManager: SimpleAuthManager) {
+        simpleAuthManager.currentUser
+            .onEach {
+                val resultCreds = simpleAuthManager.currentUser.value.credentials.value
+                binding.simpleAuthResultCredentials.text =
+                    if (resultCreds.isNotEmpty()) "Simple user: ${resultCreds.map { it.providerId }}"
+                    else null
+            }
+            .launchIn(CoroutineScope(Dispatchers.Main))
+    }
+
 }

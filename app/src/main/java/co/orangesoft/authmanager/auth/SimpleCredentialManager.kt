@@ -8,10 +8,14 @@ import co.orangesoft.authmanager.auth.email.EmailAuthCredential
 import co.orangesoft.authmanager.auth.email.SimpleEmailCredentialController
 import co.orangesoft.authmanager.auth.phone.SimplePhoneAuthCredential
 import co.orangesoft.authmanager.auth.phone.SimplePhoneCredentialController
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
+import java.lang.Exception
 import kotlin.jvm.Throws
 
 @InternalCoroutinesApi
@@ -33,20 +37,26 @@ class SimpleCredentialManager(private val appContext: Context,
     }
 
     override suspend fun onCredentialAdded(credentialResult: CredentialResult, user: SimpleUserController) {
-        authService.addCreds(user.getAccessToken(), credentialResult.providerId)
+        try {
+            authService.addCreds(user.getAccessToken(), credentialResult.providerId)
+            user.reloadProfile().flowOn(Dispatchers.IO).catch { it.printStackTrace() }.collect()
+        } catch (ex: Exception) { ex.printStackTrace() }
     }
 
     override suspend fun onCredentialRemoved(credential: IBaseCredential, user: SimpleUserController) {
-        authService.removeCreds(user.getAccessToken(), credential.providerId.replace(".com", ""))
+        try {
+            authService.removeCreds(user.getAccessToken(), credential.providerId.replace(".com", ""))
+            user.reloadProfile().flowOn(Dispatchers.IO).catch { it.printStackTrace() }.collect()
+        } catch (ex: Exception) { ex.printStackTrace() }
     }
 
     override suspend fun onUserLogout(user: SimpleUserController): SimpleUserController {
-        authService.delete(user.getAccessToken())
+        authService.logout(user.getAccessToken())
         return getCurrentUser()
     }
 
     override suspend fun onUserDelete(user: SimpleUserController): SimpleUserController {
-        authService.logout(user.getAccessToken())
+        authService.delete(user.getAccessToken())
         return getCurrentUser()
     }
 

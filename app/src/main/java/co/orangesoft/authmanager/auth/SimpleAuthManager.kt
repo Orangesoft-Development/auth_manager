@@ -45,7 +45,7 @@ class SimpleAuthManager(credManager: SimpleCredentialManager,
 
     init {
         currentUser.onEach {
-            _status.value = if(it.credentials.value.isEmpty()) UserStatus.UNREGISTERED else UserStatus.REGISTERED
+            _status.value = if (it.credentials.value.isEmpty()) UserStatus.UNREGISTERED else UserStatus.REGISTERED
         }.launchIn(this)
         _user.tryEmit(credManager.getCurrentUser())
     }

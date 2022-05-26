@@ -51,7 +51,6 @@ abstract class BaseUserController<P> {
 
     fun isSingleCredential() = credentials.value.size == 1
 
-
     private fun getProfileAfterUpdateFlow(request: suspend () -> Unit): Flow<P> {
         return flow {
             request()

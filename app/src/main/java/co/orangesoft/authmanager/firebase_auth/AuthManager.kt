@@ -68,4 +68,7 @@ class AuthManager(
         }.launchIn(this)
         _user.tryEmit(credManager.getCurrentUser())
     }
+
+    fun userAccountName() = currentUser.value.credentials.value.map { it.displayName.ifEmpty { it.phoneNumber } }
+
 }

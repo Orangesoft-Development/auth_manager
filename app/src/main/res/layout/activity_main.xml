@@ -26,27 +26,28 @@
         android:orientation="vertical">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:orientation="horizontal">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:layout_gravity="top"
+                android:layout_marginStart="10dp"
                 android:layout_marginTop="65dp"
                 android:layout_marginEnd="5dp"
-                android:layout_marginStart="10dp">
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="FIREBASE AUTH"
-                    android:textColor="@android:color/black"
-                    android:textSize="22sp"
                     android:layout_gravity="center"
-                    android:layout_marginBottom="15dp"/>
+                    android:layout_marginBottom="15dp"
+                    android:text="@string/firebase_auth_title"
+                    android:textColor="@android:color/black"
+                    android:textSize="22sp" />
 
                 <Button
                     android:id="@+id/google_btn"
@@ -54,7 +55,7 @@
                     android:layout_height="50dp"
                     android:layout_marginTop="5dp"
                     android:background="@android:color/darker_gray"
-                    android:text="Google"/>
+                    android:text="@string/google_auth_title" />
 
                 <Button
                     android:id="@+id/facebook_btn"
@@ -62,7 +63,7 @@
                     android:layout_height="50dp"
                     android:layout_marginTop="5dp"
                     android:background="@android:color/darker_gray"
-                    android:text="Facebook"/>
+                    android:text="@string/facebook_auth_title" />
 
                 <Button
                     android:id="@+id/apple_btn"
@@ -70,7 +71,7 @@
                     android:layout_height="50dp"
                     android:layout_marginTop="5dp"
                     android:background="@android:color/darker_gray"
-                    android:text="Apple"/>
+                    android:text="@string/apple_auth_title" />
 
                 <Button
                     android:id="@+id/phone_btn"
@@ -78,27 +79,36 @@
                     android:layout_height="50dp"
                     android:layout_marginTop="5dp"
                     android:background="@android:color/darker_gray"
-                    android:text="Phone"/>
+                    android:text="@string/phone_auth_title" />
+
+                <Button
+                    android:id="@+id/logout"
+                    android:layout_width="200dp"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@android:color/holo_red_light"
+                    android:enabled="false"
+                    android:text="@string/logout_auth_title" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:layout_gravity="top|center_horizontal"
-                android:layout_marginTop="65dp"
                 android:layout_marginStart="5dp"
-                android:layout_marginEnd="10dp">
+                android:layout_marginTop="65dp"
+                android:layout_marginEnd="10dp"
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="SIMPLE AUTH"
-                    android:textColor="@android:color/black"
-                    android:textSize="22sp"
                     android:layout_gravity="center"
-                    android:layout_marginBottom="15dp"/>
+                    android:layout_marginBottom="15dp"
+                    android:text="@string/simple_auth_title"
+                    android:textColor="@android:color/black"
+                    android:textSize="22sp" />
 
                 <Button
                     android:id="@+id/simpleEmailBtn"
@@ -106,7 +116,7 @@
                     android:layout_height="50dp"
                     android:layout_marginTop="5dp"
                     android:background="@android:color/darker_gray"
-                    android:text="EMAIL"/>
+                    android:text="@string/simple_email_auth_title" />
 
                 <Button
                     android:id="@+id/simplePhoneBtn"
@@ -114,7 +124,7 @@
                     android:layout_height="50dp"
                     android:layout_marginTop="5dp"
                     android:background="@android:color/darker_gray"
-                    android:text="Phone"/>
+                    android:text="@string/simple_phone_auth_title" />
 
                 <Button
                     android:id="@+id/simpleRemoveEmailBtn"
@@ -122,29 +132,39 @@
                     android:layout_height="50dp"
                     android:layout_marginTop="5dp"
                     android:background="@android:color/holo_red_light"
-                    android:text="REMOVE EMAIL"/>
+                    android:text="@string/remove_simple_email_auth_title" />
 
                 <Button
                     android:id="@+id/simpleRemovePhoneBtn"
                     android:layout_width="200dp"
                     android:layout_height="50dp"
-                    android:background="@android:color/holo_red_light"
                     android:layout_marginTop="5dp"
-                    android:text="REMOVE PHONE"/>
+                    android:background="@android:color/holo_red_light"
+                    android:text="@string/remove_simple_phone_auth_title" />
 
             </LinearLayout>
 
         </LinearLayout>
 
-
         <TextView
-            android:id="@+id/resultCredentials"
+            android:id="@+id/authResultCredentials"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="test test"
-            android:textSize="25sp"
             android:layout_gravity="center"
-            android:layout_marginTop="50dp"/>
+            android:layout_marginTop="50dp"
+            android:gravity="center"
+            android:textSize="25sp"
+            tools:text="Auth cred" />
+
+        <TextView
+            android:id="@+id/simpleAuthResultCredentials"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="50dp"
+            android:gravity="center"
+            android:textSize="25sp"
+            tools:text="Simple cred" />
 
     </LinearLayout>
 

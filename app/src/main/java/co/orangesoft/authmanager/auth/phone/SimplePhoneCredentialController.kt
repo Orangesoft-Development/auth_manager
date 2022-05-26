@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentActivity
 import by.orangesoft.auth.credentials.BaseAuthCredential
 import by.orangesoft.auth.credentials.CredentialResult
 import by.orangesoft.auth.credentials.IBaseCredentialController
+import by.orangesoft.auth.credentials.UnlinkCredentialResult
 import co.orangesoft.authmanager.api.AuthService
 import co.orangesoft.authmanager.api.request_body.PhoneCredentialRequestBody
 import co.orangesoft.authmanager.auth.PrefsHelper
@@ -46,7 +47,10 @@ class SimplePhoneCredentialController(private val appContext: Context,
         return flow.asSharedFlow()
     }
 
-    override fun removeCredential() =  flow.asSharedFlow().onStart { prefsHelper.removeCredential(authCredential) }
+    override fun removeCredential() =  flow.asSharedFlow().onStart {
+        prefsHelper.removeCredential(authCredential)
+        flow.emit(UnlinkCredentialResult())
+    }
 
     override fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {}
 
