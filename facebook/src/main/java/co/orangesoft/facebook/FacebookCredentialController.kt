@@ -77,9 +77,9 @@ class FacebookCredentialController :
 
     private fun retrieveLoginStatus(activity: FragmentActivity) {
         loginManager.retrieveLoginStatus(activity, object : LoginStatusCallback {
-            override fun onCompleted(accessToken: AccessToken?) {
-                accessToken?.token?.let { onSuccessLogin(it) }
-                    ?: run { onError(Exception("accessToken is null")) }
+
+            override fun onCompleted(accessToken: AccessToken) {
+                onSuccessLogin(accessToken.token)
             }
 
             override fun onFailure() {
@@ -87,13 +87,8 @@ class FacebookCredentialController :
                 logIn(activity)
             }
 
-            override fun onError(exception: Exception?) {
-                exception?.let {
-                    onError(
-                        "Error add credential ${authCredential.providerId}",
-                        exception
-                    )
-                }
+            override fun onError(exception: Exception) {
+                onError("Error add credential ${authCredential.providerId}", exception)
             }
         })
     }

@@ -28,7 +28,7 @@ object Versions {
     const val activityKtx = "1.4.0"
     const val preference = "1.2.0"
 
-    const val facebookAuth = "12.0.1"
+    const val facebookAuth = "13.0.0"
     const val firebasePlatform = "29.1.0"
     const val playServicesAuth = "19.2.0"
     const val playServicesBase = "17.6.0"
