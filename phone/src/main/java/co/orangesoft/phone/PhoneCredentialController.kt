@@ -50,7 +50,6 @@ class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCre
                     Log.i("!!!", "Verification completed: ${credential.smsCode}")
                     phoneCredResendingToken.clear()
                     emitAuthTask(credential)
-                    launch { getCredential(currentCoroutineContext()) }
                 }
 
                 override fun onVerificationFailed(p0: FirebaseException) {
