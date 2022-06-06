@@ -20,8 +20,17 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.CoroutineContext
 
+/**
+ * This is an abstract class of controllers using FirebaseAuth
+ *
+ * @param authCredential Defines the type of controller
+ *
+ */
 abstract class BaseFirebaseCredentialController(override val authCredential: FirebaseAuthCredential): IBaseCredentialController, CoroutineScope {
 
+    /**
+     * Instance of FirebaseAuth
+     */
     protected val authInstance: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
     protected var authTaskFlow: MutableSharedFlow<Task<out AuthResult>> = MutableSharedFlow(1, 1)
@@ -89,6 +98,11 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
             .launchIn(CoroutineScope(coroutineContext + this.coroutineContext.job))
     }
 
+    protected open fun updateCurrentCredential(user: FirebaseUser, authCredential: AuthCredential) : Task<UpdateCredAuthResult>? =
+        TaskCompletionSource<UpdateCredAuthResult>().also {
+            it.setResult(UpdateCredAuthResult(user, authCredential))
+        }.task
+
     private suspend fun unlinkCurrentProvider() {
         authInstance.currentUser?.providerData?.firstOrNull {
             it.providerId == authCredential.providerId
@@ -101,17 +115,11 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
     private suspend fun getToken(user: FirebaseUser): String = user.getIdToken(true).await().token
         ?: throw KotlinNullPointerException("Token must not be null")
 
-    protected open fun updateCurrentCredential(user: FirebaseUser, authCredential: AuthCredential) : Task<UpdateCredAuthResult>? =
-        TaskCompletionSource<UpdateCredAuthResult>().also {
-            it.setResult(UpdateCredAuthResult(user, authCredential))
-        }.task
-
     private fun Throwable.convertToNormalExceptionType(): Throwable =
         if ((this is FirebaseAuthWebException && this.message?.contains("canceled by the user", true) == true)
             || (this is ApiException && this.statusCode == CANCEL_API_ERROR)) {
             CancellationException("${authCredential.providerId} canceled by user")
         } else  this
-
 
     private fun removeCredentialFragment() {
         if (::credActivity.isInitialized)

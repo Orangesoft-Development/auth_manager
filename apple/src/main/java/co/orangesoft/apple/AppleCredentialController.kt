@@ -28,5 +28,4 @@ class AppleCredentialController : BaseFirebaseCredentialController(FirebaseAuthC
         } ?: authInstance.startActivityForSignInWithProvider(activity, appleSingInClient))
     }
 
-    override fun onActivityResult(code: Int, data: Intent?) {}
 }

@@ -40,9 +40,4 @@ class PhoneCredentialController(
         return super.addCredential()
     }
 
-    override fun onActivityResult(code: Int, data: Intent?) {}
-
-    override fun onProviderCreated(
-        activity: FragmentActivity,
-        activityLauncher: ActivityResultLauncher<Intent>) {}
 }

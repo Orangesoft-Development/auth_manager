@@ -52,7 +52,4 @@ class SimplePhoneCredentialController(private val appContext: Context,
         flow.emit(UnlinkCredentialResult())
     }
 
-    override fun onProviderCreated(activity: FragmentActivity, activityLauncher: ActivityResultLauncher<Intent>) {}
-
-    override fun onActivityResult(code: Int, data: Intent?) {}
 }

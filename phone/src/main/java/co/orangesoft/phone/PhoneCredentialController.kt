@@ -97,8 +97,6 @@ class PhoneCredentialController(private val phoneAuthCredential: FirebaseAuthCre
                 }
             }
 
-    override fun onActivityResult(code: Int, data: Intent?) {}
-
     override suspend fun getCredential(coroutineContext: CoroutineContext) {
         if (phoneAuthCredential.verificationId != null && phoneAuthCredential.code != null) {
             val credential = PhoneAuthProvider.getCredential(
