@@ -20,152 +20,138 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="horizontal">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="65dp"
-                android:layout_marginEnd="5dp"
-                android:orientation="vertical">
+                android:layout_gravity="center"
+                android:orientation="horizontal">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="15dp"
-                    android:text="@string/firebase_auth_title"
-                    android:textColor="@android:color/black"
-                    android:textSize="22sp" />
+                    android:layout_gravity="top"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="65dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-                <Button
-                    android:id="@+id/google_btn"
-                    android:layout_width="200dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
-                    android:background="@android:color/darker_gray"
-                    android:text="@string/google_auth_title" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="15dp"
+                        android:text="@string/firebase_auth_title"
+                        android:textColor="@android:color/black"
+                        android:textSize="22sp" />
 
-                <Button
-                    android:id="@+id/facebook_btn"
-                    android:layout_width="200dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
-                    android:background="@android:color/darker_gray"
-                    android:text="@string/facebook_auth_title" />
+                    <Button
+                        android:id="@+id/google_btn"
+                        style="@style/AppTheme.Button"
+                        android:text="@string/google_auth_title" />
 
-                <Button
-                    android:id="@+id/apple_btn"
-                    android:layout_width="200dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
-                    android:background="@android:color/darker_gray"
-                    android:text="@string/apple_auth_title" />
+                    <Button
+                        android:id="@+id/facebook_btn"
+                        style="@style/AppTheme.Button"
+                        android:text="@string/facebook_auth_title" />
 
-                <Button
-                    android:id="@+id/phone_btn"
-                    android:layout_width="200dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
-                    android:background="@android:color/darker_gray"
-                    android:text="@string/phone_auth_title" />
+                    <Button
+                        android:id="@+id/apple_btn"
+                        style="@style/AppTheme.Button"
+                        android:text="@string/apple_auth_title" />
 
-                <Button
-                    android:id="@+id/logout"
-                    android:layout_width="200dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
-                    android:background="@android:color/holo_red_light"
-                    android:enabled="false"
-                    android:text="@string/logout_auth_title" />
+                    <Button
+                        android:id="@+id/phone_btn"
+                        style="@style/AppTheme.Button"
+                        android:text="@string/phone_auth_title" />
+
+                    <Button
+                        android:id="@+id/logout"
+                        style="@style/AppTheme.Button"
+                        android:background="@android:color/holo_red_light"
+                        android:enabled="false"
+                        android:text="@string/logout_auth_title" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|center_horizontal"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="65dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="15dp"
+                        android:text="@string/simple_auth_title"
+                        android:textColor="@android:color/black"
+                        android:textSize="22sp" />
+
+                    <Button
+                        android:id="@+id/simpleEmailBtn"
+                        style="@style/AppTheme.Button"
+                        android:text="@string/simple_email_auth_title" />
+
+                    <Button
+                        android:id="@+id/simplePhoneBtn"
+                        style="@style/AppTheme.Button"
+                        android:text="@string/simple_phone_auth_title" />
+
+                    <Button
+                        android:id="@+id/simpleRemoveEmailBtn"
+                        style="@style/AppTheme.Button"
+                        android:background="@android:color/holo_red_light"
+                        android:text="@string/remove_simple_email_auth_title" />
+
+                    <Button
+                        android:id="@+id/simpleRemovePhoneBtn"
+                        style="@style/AppTheme.Button"
+                        android:background="@android:color/holo_red_light"
+                        android:text="@string/remove_simple_phone_auth_title" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/authResultCredentials"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="top|center_horizontal"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="65dp"
-                android:layout_marginEnd="10dp"
-                android:orientation="vertical">
+                android:layout_gravity="center"
+                android:layout_marginTop="50dp"
+                android:gravity="center"
+                android:textSize="25sp"
+                tools:text="Auth cred" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="15dp"
-                    android:text="@string/simple_auth_title"
-                    android:textColor="@android:color/black"
-                    android:textSize="22sp" />
-
-                <Button
-                    android:id="@+id/simpleEmailBtn"
-                    android:layout_width="200dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
-                    android:background="@android:color/darker_gray"
-                    android:text="@string/simple_email_auth_title" />
-
-                <Button
-                    android:id="@+id/simplePhoneBtn"
-                    android:layout_width="200dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
-                    android:background="@android:color/darker_gray"
-                    android:text="@string/simple_phone_auth_title" />
-
-                <Button
-                    android:id="@+id/simpleRemoveEmailBtn"
-                    android:layout_width="200dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
-                    android:background="@android:color/holo_red_light"
-                    android:text="@string/remove_simple_email_auth_title" />
-
-                <Button
-                    android:id="@+id/simpleRemovePhoneBtn"
-                    android:layout_width="200dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
-                    android:background="@android:color/holo_red_light"
-                    android:text="@string/remove_simple_phone_auth_title" />
-
-            </LinearLayout>
+            <TextView
+                android:id="@+id/simpleAuthResultCredentials"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="50dp"
+                android:gravity="center"
+                android:textSize="25sp"
+                tools:text="Simple cred" />
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/authResultCredentials"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="50dp"
-            android:gravity="center"
-            android:textSize="25sp"
-            tools:text="Auth cred" />
+    </androidx.core.widget.NestedScrollView>
 
-        <TextView
-            android:id="@+id/simpleAuthResultCredentials"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="50dp"
-            android:gravity="center"
-            android:textSize="25sp"
-            tools:text="Simple cred" />
 
-    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

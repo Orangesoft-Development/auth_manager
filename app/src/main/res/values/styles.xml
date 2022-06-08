@@ -16,4 +16,13 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="AppTheme.Button" parent="TextAppearance.AppCompat.Button">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/button_height</item>
+        <item name="android:minWidth">@dimen/min_button_width</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:background">@android:color/darker_gray</item>
+    </style>
+
+
 </resources>
