@@ -18,6 +18,12 @@
     <string name="remove_simple_email_auth_title">Remove Email</string>
     <string name="remove_simple_phone_auth_title">Remove Phone</string>
 
+    <string name="huawei_auth_title">Huawei Auth</string>
+    <string name="huawei_phone_auth_title">Phone</string>
+    <string name="huawei_email_auth_title">Email</string>
+    <string name="remove_huawei_email_auth_title">Remove Email</string>
+    <string name="remove_huawei_phone_auth_title">Remove Phone</string>
+
     <string name="facebook_app_id" translatable="false">791683691996137</string>
     <string name="fb_login_protocol_scheme" translatable="false">fb791683691996137</string>
     <string name="facebook_client_token" translatable="false">73f957ae0a8ccfd1ba737c86f4b8b519</string>

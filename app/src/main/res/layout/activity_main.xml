@@ -33,7 +33,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:baselineAligned="false">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -52,6 +53,7 @@
                         android:layout_marginBottom="15dp"
                         android:text="@string/firebase_auth_title"
                         android:textColor="@android:color/black"
+                        android:gravity="center_horizontal"
                         android:textSize="22sp" />
 
                     <Button
@@ -98,6 +100,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginBottom="15dp"
+                        android:gravity="center_horizontal"
                         android:text="@string/simple_auth_title"
                         android:textColor="@android:color/black"
                         android:textSize="22sp" />
@@ -120,6 +123,50 @@
 
                     <Button
                         android:id="@+id/simpleRemovePhoneBtn"
+                        style="@style/AppTheme.Button"
+                        android:background="@android:color/holo_red_light"
+                        android:text="@string/remove_simple_phone_auth_title" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|center_horizontal"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="65dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="15dp"
+                        android:gravity="center_horizontal"
+                        android:text="@string/huawei_auth_title"
+                        android:textColor="@android:color/black"
+                        android:textSize="22sp" />
+
+                    <Button
+                        android:id="@+id/hiaweiEmailBtn"
+                        style="@style/AppTheme.Button"
+                        android:text="@string/simple_email_auth_title" />
+
+                    <Button
+                        android:id="@+id/hiaweiPhoneBtn"
+                        style="@style/AppTheme.Button"
+                        android:text="@string/simple_phone_auth_title" />
+
+                    <Button
+                        android:id="@+id/hiaweiRemoveEmailBtn"
+                        style="@style/AppTheme.Button"
+                        android:background="@android:color/holo_red_light"
+                        android:text="@string/remove_simple_email_auth_title" />
+
+                    <Button
+                        android:id="@+id/hiaweiRemovePhoneBtn"
                         style="@style/AppTheme.Button"
                         android:background="@android:color/holo_red_light"
                         android:text="@string/remove_simple_phone_auth_title" />
