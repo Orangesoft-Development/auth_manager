@@ -3,4 +3,4 @@ rootProject.name = "Auth Manager"
 rootProject.buildFileName = "build.gradle.kts"
 include("app")
 include(":auth", ":firebase")
-include(":apple", ":google", ":facebook")
+include(":apple", ":google", ":facebook", ":huawei")

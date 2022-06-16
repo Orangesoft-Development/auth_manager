@@ -13,8 +13,13 @@ import co.orangesoft.authmanager.auth.email.EmailAuthCredential
 import co.orangesoft.authmanager.auth.phone.SimplePhoneAuthCredential
 import co.orangesoft.authmanager.databinding.ActivityMainBinding
 import co.orangesoft.authmanager.firebase_auth.AuthManager
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 @InternalCoroutinesApi
 class MainActivity : FragmentActivity() {
@@ -25,6 +30,7 @@ class MainActivity : FragmentActivity() {
     private val simpleAuthManager: SimpleAuthManager by lazy {
         SimpleAuthManager.getInstance(SimpleAuthManager.BASE_URL, applicationContext)
     }
+
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,7 +68,13 @@ class MainActivity : FragmentActivity() {
             phoneBtn.setOnClickListener {
                 launchCredential(FirebaseAuthCredential.Phone("+375334445566") { verificationId ->
                     // manually launchCredential with code + verificationId
-                    launchCredential(FirebaseAuthCredential.Phone("+375334445566", "123456", verificationId))
+                    launchCredential(
+                        FirebaseAuthCredential.Phone(
+                            "+375334445566",
+                            "123456",
+                            verificationId
+                        )
+                    )
                 })
             }
 
@@ -81,6 +93,14 @@ class MainActivity : FragmentActivity() {
             simpleRemovePhoneBtn.setOnClickListener {
                 launchSimpleCredential(SimplePhoneAuthCredential("+375334445566", "1234"), true)
             }
+
+            hiaweiEmailBtn.setOnClickListener { }
+
+            hiaweiPhoneBtn.setOnClickListener { }
+
+            hiaweiRemoveEmailBtn.setOnClickListener { }
+
+            hiaweiRemovePhoneBtn.setOnClickListener { }
 
             logout.setOnClickListener {
                 if (authManager.userStatus.value == AuthManager.UserStatus.REGISTERED)
@@ -145,8 +165,12 @@ class MainActivity : FragmentActivity() {
             }
         } else {
             simpleAuthManager.login(this, credential)
-                .invokeOnCompletion { it?.cause?.let { simpleLoginError(it)} }
+                .invokeOnCompletion { it?.cause?.let { simpleLoginError(it) } }
         }
+    }
+
+    private fun launchHuaweiCredential(credential: BaseAuthCredential, isRemove: Boolean = false) {
+
     }
 
     private fun signInAnonymously() {
