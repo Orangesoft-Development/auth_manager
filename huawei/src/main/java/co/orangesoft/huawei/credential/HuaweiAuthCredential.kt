@@ -1,4 +1,4 @@
-package co.orangesoft.huawei
+package co.orangesoft.huawei.credential
 
 import by.orangesoft.auth.credentials.BaseAuthCredential
 

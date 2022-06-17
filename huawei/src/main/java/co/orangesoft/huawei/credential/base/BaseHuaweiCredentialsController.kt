@@ -1,9 +1,10 @@
-package co.orangesoft.huawei
+package co.orangesoft.huawei.credential.base
 
 import android.content.Context
 import androidx.fragment.app.FragmentActivity
 import by.orangesoft.auth.credentials.CredentialResult
 import by.orangesoft.auth.credentials.IBaseCredentialController
+import co.orangesoft.huawei.credential.HuaweiAuthCredential
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
