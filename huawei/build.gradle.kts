@@ -39,8 +39,11 @@ dependencies {
     implementation(Depends.Coroutines.core)
     implementation(Depends.Coroutines.android)
 
-    implementation(Depends.Facebook.auth)
+    implementation(Depends.Huawei.agConnectCore)
+    implementation(Depends.Huawei.agConnectAuth)
+
     implementation(Depends.Firebase.auth)
+
 }
 
 tasks {

@@ -33,4 +33,6 @@ object Versions {
     const val playServicesAuth = "19.2.0"
     const val playServicesBase = "17.6.0"
     const val playServicesCoroutines = "1.5.2"
+
+    const val agconnectCoreVersion = "1.6.5.300"
 }

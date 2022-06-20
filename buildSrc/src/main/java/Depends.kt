@@ -53,4 +53,10 @@ object Depends {
         const val auth = "com.google.firebase:firebase-auth-ktx"
         const val messaging = "com.google.firebase:firebase-messaging"
     }
+
+    object Huawei {
+        const val agConnectAGCP = "com.huawei.agconnect:agcp:${Versions.agconnectCoreVersion}"
+        const val agConnectCore = "com.huawei.agconnect:agconnect-core:${Versions.agconnectCoreVersion}"
+        const val agConnectAuth = "com.huawei.agconnect:agconnect-auth:${Versions.agconnectCoreVersion}"
+    }
 }
