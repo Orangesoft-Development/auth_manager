@@ -1,5 +1,6 @@
 package co.orangesoft.huawei
 
+import co.orangesoft.huawei.credential.HuaweiAuthCredential
 import com.huawei.agconnect.auth.*
 import java.util.*
 
@@ -13,8 +14,8 @@ class HuaweiAuthManager {
     }
 
 
-    fun requestEmailCode(email: String) {
-        val task = agConnectAuth.requestVerifyCode(email, getSettings())
+    fun requestEmailCode(credential: HuaweiAuthCredential.Email) {
+        val task = agConnectAuth.requestVerifyCode(credential.email, getSettings())
         task.addOnSuccessListener {
 
         }.addOnFailureListener {
@@ -22,8 +23,12 @@ class HuaweiAuthManager {
         }
     }
 
-    fun requestPhoneCode(countryCode: String, phone: String) {
-        val task = agConnectAuth.requestVerifyCode(countryCode, phone, getSettings())
+    fun requestPhoneCode(credential: HuaweiAuthCredential.Phone) {
+        val task = agConnectAuth.requestVerifyCode(
+            credential.countryCode,
+            credential.phoneNumber,
+            getSettings()
+        )
         task.addOnSuccessListener {
 
         }.addOnFailureListener {
@@ -31,11 +36,11 @@ class HuaweiAuthManager {
         }
     }
 
-    fun registerByEmail(email: String, code: String, password: String) {
+    fun registerByEmail(credential: HuaweiAuthCredential.Email) {
         val emailUser = EmailUser.Builder()
-            .setEmail(email)
-            .setVerifyCode(code)
-            .setPassword(password)
+            .setEmail(credential.email)
+            .setVerifyCode(credential.securityCode)
+            .setPassword(credential.password)
             .build()
         agConnectAuth.createUser(emailUser).addOnSuccessListener {
 
@@ -44,18 +49,12 @@ class HuaweiAuthManager {
         }
     }
 
-    fun registerByPhone(
-        countryCode: String,
-        phone: String,
-        code: String,
-        password: String
-    ) {
-
+    fun registerByPhone(credential: HuaweiAuthCredential.Phone) {
         val phoneUser = PhoneUser.Builder()
-            .setCountryCode(countryCode)
-            .setPhoneNumber(phone)
-            .setVerifyCode(code)
-            .setPassword(password)
+            .setCountryCode(credential.countryCode)
+            .setPhoneNumber(credential.phoneNumber)
+            .setVerifyCode(credential.securityCode)
+            .setPassword(credential.password)
             .build()
         agConnectAuth.createUser(phoneUser).addOnSuccessListener {
 
@@ -64,26 +63,39 @@ class HuaweiAuthManager {
         }
     }
 
-    fun signInByEmailPassword(email: String, password: String) {
-        val credential = EmailAuthProvider.credentialWithPassword(email, password)
-        agConnectAuth.signIn(credential).addOnSuccessListener {
+    fun signInByEmailPassword(credential: HuaweiAuthCredential.Email) {
+        val emailCredential =
+            EmailAuthProvider.credentialWithPassword(credential.email, credential.password)
+        agConnectAuth.signIn(emailCredential).addOnSuccessListener {
         }.addOnFailureListener {
 
         }
     }
 
-    fun signInByPhonePassword(countryCode: String, phone: String, password: String) {
-        val credential = PhoneAuthProvider.credentialWithPassword(countryCode, phone, password)
-        agConnectAuth.signIn(credential).addOnSuccessListener {
+    fun signInByPhonePassword(
+        credential: HuaweiAuthCredential.Phone
+    ) {
+        val phoneCredential = PhoneAuthProvider.credentialWithPassword(
+            credential.countryCode,
+            credential.phoneNumber,
+            credential.password
+        )
+        agConnectAuth.signIn(phoneCredential).addOnSuccessListener {
 
         }.addOnFailureListener {
 
         }
     }
 
-    fun signInByEmailCode(email: String, code: String, password: String) {
-        val credential = EmailAuthProvider.credentialWithVerifyCode(email, password, code)
-        agConnectAuth.signIn(credential).addOnSuccessListener {
+    fun signInByEmailCode(
+        credential: HuaweiAuthCredential.Email
+    ) {
+        val emailCredential = EmailAuthProvider.credentialWithVerifyCode(
+            credential.email,
+            credential.password,
+            credential.securityCode
+        )
+        agConnectAuth.signIn(emailCredential).addOnSuccessListener {
 
         }.addOnFailureListener {
 
@@ -91,14 +103,16 @@ class HuaweiAuthManager {
     }
 
     fun signInUserByPhoneCode(
-        countryCode: String,
-        phone: String,
-        code: String,
-        password: String
+        credential: HuaweiAuthCredential.Phone
     ) {
-        val credential =
-            PhoneAuthProvider.credentialWithVerifyCode(countryCode, phone, password, code)
-        agConnectAuth.signIn(credential).addOnSuccessListener {
+        val phoneCredential =
+            PhoneAuthProvider.credentialWithVerifyCode(
+                credential.countryCode,
+                credential.phoneNumber,
+                credential.password,
+                credential.securityCode
+            )
+        agConnectAuth.signIn(phoneCredential).addOnSuccessListener {
 
         }.addOnFailureListener {
 
