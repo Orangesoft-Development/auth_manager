@@ -22,40 +22,27 @@ abstract class BaseUserController<P> {
     @Throws(Throwable::class)
     protected abstract suspend fun updateAccount(profile: P)
 
-    fun reloadProfile(): Flow<P> {
-        return getProfileAfterUpdateFlow {
-            reload()
-        }
-    }
+    fun reloadProfile(): Flow<P> =
+        getProfileAfterUpdateFlow { reload() }
 
-    fun updateProfileAvatar(file: File): Flow<P> {
-        return getProfileAfterUpdateFlow {
-            updateAvatar(file)
-        }
-    }
+    fun updateProfileAvatar(file: File): Flow<P> =
+        getProfileAfterUpdateFlow { updateAvatar(file) }
 
-    fun updateCurrentProfileAccount(): Flow<P> {
-        return getProfileAfterUpdateFlow {
-            updateAccount(profile)
-        }
-    }
+    fun updateCurrentProfileAccount(): Flow<P> =
+        getProfileAfterUpdateFlow { updateAccount(profile) }
 
-    fun updateProfileAccount(profile: P): Flow<P> {
-        return getProfileAfterUpdateFlow {
-            updateAccount(profile)
-        }
-    }
+    fun updateProfileAccount(profile: P): Flow<P> =
+        getProfileAfterUpdateFlow { updateAccount(profile) }
 
     fun containsCredential(authCredential: BaseAuthCredential) =
         credentials.value.let { creds -> creds.firstOrNull { it.providerId == authCredential.providerId } != null }
 
     fun isSingleCredential() = credentials.value.size == 1
 
-    private fun getProfileAfterUpdateFlow(request: suspend () -> Unit): Flow<P> {
-        return flow {
+    private fun getProfileAfterUpdateFlow(request: suspend () -> Unit): Flow<P> =
+        flow {
             request()
             emit(profile)
         }
-    }
 
 }

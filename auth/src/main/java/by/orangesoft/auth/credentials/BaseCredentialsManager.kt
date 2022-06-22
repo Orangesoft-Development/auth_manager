@@ -80,12 +80,12 @@ abstract class BaseCredentialsManager<T : BaseUserController<*>>(parentJob: Job?
                 } ?: userSharedFlow.tryEmit(onLogged(credResult))
             }
             .catch {
-                user?.let { clearCredInfo(credential, true) } ?: signOut()
+                user?.let { clearCredInfo(credential, true) } ?: signOutAllCredController()
                 coroutineContext.job.cancel("Error add credential ${credential.providerId}", it)
             }
             .onCompletion {
                 it?.let {
-                    user?.let { clearCredInfo(credential, true) } ?: signOut()
+                    user?.let { clearCredInfo(credential, true) } ?: signOutAllCredController()
                     coroutineContext.cancel(CancellationException(it.message, it.cause))
                 }
             }

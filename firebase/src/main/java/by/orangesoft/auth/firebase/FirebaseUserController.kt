@@ -13,7 +13,7 @@ import kotlinx.coroutines.tasks.await
 import java.io.File
 import kotlin.jvm.Throws
 
-open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) :
+open class FirebaseUserController(private val firebaseInstance: FirebaseAuth) :
     BaseUserController<FirebaseProfile>(), ITokenController {
 
     companion object {
@@ -47,7 +47,7 @@ open class FirebaseUserController(protected val firebaseInstance: FirebaseAuth) 
         //do nothing for firebase credentials
     }
 
-    fun reloadCredentials() {
+    internal fun reloadCredentials() {
         _credentials.value = firebaseInstance.getCredentials()
     }
 

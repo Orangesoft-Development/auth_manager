@@ -24,6 +24,7 @@ import kotlin.coroutines.CoroutineContext
  * This is an abstract class of controllers using FirebaseAuth
  *
  * @param authCredential Defines the type of controller
+ * @see FirebaseAuth
  *
  */
 abstract class BaseFirebaseCredentialController(override val authCredential: FirebaseAuthCredential): IBaseCredentialController, CoroutineScope {

@@ -1,30 +1,55 @@
 package by.orangesoft.auth.firebase.credential
 
 import android.annotation.SuppressLint
-import android.os.Parcelable
 import by.orangesoft.auth.credentials.BaseAuthCredential
 
+/**
+ * This is an open class of authorization credentials type using firebase
+ *
+ * @param provider Type of authorization credential
+ * @see FirebaseProviders
+ *
+ */
+
 @SuppressLint("ParcelCreator")
-open class FirebaseAuthCredential(providerId: String) : BaseAuthCredential(providerId) {
+open class FirebaseAuthCredential(provider: FirebaseProviders) : BaseAuthCredential(provider.providerId) {
 
-    object Apple : FirebaseAuthCredential(Providers.APPLE)
+    /** Apple firebase credential */
+    object Apple : FirebaseAuthCredential(FirebaseProviders.APPLE)
 
-    object Facebook : FirebaseAuthCredential(Providers.FACEBOOK)
+    /** Facebook firebase credential */
+    object Facebook : FirebaseAuthCredential(FirebaseProviders.FACEBOOK)
 
+    /** Google firebase credential
+     * @param clientId - google server client id */
+    data class Google(val clientId: String = "") : FirebaseAuthCredential(FirebaseProviders.GOOGLE)
+
+    /** Phone firebase credential
+     * @param phoneNumber - phone number for authorization
+     * @param code - SMS code to confirm the phone number
+     * @param verificationId - id of the current session verification
+     * @param onCodeSentListener - callback that is called when an SMS code is sent to a phone number
+     * */
     data class Phone(
         val phoneNumber: String = "",
         val code: String? = null,
         val verificationId: String? = null,
         val onCodeSentListener: ((verificationId: String) -> Unit)? = null
-    ) : FirebaseAuthCredential(Providers.PHONE)
-
-    data class Google(val clientId: String = "") : FirebaseAuthCredential(Providers.GOOGLE)
+    ) : FirebaseAuthCredential(FirebaseProviders.PHONE)
 
 }
 
-object Providers {
-    const val GOOGLE = "google.com"
-    const val FACEBOOK = "facebook.com"
-    const val APPLE = "apple.com"
-    const val PHONE = "phone"
+/**
+ * Enum of all types of providers for FirebaseAuthCredential
+ *
+ * @param providerId id of authorization credential
+ * @see FirebaseAuthCredential
+ *
+ */
+
+enum class FirebaseProviders(val providerId: String) {
+    GOOGLE("google.com"),
+    FACEBOOK("facebook.com"),
+    APPLE("apple.com"),
+    PHONE("phone")
 }

@@ -13,6 +13,10 @@ import kotlinx.coroutines.flow.Flow
 
 interface IBaseCredentialController : CredentialControllerResultListener {
 
+    /**
+     * Current authorization credential type
+     * @see BaseAuthCredential
+     */
     val authCredential: BaseAuthCredential
 
     /**
@@ -21,6 +25,7 @@ interface IBaseCredentialController : CredentialControllerResultListener {
      *
      * @see CredentialResult
      * @see UnlinkCredentialResult
+     *
      */
     fun addCredential(): Flow<CredentialResult>
 
@@ -47,10 +52,8 @@ interface IBaseCredentialController : CredentialControllerResultListener {
      */
     fun setActivity(activity: FragmentActivity) {}
 
-
-    //TODO add onError() declaration
     /**
-     *
+     * Handling errors that occur when working with the credential controller
      */
     fun onError() {}
 }
