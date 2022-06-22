@@ -1,143 +1,51 @@
 package co.orangesoft.huawei
 
 import co.orangesoft.huawei.credential.HuaweiAuthCredential
-import com.huawei.agconnect.auth.*
-import java.util.*
+import co.orangesoft.huawei.interfaces.IHuaweiAuthManager
+import co.orangesoft.huawei.providers.interfaces.HuaweiAuth
+import co.orangesoft.huawei.providers.HuaweiAuthProvider
+import co.orangesoft.huawei.providers.email.HuaweiEmailCredentialsController
+import co.orangesoft.huawei.providers.phone.HuaweiPhoneCredentialsController
+import kotlin.properties.Delegates
 
-class HuaweiAuthManager {
+object HuaweiAuthManager: IHuaweiAuthManager {
 
-    private val agConnectAuth: AGConnectAuth = AGConnectAuth.getInstance()
+    private var huaweiAuth: HuaweiAuth by Delegates.notNull()
 
-    enum class UserStatus {
-        UNREGISTERED,
-        REGISTERED
-    }
+    fun initAuthManager(provider: HuaweiAuthProvider) {
 
-
-    fun requestEmailCode(credential: HuaweiAuthCredential.Email) {
-        val task = agConnectAuth.requestVerifyCode(credential.email, getSettings())
-        task.addOnSuccessListener {
-
-        }.addOnFailureListener {
-
-        }
-    }
-
-    fun requestPhoneCode(credential: HuaweiAuthCredential.Phone) {
-        val task = agConnectAuth.requestVerifyCode(
-            credential.countryCode,
-            credential.phoneNumber,
-            getSettings()
-        )
-        task.addOnSuccessListener {
-
-        }.addOnFailureListener {
-
-        }
-    }
-
-    fun registerByEmail(credential: HuaweiAuthCredential.Email) {
-        val emailUser = EmailUser.Builder()
-            .setEmail(credential.email)
-            .setVerifyCode(credential.securityCode)
-            .setPassword(credential.password)
-            .build()
-        agConnectAuth.createUser(emailUser).addOnSuccessListener {
-
-        }.addOnFailureListener {
-
-        }
-    }
-
-    fun registerByPhone(credential: HuaweiAuthCredential.Phone) {
-        val phoneUser = PhoneUser.Builder()
-            .setCountryCode(credential.countryCode)
-            .setPhoneNumber(credential.phoneNumber)
-            .setVerifyCode(credential.securityCode)
-            .setPassword(credential.password)
-            .build()
-        agConnectAuth.createUser(phoneUser).addOnSuccessListener {
-
-        }.addOnFailureListener {
-
-        }
-    }
-
-    fun signInByEmailPassword(credential: HuaweiAuthCredential.Email) {
-        val emailCredential =
-            EmailAuthProvider.credentialWithPassword(credential.email, credential.password)
-        agConnectAuth.signIn(emailCredential).addOnSuccessListener {
-        }.addOnFailureListener {
-
-        }
-    }
-
-    fun signInByPhonePassword(
-        credential: HuaweiAuthCredential.Phone
-    ) {
-        val phoneCredential = PhoneAuthProvider.credentialWithPassword(
-            credential.countryCode,
-            credential.phoneNumber,
-            credential.password
-        )
-        agConnectAuth.signIn(phoneCredential).addOnSuccessListener {
-
-        }.addOnFailureListener {
-
-        }
-    }
-
-    fun signInByEmailCode(
-        credential: HuaweiAuthCredential.Email
-    ) {
-        val emailCredential = EmailAuthProvider.credentialWithVerifyCode(
-            credential.email,
-            credential.password,
-            credential.securityCode
-        )
-        agConnectAuth.signIn(emailCredential).addOnSuccessListener {
-
-        }.addOnFailureListener {
-
-        }
-    }
-
-    fun signInUserByPhoneCode(
-        credential: HuaweiAuthCredential.Phone
-    ) {
-        val phoneCredential =
-            PhoneAuthProvider.credentialWithVerifyCode(
-                credential.countryCode,
-                credential.phoneNumber,
-                credential.password,
-                credential.securityCode
-            )
-        agConnectAuth.signIn(phoneCredential).addOnSuccessListener {
-
-        }.addOnFailureListener {
-
+        huaweiAuth = when (provider) {
+            HuaweiAuthProvider.PHONE -> HuaweiPhoneCredentialsController.getInstance()
+            HuaweiAuthProvider.EMAIL -> HuaweiEmailCredentialsController.getInstance()
         }
     }
 
 
-    fun deleteUser() {
-        agConnectAuth.deleteUser().addOnSuccessListener {
-
-        }.addOnFailureListener {
-
-        }
+    override fun requestSecurityCode(credential: HuaweiAuthCredential) {
+        huaweiAuth.requestSecurityCode(credential)
     }
 
-    fun signOutUser() {
-        agConnectAuth.signOut()
+    override fun registerUser(credential: HuaweiAuthCredential) {
+        huaweiAuth.registerUser(credential)
     }
 
-    private fun getSettings(): VerifyCodeSettings {
-        return VerifyCodeSettings.newBuilder()
-            .action(VerifyCodeSettings.ACTION_REGISTER_LOGIN)
-            .sendInterval(30)
-            .locale(Locale.ENGLISH)
-            .build()
+    override fun signIn(credential: HuaweiAuthCredential) {
+        huaweiAuth.signIn(credential)
     }
 
+    override fun signOutUser() {
+        huaweiAuth.signOutUser()
+    }
+
+    override fun deleteUser() {
+        huaweiAuth.deleteUser()
+    }
+
+    override fun signInAnonymously() {
+        huaweiAuth.signInAnonymously()
+    }
+
+    override fun resetPassword(credential: HuaweiAuthCredential) {
+        huaweiAuth.resetPassword(credential)
+    }
 }

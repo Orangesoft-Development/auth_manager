@@ -44,6 +44,8 @@ dependencies {
 
     implementation(Depends.Firebase.auth)
 
+    implementation(Depends.Api.gson)
+
 }
 
 tasks {
