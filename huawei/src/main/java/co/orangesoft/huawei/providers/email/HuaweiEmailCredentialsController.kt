@@ -36,33 +36,63 @@ class HuaweiEmailCredentialsController() :
     }
 
     override fun registerUser(credential: HuaweiAuthCredential) {
-        TODO("Not yet implemented")
+        val emailUser = EmailUser.Builder()
+            .setEmail(credential.email)
+            .setVerifyCode(credential.securityCode)
+            .setPassword(credential.password)
+            .build()
+        agConnectAuth.createUser(emailUser).addOnSuccessListener {
+
+        }.addOnFailureListener {
+
+        }
     }
 
     override fun signIn(credential: HuaweiAuthCredential) {
-        TODO("Not yet implemented")
+        val emailCredential =
+            EmailAuthProvider.credentialWithPassword(credential.email, credential.password)
+        agConnectAuth.signIn(emailCredential).addOnSuccessListener {
+
+        }.addOnFailureListener {
+
+        }
     }
 
     override fun signOutUser() {
-        TODO("Not yet implemented")
+        agConnectAuth.signOut()
     }
 
     override fun deleteUser() {
-        TODO("Not yet implemented")
+        agConnectAuth.deleteUser()
     }
 
     override fun getCurrentUser(): AGConnectUser {
+        return agConnectAuth.currentUser
+    }
+
+    override fun changeEmail(newEmail: String) {
         TODO("Not yet implemented")
     }
 
-    override fun signInAnonymously() {
+    override fun changePhone(newPhone: String) {
+        TODO("Not yet implemented")
+    }
+
+    override fun changePassword(newPassword: String) {
         TODO("Not yet implemented")
     }
 
     override fun resetPassword(credential: HuaweiAuthCredential) {
-        TODO("Not yet implemented")
+        //required newPassword, verifyCode
+        agConnectAuth.currentUser.updatePassword(credential.password, credential.securityCode ,AGConnectAuthCredential.Email_Provider)
+            .addOnSuccessListener {
+                // onSuccess
+            }.addOnFailureListener {
+                // onFail
+            }
     }
 
+/*
 
 
     fun requestPhoneCode(credential: HuaweiAuthCredential.Phone) {
@@ -72,19 +102,6 @@ class HuaweiEmailCredentialsController() :
             getSettings()
         )
         task.addOnSuccessListener {
-
-        }.addOnFailureListener {
-
-        }
-    }
-
-    fun registerByEmail(credential: HuaweiAuthCredential.Email) {
-        val emailUser = EmailUser.Builder()
-            .setEmail(credential.email)
-            .setVerifyCode(credential.securityCode)
-            .setPassword(credential.password)
-            .build()
-        agConnectAuth.createUser(emailUser).addOnSuccessListener {
 
         }.addOnFailureListener {
 
@@ -105,14 +122,7 @@ class HuaweiEmailCredentialsController() :
         }
     }
 
-    fun signInByEmailPassword(credential: HuaweiAuthCredential.Email) {
-        val emailCredential =
-            EmailAuthProvider.credentialWithPassword(credential.email, credential.password)
-        agConnectAuth.signIn(emailCredential).addOnSuccessListener {
-        }.addOnFailureListener {
 
-        }
-    }
 
     fun signInByPhonePassword(
         credential: HuaweiAuthCredential.Phone
@@ -127,6 +137,8 @@ class HuaweiEmailCredentialsController() :
         }.addOnFailureListener {
 
         }
+    }
+*/
 
 
 }

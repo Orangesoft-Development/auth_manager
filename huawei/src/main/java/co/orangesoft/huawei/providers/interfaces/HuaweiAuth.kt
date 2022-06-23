@@ -17,7 +17,11 @@ interface HuaweiAuth {
 
     fun getCurrentUser(): AGConnectUser
 
-    fun signInAnonymously()
+    fun changeEmail(newEmail: String)
+
+    fun changePhone(newPhone: String)
+
+    fun changePassword(newPassword: String)
 
     fun resetPassword(credential: HuaweiAuthCredential)
 }

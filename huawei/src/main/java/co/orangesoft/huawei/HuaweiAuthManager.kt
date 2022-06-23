@@ -43,8 +43,16 @@ object HuaweiAuthManager : IHuaweiAuthManager {
 
     override fun getCurrentUser() = huaweiAuth.getCurrentUser()
 
-    override fun signInAnonymously() {
-        huaweiAuth.signInAnonymously()
+    override fun changeEmail(newEmail: String) {
+        huaweiAuth.changeEmail(newEmail)
+    }
+
+    override fun changePhone(newPhone: String) {
+        huaweiAuth.changePhone(newPhone)
+    }
+
+    override fun changePassword(newPassword: String) {
+        huaweiAuth.changePassword(newPassword)
     }
 
     override fun resetPassword(credential: HuaweiAuthCredential) {
