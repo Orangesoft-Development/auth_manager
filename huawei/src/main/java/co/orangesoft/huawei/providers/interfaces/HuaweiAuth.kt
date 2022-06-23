@@ -1,6 +1,7 @@
 package co.orangesoft.huawei.providers.interfaces
 
 import co.orangesoft.huawei.credential.HuaweiAuthCredential
+import com.huawei.agconnect.auth.AGConnectUser
 
 interface HuaweiAuth {
 
@@ -13,6 +14,8 @@ interface HuaweiAuth {
     fun signOutUser()
 
     fun deleteUser()
+
+    fun getCurrentUser(): AGConnectUser
 
     fun signInAnonymously()
 

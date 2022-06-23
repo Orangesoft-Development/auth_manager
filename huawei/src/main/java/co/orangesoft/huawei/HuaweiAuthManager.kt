@@ -2,13 +2,13 @@ package co.orangesoft.huawei
 
 import co.orangesoft.huawei.credential.HuaweiAuthCredential
 import co.orangesoft.huawei.interfaces.IHuaweiAuthManager
-import co.orangesoft.huawei.providers.interfaces.HuaweiAuth
 import co.orangesoft.huawei.providers.HuaweiAuthProvider
 import co.orangesoft.huawei.providers.email.HuaweiEmailCredentialsController
+import co.orangesoft.huawei.providers.interfaces.HuaweiAuth
 import co.orangesoft.huawei.providers.phone.HuaweiPhoneCredentialsController
 import kotlin.properties.Delegates
 
-object HuaweiAuthManager: IHuaweiAuthManager {
+object HuaweiAuthManager : IHuaweiAuthManager {
 
     private var huaweiAuth: HuaweiAuth by Delegates.notNull()
 
@@ -40,6 +40,8 @@ object HuaweiAuthManager: IHuaweiAuthManager {
     override fun deleteUser() {
         huaweiAuth.deleteUser()
     }
+
+    override fun getCurrentUser() = huaweiAuth.getCurrentUser()
 
     override fun signInAnonymously() {
         huaweiAuth.signInAnonymously()
