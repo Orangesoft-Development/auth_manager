@@ -17,11 +17,11 @@ interface IHuaweiAuthManager {
 
     fun getCurrentUser(): AGConnectUser
 
-    fun changeEmail(newEmail: String)
+    fun changeEmail(newEmail: String, newVerifyCode: String)
 
-    fun changePhone(newPhone: String)
+    fun changePhone(newCountryCode: String, newPhone: String, newVerifyCode: String)
 
-    fun changePassword(newPassword: String)
+    fun changePassword(newPassword: String, newVerifyCode: String)
 
-    fun resetPassword(credential: HuaweiAuthCredential)
+    fun resetPassword(credential: HuaweiAuthCredential, newPassword: String, verifyCode: String)
 }

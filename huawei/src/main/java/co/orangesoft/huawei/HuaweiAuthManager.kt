@@ -43,19 +43,19 @@ object HuaweiAuthManager : IHuaweiAuthManager {
 
     override fun getCurrentUser() = huaweiAuth.getCurrentUser()
 
-    override fun changeEmail(newEmail: String) {
-        huaweiAuth.changeEmail(newEmail)
+    override fun changeEmail(newEmail: String, newVerifyCode: String) {
+        huaweiAuth.changeEmail(newEmail, newVerifyCode)
     }
 
-    override fun changePhone(newPhone: String) {
-        huaweiAuth.changePhone(newPhone)
+    override fun changePhone(newCountryCode: String, newPhone: String, newVerifyCode: String) {
+        huaweiAuth.changePhone(newCountryCode, newPhone, newVerifyCode)
     }
 
-    override fun changePassword(newPassword: String) {
-        huaweiAuth.changePassword(newPassword)
+    override fun changePassword(newPassword: String, newVerifyCode: String) {
+        huaweiAuth.changePassword(newPassword, newVerifyCode)
     }
 
-    override fun resetPassword(credential: HuaweiAuthCredential) {
-        huaweiAuth.resetPassword(credential)
+    override fun resetPassword(credential: HuaweiAuthCredential, newPassword: String, newVerifyCode: String) {
+        huaweiAuth.resetPassword(credential, newPassword, newVerifyCode)
     }
 }

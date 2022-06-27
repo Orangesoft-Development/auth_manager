@@ -1,14 +1,12 @@
 package co.orangesoft.huawei.providers.email
 
 import co.orangesoft.huawei.credential.HuaweiAuthCredential
+import co.orangesoft.huawei.providers.base.BaseHuaweiCredentialsController
 import co.orangesoft.huawei.providers.interfaces.HuaweiAuth
 import com.huawei.agconnect.auth.*
 import java.util.*
 
-class HuaweiEmailCredentialsController() :
-    IHuaweiAuthEmail {
-
-    private val agConnectAuth: AGConnectAuth = AGConnectAuth.getInstance()
+class HuaweiEmailCredentialsController : BaseHuaweiCredentialsController() {
 
     companion object {
 
@@ -16,15 +14,6 @@ class HuaweiEmailCredentialsController() :
         fun getInstance(): HuaweiAuth = HuaweiEmailCredentialsController()
 
     }
-
-    private fun getSettings(): VerifyCodeSettings {
-        return VerifyCodeSettings.newBuilder()
-            .action(VerifyCodeSettings.ACTION_REGISTER_LOGIN)
-            .sendInterval(30)
-            .locale(Locale.ENGLISH)
-            .build()
-    }
-
 
     override fun requestSecurityCode(credential: HuaweiAuthCredential) {
         val task = agConnectAuth.requestVerifyCode(credential.email, getSettings())
@@ -58,33 +47,9 @@ class HuaweiEmailCredentialsController() :
         }
     }
 
-    override fun signOutUser() {
-        agConnectAuth.signOut()
-    }
 
-    override fun deleteUser() {
-        agConnectAuth.deleteUser()
-    }
-
-    override fun getCurrentUser(): AGConnectUser {
-        return agConnectAuth.currentUser
-    }
-
-    override fun changeEmail(newEmail: String) {
-        TODO("Not yet implemented")
-    }
-
-    override fun changePhone(newPhone: String) {
-        TODO("Not yet implemented")
-    }
-
-    override fun changePassword(newPassword: String) {
-        TODO("Not yet implemented")
-    }
-
-    override fun resetPassword(credential: HuaweiAuthCredential) {
-        //required newPassword, verifyCode
-        agConnectAuth.currentUser.updatePassword(credential.password, credential.securityCode ,AGConnectAuthCredential.Email_Provider)
+    override fun changeEmail(newEmail: String, newVerifyCode: String) {
+        agConnectAuth.currentUser.updateEmail(newEmail, newVerifyCode)
             .addOnSuccessListener {
                 // onSuccess
             }.addOnFailureListener {
@@ -92,53 +57,32 @@ class HuaweiEmailCredentialsController() :
             }
     }
 
-/*
+    override fun changePhone(newCountryCode: String, newPhone: String, newVerifyCode: String) {    }
 
-
-    fun requestPhoneCode(credential: HuaweiAuthCredential.Phone) {
-        val task = agConnectAuth.requestVerifyCode(
-            credential.countryCode,
-            credential.phoneNumber,
-            getSettings()
+    override fun changePassword(newPassword: String, newVerifyCode: String) {
+        agConnectAuth.currentUser.updatePassword(
+            newPassword,
+            newVerifyCode,
+            AGConnectAuthCredential.Email_Provider
         )
-        task.addOnSuccessListener {
-
-        }.addOnFailureListener {
-
-        }
+            .addOnSuccessListener {
+                // onSuccess
+            }.addOnFailureListener {
+                // onFail
+            }
     }
 
-    fun registerByPhone(credential: HuaweiAuthCredential.Phone) {
-        val phoneUser = PhoneUser.Builder()
-            .setCountryCode(credential.countryCode)
-            .setPhoneNumber(credential.phoneNumber)
-            .setVerifyCode(credential.securityCode)
-            .setPassword(credential.password)
-            .build()
-        agConnectAuth.createUser(phoneUser).addOnSuccessListener {
-
-        }.addOnFailureListener {
-
-        }
-    }
-
-
-
-    fun signInByPhonePassword(
-        credential: HuaweiAuthCredential.Phone
+    override fun resetPassword(
+        credential: HuaweiAuthCredential,
+        newPassword: String,
+        verifyCode: String
     ) {
-        val phoneCredential = PhoneAuthProvider.credentialWithPassword(
-            credential.countryCode,
-            credential.phoneNumber,
-            credential.password
-        )
-        agConnectAuth.signIn(phoneCredential).addOnSuccessListener {
-
-        }.addOnFailureListener {
-
-        }
+        agConnectAuth.resetPassword(credential.email, newPassword, verifyCode)
+            .addOnSuccessListener {
+                // onSuccess
+            }.addOnFailureListener {
+                // onFail
+            }
     }
-*/
-
 
 }
