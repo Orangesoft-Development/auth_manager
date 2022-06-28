@@ -1,14 +1,20 @@
 package co.orangesoft.huawei.providers.base
 
+import co.orangesoft.huawei.credential.HuaweiCredentialResult
 import co.orangesoft.huawei.providers.phone.IHuaweiAuthPhone
 import com.huawei.agconnect.auth.AGConnectAuth
-import com.huawei.agconnect.auth.AGConnectUser
 import com.huawei.agconnect.auth.VerifyCodeSettings
 import java.util.*
 
-abstract class BaseHuaweiCredentialsController: IHuaweiAuthPhone {
+abstract class BaseHuaweiCredentialsController : IHuaweiAuthPhone {
 
     val agConnectAuth: AGConnectAuth = AGConnectAuth.getInstance()
+
+    enum class UserStatus {
+        UNREGISTERED,
+        REGISTERED
+    }
+
 
     fun getSettings(): VerifyCodeSettings {
         return VerifyCodeSettings.newBuilder()
@@ -26,7 +32,14 @@ abstract class BaseHuaweiCredentialsController: IHuaweiAuthPhone {
         agConnectAuth.deleteUser()
     }
 
-    override fun getCurrentUser(): AGConnectUser {
-        return agConnectAuth.currentUser
+    override fun getCurrentUser(): HuaweiCredentialResult {
+        return HuaweiCredentialResult(
+            anonymous = agConnectAuth.currentUser.isAnonymous,
+            uid = agConnectAuth.currentUser.uid,
+            email = agConnectAuth.currentUser.email,
+            phone = agConnectAuth.currentUser.phone,
+            displayName = agConnectAuth.currentUser.displayName,
+            photoUrl = agConnectAuth.currentUser.photoUrl
+        )
     }
 }

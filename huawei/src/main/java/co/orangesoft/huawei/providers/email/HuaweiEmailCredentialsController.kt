@@ -1,10 +1,13 @@
 package co.orangesoft.huawei.providers.email
 
 import co.orangesoft.huawei.credential.HuaweiAuthCredential
+import co.orangesoft.huawei.credential.HuaweiCredentialResult
+import co.orangesoft.huawei.providers.HuaweiAuthProvider
 import co.orangesoft.huawei.providers.base.BaseHuaweiCredentialsController
 import co.orangesoft.huawei.providers.interfaces.HuaweiAuth
-import com.huawei.agconnect.auth.*
-import java.util.*
+import com.huawei.agconnect.auth.AGConnectAuthCredential
+import com.huawei.agconnect.auth.EmailAuthProvider
+import com.huawei.agconnect.auth.EmailUser
 
 class HuaweiEmailCredentialsController : BaseHuaweiCredentialsController() {
 
@@ -57,7 +60,7 @@ class HuaweiEmailCredentialsController : BaseHuaweiCredentialsController() {
             }
     }
 
-    override fun changePhone(newCountryCode: String, newPhone: String, newVerifyCode: String) {    }
+    override fun changePhone(newCountryCode: String, newPhone: String, newVerifyCode: String) {}
 
     override fun changePassword(newPassword: String, newVerifyCode: String) {
         agConnectAuth.currentUser.updatePassword(
@@ -83,6 +86,12 @@ class HuaweiEmailCredentialsController : BaseHuaweiCredentialsController() {
             }.addOnFailureListener {
                 // onFail
             }
+    }
+
+    override fun getCurrentUser(): HuaweiCredentialResult {
+        val superuser = super.getCurrentUser()
+        superuser.provider = HuaweiAuthProvider.EMAIL
+        return superuser
     }
 
 }

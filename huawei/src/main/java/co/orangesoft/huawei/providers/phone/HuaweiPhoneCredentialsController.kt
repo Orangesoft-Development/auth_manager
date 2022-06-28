@@ -1,6 +1,8 @@
 package co.orangesoft.huawei.providers.phone
 
 import co.orangesoft.huawei.credential.HuaweiAuthCredential
+import co.orangesoft.huawei.credential.HuaweiCredentialResult
+import co.orangesoft.huawei.providers.HuaweiAuthProvider
 import co.orangesoft.huawei.providers.base.BaseHuaweiCredentialsController
 import co.orangesoft.huawei.providers.interfaces.HuaweiAuth
 import com.huawei.agconnect.auth.AGConnectAuthCredential
@@ -69,7 +71,11 @@ internal class HuaweiPhoneCredentialsController : BaseHuaweiCredentialsControlle
     }
 
     override fun changePassword(newPassword: String, newVerifyCode: String) {
-        agConnectAuth.currentUser.updatePassword(newPassword, newVerifyCode, AGConnectAuthCredential.Phone_Provider)
+        agConnectAuth.currentUser.updatePassword(
+            newPassword,
+            newVerifyCode,
+            AGConnectAuthCredential.Phone_Provider
+        )
             .addOnSuccessListener {
                 // onSuccess
             }.addOnFailureListener {
@@ -82,12 +88,23 @@ internal class HuaweiPhoneCredentialsController : BaseHuaweiCredentialsControlle
         newPassword: String,
         verifyCode: String
     ) {
-        agConnectAuth.resetPassword(credential.countryCode, credential.phoneNumber, newPassword, verifyCode)
+        agConnectAuth.resetPassword(
+            credential.countryCode,
+            credential.phoneNumber,
+            newPassword,
+            verifyCode
+        )
             .addOnSuccessListener {
                 // onSuccess
             }.addOnFailureListener {
                 // onFail
             }
+    }
+
+    override fun getCurrentUser(): HuaweiCredentialResult {
+        val superuser = super.getCurrentUser()
+        superuser.provider = HuaweiAuthProvider.PHONE
+        return superuser
     }
 
 }

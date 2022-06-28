@@ -1,7 +1,7 @@
 package co.orangesoft.huawei.providers.interfaces
 
 import co.orangesoft.huawei.credential.HuaweiAuthCredential
-import com.huawei.agconnect.auth.AGConnectUser
+import co.orangesoft.huawei.credential.HuaweiCredentialResult
 
 interface HuaweiAuth {
 
@@ -15,7 +15,7 @@ interface HuaweiAuth {
 
     fun deleteUser()
 
-    fun getCurrentUser(): AGConnectUser
+    fun getCurrentUser(): HuaweiCredentialResult
 
     fun changeEmail(newEmail: String, newVerifyCode: String)
 
