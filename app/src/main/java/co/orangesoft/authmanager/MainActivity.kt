@@ -13,6 +13,8 @@ import co.orangesoft.authmanager.auth.email.EmailAuthCredential
 import co.orangesoft.authmanager.auth.phone.SimplePhoneAuthCredential
 import co.orangesoft.authmanager.databinding.ActivityMainBinding
 import co.orangesoft.authmanager.firebase_auth.AuthManager
+import co.orangesoft.huawei.HuaweiAuthManager
+import co.orangesoft.huawei.providers.HuaweiAuthProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -30,6 +32,13 @@ class MainActivity : FragmentActivity() {
     private val simpleAuthManager: SimpleAuthManager by lazy {
         SimpleAuthManager.getInstance(SimpleAuthManager.BASE_URL, applicationContext)
     }
+
+    private val huaweiAuthManager  = HuaweiAuthManager
+
+    init {
+        huaweiAuthManager.initAuthManager(HuaweiAuthProvider.PHONE)
+    }
+
 
     private lateinit var binding: ActivityMainBinding
 

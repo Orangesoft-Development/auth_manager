@@ -62,6 +62,7 @@ dependencies {
     implementation(project(":google"))
     implementation(project(":facebook"))
     implementation(project(":phone"))
+    implementation(project(":huawei"))
 
     implementation(Depends.Kotlin.stdlib)
     implementation(Depends.Kotlin.core)

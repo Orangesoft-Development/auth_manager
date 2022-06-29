@@ -10,12 +10,6 @@ abstract class BaseHuaweiCredentialsController : IHuaweiAuthPhone {
 
     val agConnectAuth: AGConnectAuth = AGConnectAuth.getInstance()
 
-    enum class UserStatus {
-        UNREGISTERED,
-        REGISTERED
-    }
-
-
     fun getSettings(): VerifyCodeSettings {
         return VerifyCodeSettings.newBuilder()
             .action(VerifyCodeSettings.ACTION_REGISTER_LOGIN)
@@ -32,14 +26,17 @@ abstract class BaseHuaweiCredentialsController : IHuaweiAuthPhone {
         agConnectAuth.deleteUser()
     }
 
-    override fun getCurrentUser(): HuaweiCredentialResult {
-        return HuaweiCredentialResult(
-            anonymous = agConnectAuth.currentUser.isAnonymous,
-            uid = agConnectAuth.currentUser.uid,
-            email = agConnectAuth.currentUser.email,
-            phone = agConnectAuth.currentUser.phone,
-            displayName = agConnectAuth.currentUser.displayName,
-            photoUrl = agConnectAuth.currentUser.photoUrl
-        )
-    }
+    override fun getCurrentUser() =
+        if (agConnectAuth.currentUser == null)
+            null
+        else
+            HuaweiCredentialResult(
+                anonymous = agConnectAuth.currentUser.isAnonymous,
+                uid = agConnectAuth.currentUser.uid,
+                email = agConnectAuth.currentUser.email,
+                phone = agConnectAuth.currentUser.phone,
+                displayName = agConnectAuth.currentUser.displayName,
+                photoUrl = agConnectAuth.currentUser.photoUrl
+            )
+
 }

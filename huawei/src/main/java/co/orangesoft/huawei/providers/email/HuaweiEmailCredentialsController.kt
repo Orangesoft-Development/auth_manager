@@ -88,9 +88,9 @@ class HuaweiEmailCredentialsController : BaseHuaweiCredentialsController() {
             }
     }
 
-    override fun getCurrentUser(): HuaweiCredentialResult {
+    override fun getCurrentUser(): HuaweiCredentialResult? {
         val superuser = super.getCurrentUser()
-        superuser.provider = HuaweiAuthProvider.EMAIL
+        superuser?.provider = HuaweiAuthProvider.EMAIL
         return superuser
     }
 

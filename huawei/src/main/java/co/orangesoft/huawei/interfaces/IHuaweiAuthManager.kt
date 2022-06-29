@@ -15,7 +15,7 @@ interface IHuaweiAuthManager {
 
     fun deleteUser()
 
-    fun getCurrentUser(): HuaweiCredentialResult
+    fun getCurrentUser(): HuaweiCredentialResult?
 
     fun changeEmail(newEmail: String, newVerifyCode: String)
 

@@ -101,9 +101,9 @@ internal class HuaweiPhoneCredentialsController : BaseHuaweiCredentialsControlle
             }
     }
 
-    override fun getCurrentUser(): HuaweiCredentialResult {
+    override fun getCurrentUser(): HuaweiCredentialResult? {
         val superuser = super.getCurrentUser()
-        superuser.provider = HuaweiAuthProvider.PHONE
+        superuser?.provider = HuaweiAuthProvider.PHONE
         return superuser
     }
 
