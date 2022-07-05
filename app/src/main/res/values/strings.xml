@@ -30,4 +30,7 @@
 
     <string name="server_client_id" translatable="false">142753893367-l04c74ijg20n16enu5alcg8rahb15s5g.apps.googleusercontent.com</string>
     <string name="client_secret" translatable="false">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</string>
+    <string name="request_security_code">Request security code</string>
+    <string name="register_with_code">Register with code</string>
+    <string name="signin">SignIn</string>
 </resources>

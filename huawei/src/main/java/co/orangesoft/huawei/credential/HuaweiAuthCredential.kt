@@ -9,6 +9,5 @@ data class HuaweiAuthCredential(
     val countryCode: String = "",
     val phoneNumber: String = "",
     val securityCode: String? = null,
-    val password: String? = null,
-    val onCodeSentListener: ((password: String) -> Unit)? = null
+    val password: String? = null
 ): BaseAuthCredential(provider.name)

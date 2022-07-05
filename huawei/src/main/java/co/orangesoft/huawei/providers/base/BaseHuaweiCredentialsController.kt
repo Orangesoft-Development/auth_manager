@@ -4,11 +4,14 @@ import co.orangesoft.huawei.credential.HuaweiCredentialResult
 import co.orangesoft.huawei.providers.phone.IHuaweiAuthPhone
 import com.huawei.agconnect.auth.AGConnectAuth
 import com.huawei.agconnect.auth.VerifyCodeSettings
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import java.util.*
 
 abstract class BaseHuaweiCredentialsController : IHuaweiAuthPhone {
 
     val agConnectAuth: AGConnectAuth = AGConnectAuth.getInstance()
+
 
     fun getSettings(): VerifyCodeSettings {
         return VerifyCodeSettings.newBuilder()

@@ -15,35 +15,51 @@ import kotlinx.coroutines.flow.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.properties.Delegates
 
-object HuaweiAuthManager : IHuaweiAuthManager, CoroutineScope {
+class HuaweiAuthManager : IHuaweiAuthManager, CoroutineScope {
 
-    private var huaweiAuth: HuaweiAuth by Delegates.notNull()
+
 
     override val coroutineContext: CoroutineContext by lazy { Dispatchers.Default + SupervisorJob() }
+
+    companion object {
+
+        private var huaweiAuth: HuaweiAuth by Delegates.notNull()
+
+        private val _user: MutableStateFlow<HuaweiCredentialResult> by lazy {
+            MutableStateFlow(HuaweiCredentialResult())
+        }
+
+        fun getInstance(provider: HuaweiAuthProvider): HuaweiAuthManager {
+            initAuthManager(provider)
+            return HuaweiAuthManager()
+        }
+
+        private fun initAuthManager(provider: HuaweiAuthProvider) {
+
+            huaweiAuth = when (provider) {
+                HuaweiAuthProvider.PHONE -> HuaweiPhoneCredentialsController.getInstance()
+                HuaweiAuthProvider.EMAIL -> HuaweiEmailCredentialsController.getInstance()
+            }
+
+            val user = huaweiAuth.getCurrentUser()
+            Log.d("TAG", "$user")
+        }
+    }
+
 
     enum class UserStatus {
         UNREGISTERED,
         REGISTERED
     }
 
-    private val _user: MutableStateFlow<HuaweiCredentialResult> by lazy {MutableStateFlow(HuaweiCredentialResult())}
     val user: MutableStateFlow<HuaweiCredentialResult> by lazy { _user }
 
+    val currentUser: StateFlow<HuaweiCredentialResult> by lazy { user.asStateFlow() }
 
     private val _status: MutableStateFlow<UserStatus> by lazy { MutableStateFlow(UserStatus.UNREGISTERED) }
     val userStatus: StateFlow<UserStatus> by lazy { _status.asStateFlow() }
 
 
-    fun initAuthManager(provider: HuaweiAuthProvider) {
-
-        huaweiAuth = when (provider) {
-            HuaweiAuthProvider.PHONE -> HuaweiPhoneCredentialsController.getInstance()
-            HuaweiAuthProvider.EMAIL -> HuaweiEmailCredentialsController.getInstance()
-        }
-
-        val user = huaweiAuth.getCurrentUser()
-        Log.d("TAG", "$user")
-    }
 
     override fun requestSecurityCode(credential: HuaweiAuthCredential) {
         huaweiAuth.requestSecurityCode(credential)

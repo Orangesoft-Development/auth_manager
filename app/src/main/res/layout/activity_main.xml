@@ -150,26 +150,31 @@
                         android:textSize="22sp" />
 
                     <Button
-                        android:id="@+id/hiaweiEmailBtn"
+                        android:id="@+id/huaweiRequestSecurityCodeBtn"
                         style="@style/AppTheme.Button"
-                        android:text="@string/simple_email_auth_title" />
+                        android:text="@string/request_security_code" />
 
                     <Button
-                        android:id="@+id/hiaweiPhoneBtn"
+                        android:id="@+id/huaweiRegisterUserBtn"
                         style="@style/AppTheme.Button"
-                        android:text="@string/simple_phone_auth_title" />
+                        android:text="@string/register_with_code" />
 
                     <Button
-                        android:id="@+id/hiaweiRemoveEmailBtn"
+                        android:id="@+id/huaweiSignInBtn"
+                        style="@style/AppTheme.Button"
+                        android:text="@string/signin" />
+
+                    <Button
+                        android:id="@+id/hiaweiSignOutBtn"
                         style="@style/AppTheme.Button"
                         android:background="@android:color/holo_red_light"
-                        android:text="@string/remove_simple_email_auth_title" />
+                        android:text="SignOut" />
 
                     <Button
-                        android:id="@+id/hiaweiRemovePhoneBtn"
+                        android:id="@+id/hiaweiDeleteUserBtn"
                         style="@style/AppTheme.Button"
                         android:background="@android:color/holo_red_light"
-                        android:text="@string/remove_simple_phone_auth_title" />
+                        android:text="Delete user" />
 
                 </LinearLayout>
 
@@ -190,10 +195,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="50dp"
+                android:layout_marginTop="20dp"
                 android:gravity="center"
                 android:textSize="25sp"
                 tools:text="Simple cred" />
+
+            <TextView
+                android:id="@+id/huaweiAuthResultCredentials"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:textSize="25sp"
+                tools:text="Huawei cred" />
 
         </LinearLayout>
 

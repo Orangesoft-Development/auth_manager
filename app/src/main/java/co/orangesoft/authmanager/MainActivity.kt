@@ -14,6 +14,7 @@ import co.orangesoft.authmanager.auth.phone.SimplePhoneAuthCredential
 import co.orangesoft.authmanager.databinding.ActivityMainBinding
 import co.orangesoft.authmanager.firebase_auth.AuthManager
 import co.orangesoft.huawei.HuaweiAuthManager
+import co.orangesoft.huawei.credential.HuaweiAuthCredential
 import co.orangesoft.huawei.providers.HuaweiAuthProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,12 +34,9 @@ class MainActivity : FragmentActivity() {
         SimpleAuthManager.getInstance(SimpleAuthManager.BASE_URL, applicationContext)
     }
 
-    private val huaweiAuthManager  = HuaweiAuthManager
-
-    init {
-        huaweiAuthManager.initAuthManager(HuaweiAuthProvider.PHONE)
+    private val huaweiAuthManager : HuaweiAuthManager by lazy {
+        HuaweiAuthManager.getInstance(HuaweiAuthProvider.PHONE)
     }
-
 
     private lateinit var binding: ActivityMainBinding
 
@@ -103,21 +101,36 @@ class MainActivity : FragmentActivity() {
                 launchSimpleCredential(SimplePhoneAuthCredential("+375334445566", "1234"), true)
             }
 
-            hiaweiEmailBtn.setOnClickListener { }
-
-            hiaweiPhoneBtn.setOnClickListener { }
-
-            hiaweiRemoveEmailBtn.setOnClickListener { }
-
-            hiaweiRemovePhoneBtn.setOnClickListener { }
-
             logout.setOnClickListener {
                 if (authManager.userStatus.value == AuthManager.UserStatus.REGISTERED)
                     credentialLogout()
             }
+
+            huaweiRequestSecurityCodeBtn.setOnClickListener {
+
+            }
+
+            huaweiRegisterUserBtn.setOnClickListener {
+
+            }
+
+            huaweiSignInBtn.setOnClickListener {
+
+            }
+
+            hiaweiSignOutBtn.setOnClickListener {
+                if (huaweiAuthManager.userStatus.value == HuaweiAuthManager.UserStatus.REGISTERED){
+                    huaweiAuthManager.signOutUser()
+                }
+            }
+
+            hiaweiDeleteUserBtn.setOnClickListener {
+                huaweiAuthManager.deleteUser()
+            }
         }
         initAuthManagerCallbacks(authManager)
         initSimpleAuthManagerCallbacks(simpleAuthManager)
+        initHuaweiAuthManagerCallbacks(huaweiAuthManager)
     }
 
     private fun launchCredential(credential: FirebaseAuthCredential) {
@@ -178,8 +191,8 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    private fun launchHuaweiCredential(credential: BaseAuthCredential, isRemove: Boolean = false) {
-
+    private fun launchHuaweiCredential(credential: HuaweiAuthCredential, isRemove: Boolean = false) {
+        huaweiAuthManager.signIn(credential)
     }
 
     private fun signInAnonymously() {
@@ -231,6 +244,16 @@ class MainActivity : FragmentActivity() {
                 binding.simpleAuthResultCredentials.text =
                     if (resultCreds.isNotEmpty()) "Simple user: ${resultCreds.map { it.providerId }}"
                     else null
+            }
+            .launchIn(CoroutineScope(Dispatchers.Main))
+    }
+
+    private fun initHuaweiAuthManagerCallbacks(huaweiAuthManager: HuaweiAuthManager) {
+        huaweiAuthManager.currentUser
+            .onEach {
+                val resultCreds = huaweiAuthManager.currentUser.value
+                binding.huaweiAuthResultCredentials.text =
+                    "Huawei user: ${resultCreds.provider}"
             }
             .launchIn(CoroutineScope(Dispatchers.Main))
     }
