@@ -12,6 +12,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.*
 
+/**
+ * Credential controller using FirebaseAuth with google provider
+ *
+ * @see FirebaseAuthCredential.Google
+ * @see FirebaseAuth
+ *
+ */
 class GoogleCredentialController(method: FirebaseAuthCredential.Google) :
     BaseFirebaseCredentialController(method) {
 

@@ -9,6 +9,15 @@ import com.google.firebase.auth.FirebaseAuth
 import java.io.File
 import kotlin.jvm.Throws
 
+/**
+ * Custom implementation of unregistered FirebaseUserController
+ *
+ * @param firebaseInstance FirebaseAuth
+ *
+ * @see FirebaseAuth
+ * @see FirebaseUserController
+ *
+ */
 @SuppressLint("HardwareIds")
 class UnregisteredUserControllerImpl(firebaseInstance: FirebaseAuth): FirebaseUserController(firebaseInstance) {
 

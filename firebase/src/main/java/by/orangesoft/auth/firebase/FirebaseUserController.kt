@@ -1,6 +1,8 @@
 package by.orangesoft.auth.firebase
 
 import android.net.Uri
+import by.orangesoft.auth.credentials.BaseAuthCredential
+import by.orangesoft.auth.credentials.CredentialResult
 import by.orangesoft.auth.firebase.credential.FirebaseCredentialResult
 import by.orangesoft.auth.firebase.credential.getCredentials
 import by.orangesoft.auth.user.BaseUserController
@@ -13,6 +15,16 @@ import kotlinx.coroutines.tasks.await
 import java.io.File
 import kotlin.jvm.Throws
 
+/**
+ * This is an specified type of BaseUserController class using FirebaseAuth and FirebaseProfile
+ * @param firebaseInstance FirebaseAuth
+ *
+ * @see FirebaseProfile
+ * @see FirebaseAuth
+ * @see BaseAuthCredential
+ * @see ITokenController
+ *
+ */
 open class FirebaseUserController(private val firebaseInstance: FirebaseAuth) :
     BaseUserController<FirebaseProfile>(), ITokenController {
 

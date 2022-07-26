@@ -42,13 +42,12 @@ abstract class BaseFirebaseCredentialController(override val authCredential: Fir
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO + Job()
 
-    override fun addCredential(): Flow<CredentialResult> {
-        return credResultFlow.onStart { getCredential(currentCoroutineContext()) }.take(1)
-    }
+    override fun addCredential(): Flow<CredentialResult> =
+        credResultFlow.onStart { getCredential(currentCoroutineContext()) }.take(1)
 
-    override fun removeCredential(): Flow<CredentialResult> {
-        return credResultFlow.onStart { unlinkCurrentProvider() }.take(1)
-    }
+    override fun removeCredential(): Flow<CredentialResult> =
+        credResultFlow.onStart { unlinkCurrentProvider() }.take(1)
+
 
     protected open fun onError(error: CancellationException) {
         super.onError()

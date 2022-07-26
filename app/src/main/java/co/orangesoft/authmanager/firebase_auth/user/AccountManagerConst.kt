@@ -1,5 +1,8 @@
 package co.orangesoft.authmanager.firebase_auth.user
 
+/**
+ * The main fields of the account manager
+ */
 object AccountManagerConst {
 
     const val ACCOUNT_ID = "id"

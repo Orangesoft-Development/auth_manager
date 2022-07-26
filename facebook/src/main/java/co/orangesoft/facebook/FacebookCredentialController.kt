@@ -22,6 +22,14 @@ import com.google.firebase.auth.*
 import kotlinx.coroutines.CancellationException
 import java.lang.Exception
 
+/**
+ * Credential controller using FirebaseAuth with facebook provider
+ *
+ * @see FirebaseAuthCredential.Facebook
+ * @see FirebaseAuth
+ *
+ */
+
 class FacebookCredentialController :
     BaseFirebaseCredentialController(FirebaseAuthCredential.Facebook) {
 
@@ -96,8 +104,8 @@ class FacebookCredentialController :
     private fun onSuccessLogin(authToken: String) =
         emitAuthTask(FacebookAuthProvider.getCredential(authToken))
 
-    private fun isAutoLoginSupport(): Boolean {
-        return try {
+    private fun isAutoLoginSupport(): Boolean =
+        try {
             FacebookSdk.getApplicationContext().packageManager.getApplicationInfo(
                 "com.facebook.katana",
                 0
@@ -106,6 +114,5 @@ class FacebookCredentialController :
         } catch (e: PackageManager.NameNotFoundException) {
             false
         }
-    }
 
 }

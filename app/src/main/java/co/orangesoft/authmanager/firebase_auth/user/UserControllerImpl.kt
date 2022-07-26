@@ -2,8 +2,10 @@ package co.orangesoft.authmanager.firebase_auth.user
 
 import android.accounts.Account
 import android.accounts.AccountManager
+import by.orangesoft.auth.credentials.BaseAuthCredential
 import by.orangesoft.auth.firebase.FirebaseProfile
 import by.orangesoft.auth.firebase.FirebaseUserController
+import by.orangesoft.auth.user.ITokenController
 import co.orangesoft.authmanager.api.ProfileService
 import co.orangesoft.authmanager.firebase_auth.user.AccountManagerConst.ACCOUNT_ACCESS_TOKEN
 import co.orangesoft.authmanager.firebase_auth.user.AccountManagerConst.ACCOUNT_AVATAR_URL
@@ -18,6 +20,21 @@ import retrofit2.Response
 import java.io.File
 import kotlin.jvm.Throws
 
+/**
+ * Custom implementation of FirebaseUserController with custom profile saved in the account manager
+ *
+ * @param firebaseInstance FirebaseAuth
+ * @param accountManager Provides access to a centralized registry of the user's online accounts
+ * @param account Value type that represents an Account in the AccountManager
+ * @param profileService Profile service api
+ *
+ * @see FirebaseAuth
+ * @see FirebaseUserController
+ * @see AccountManager
+ * @see Account
+ * @see ProfileService
+ *
+ */
 class UserControllerImpl(
     firebaseInstance: FirebaseAuth,
     private val accountManager: AccountManager,

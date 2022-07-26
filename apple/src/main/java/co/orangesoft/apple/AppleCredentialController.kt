@@ -5,9 +5,17 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.FragmentActivity
 import by.orangesoft.auth.firebase.credential.FirebaseAuthCredential
 import by.orangesoft.auth.firebase.credential.controllers.BaseFirebaseCredentialController
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.OAuthProvider
 import java.util.*
 
+/**
+ * Credential controller using FirebaseAuth with apple provider
+ *
+ * @see FirebaseAuthCredential.Apple
+ * @see FirebaseAuth
+ *
+ */
 class AppleCredentialController : BaseFirebaseCredentialController(FirebaseAuthCredential.Apple) {
 
     private val appleSingInClient: OAuthProvider by lazy {
